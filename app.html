@@ -483,8 +483,11 @@
 <script>
 /* CONFIG - KEKALKAN URL ASAL ANDA */
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbx_B7hzQrDtlks5fAynamk1s143zUvCxVWEQwfeNC3-BmKCAR9CZ27Sqml7qhIWZN3O/exec';
-
 const $ = id => document.getElementById(id);
+// TAMBAHAN BARU - Helper untuk delay
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 function showLoading(){ $('loadingModal').classList.remove('hidden'); $('loadingModal').classList.add('flex'); }
 function hideLoading(){ $('loadingModal').classList.add('hidden'); $('loadingModal').classList.remove('flex'); }
 
@@ -1647,13 +1650,19 @@ async function loadDpList(){
     });
 
     document.querySelectorAll('.dp-approve').forEach(btn=>{
-      btn.addEventListener('click', async ev=>{
-        const id = ev.currentTarget.dataset.id;
-        const req = requests.find(r => String(r['Request ID']) === String(id));
-        if (!req) return Swal.fire({ icon:'error', title:'Tidak jumpa rekod' });
+  btn.addEventListener('click', async ev=>{
+    const id = ev.currentTarget.dataset.id;
+    const req = requests.find(r => String(r['Request ID']) === String(id));
+    if (!req) return Swal.fire({ icon:'error', title:'Tidak jumpa rekod' });
 
-        const confirm = await Swal.fire({
-          title: 'Luluskan permohonan ini?',
+    // TAMBAHAN BARU - Disable button
+    const targetBtn = ev.currentTarget;
+    targetBtn.disabled = true;
+    const originalText = targetBtn.textContent;
+    targetBtn.textContent = 'Memproses...';
+
+    const confirm = await Swal.fire({
+      title: 'Luluskan permohonan ini?',
           text: `${req['School Name']||''} — Tarikh ${fmtDateToDisplay(req['Travel Start']||'')}`,
           icon: 'question',
           showCancelButton: true,
@@ -1663,10 +1672,31 @@ async function loadDpList(){
         if (!confirm.isConfirmed) return;
 
         showLoading();
-        try {
-          const res = await fetch(GAS_URL + '?action=dpApprove&id=' + encodeURIComponent(id) + '&secret=' + encodeURIComponent(dpSecret));
-          const j = await res.json();
-          hideLoading();
+try {
+  // TAMBAHAN BARU - Retry logic
+  let res, j;
+  let retryCount = 0;
+  
+  while (retryCount < 3) {
+    res = await fetch(GAS_URL + '?action=dpApprove&id=' + encodeURIComponent(id) + '&secret=' + encodeURIComponent(dpSecret));
+    
+    if (res.status === 429) {
+      retryCount++;
+      if (retryCount >= 3) {
+        throw new Error('Terlalu banyak permintaan. Sila tunggu 1 minit dan cuba lagi.');
+      }
+      hideLoading();
+      await Swal.fire({icon:'warning', title:'Sila tunggu...', text:'Cuba semula dalam ' + (retryCount * 2) + ' saat', timer:2000, showConfirmButton:false});
+      await delay(retryCount * 2000);
+      showLoading();
+      continue;
+    }
+    
+    break;
+  }
+  
+  j = await res.json();
+  hideLoading();
 
           if (j.ok) {
             await Swal.fire({ icon:'success', title:'Permohonan diluluskan!', text:'Surat telah dijana dan dihantar kepada sekolah.', timer:2000 });
@@ -1675,11 +1705,15 @@ async function loadDpList(){
             Swal.fire({ icon:'error', title:'Gagal', text: j.message || j.error || 'Ralat tidak diketahui' });
           }
         } catch (err) {
-          hideLoading();
-          Swal.fire({ icon:'error', title:'Ralat', text: err.message || String(err) });
-        }
-      });
-    });
+      hideLoading();
+      Swal.fire({ icon:'error', title:'Ralat', text: err.message || String(err) });
+    } finally {
+      // TAMBAHAN BARU - Enable balik button
+      targetBtn.disabled = false;
+      targetBtn.textContent = originalText;
+    }
+  });
+});
 
   } catch (err) {
     hideLoading();
@@ -1804,4 +1838,5 @@ console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </body>
 
 </html>
+
 
