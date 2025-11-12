@@ -44,7 +44,28 @@
       background: #fff;
       cursor: pointer;
     }
+    /* Status Card Animations */
+#statusSection .border-l-4 {
+  transition: all 0.3s ease;
+}
 
+#statusSection .border-l-4:hover {
+  transform: translateX(4px);
+}
+
+#statusSchoolCode:focus {
+  outline: none;
+}
+
+/* Pulse animation for new applications */
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.status-new-badge {
+  animation: statusPulse 2s ease-in-out infinite;
+}
     @media (min-width: 1280px) {
       .xl-cards-gap { gap: 1.25rem; }
     }
@@ -120,8 +141,9 @@
       <button id="tabFormBtn" class="w-full text-left px-4 py-2 rounded nav-tab">Borang Permohonan</button>
       <button id="tabOfficerBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Semakan (Pegawai)</button>
       <button id="tabDPBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Kelulusan (Timbalan)</button>
-      <button id="tabQueryResponseBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Tindak Balas Query</button>
+      <button id="tabQueryResponseBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Query</button>
       <button id="tabDownloadsBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Muat Turun</button>
+      <button id="tabStatusBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Semakan Status</button>
     </nav>
 
     <div class="mt-8 text-xs text-gray-400">Versi: 1.1 • Dibangunkan oleh Sektor Pengurusan Sekolah, JPN Pahang</div>
@@ -460,7 +482,58 @@
 
       <div class="mt-4 text-xs text-gray-500">Tekan butang untuk membuka fail dalam tab baru.</div>
     </section>
-
+<section id="statusSection" class="hidden bg-white p-6 rounded shadow mb-6">
+  <h2 class="text-xl font-semibold mb-4">🔍 Semak Status Permohonan</h2>
+  
+  <div class="max-w-3xl mx-auto">
+    <!-- Info Banner -->
+    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 rounded-r-lg">
+      <div class="flex items-start">
+        <svg class="h-5 w-5 text-blue-400 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+        </svg>
+        <div class="flex-1">
+          <h3 class="text-sm font-semibold text-blue-900 mb-1">Maklumat Penting</h3>
+          <ul class="text-xs text-blue-800 space-y-1">
+            <li>• Tab ini hanya untuk <strong>melihat status</strong> permohonan anda</li>
+            <li>• Jika ada <strong>query</strong>, klik butang untuk ke tab "Tindak Balas Query"</li>
+            <li>• Surat kelulusan boleh dimuat turun terus dari sini jika permohonan diluluskan</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Search Box -->
+    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg shadow-sm border border-blue-100 mb-6">
+      <p class="text-gray-700 mb-4">
+        Masukkan <strong>Kod Sekolah</strong> anda untuk melihat semua permohonan lawatan yang telah dihantar.
+      </p>
+      
+      <div class="flex gap-3">
+        <input 
+          id="statusSchoolCode" 
+          type="text" 
+          class="flex-1 border-2 border-blue-200 p-3 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition uppercase"
+          placeholder="Contoh: PEA1234"
+          maxlength="10"
+        />
+        <button 
+          id="checkStatusBtn" 
+          class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5"
+        >
+          🔍 Semak Status
+        </button>
+      </div>
+      
+      <p class="text-xs text-gray-500 mt-2">
+        💡 <strong>Tip:</strong> Gunakan kod sekolah yang sama seperti semasa menghantar permohonan.
+      </p>
+    </div>
+    
+    <!-- Results Container -->
+    <div id="statusResults" class="space-y-4"></div>
+  </div>
+</section>
   </main>
 </div>
 
@@ -741,7 +814,7 @@ $('permohonanForm').addEventListener('submit', async function(ev){
 });
 
 function hideAllSections(){ 
-  ['introSection','formSection','officerSection','dpSection','queryResponseSection','downloadsSection'].forEach(id=>$(id).classList.add('hidden')); 
+  ['introSection','formSection','officerSection','dpSection','queryResponseSection','downloadsSection','statusSection'].forEach(id=>$(id).classList.add('hidden')); 
 }
 
 function setActiveTab(btnId){
@@ -754,7 +827,7 @@ function setActiveTab(btnId){
   if (el) el.classList.add('tab-active');
 }
 
-['tabIntroBtn','tabFormBtn','tabOfficerBtn','tabDPBtn','tabQueryResponseBtn','tabDownloadsBtn'].forEach(id=>{
+['tabIntroBtn','tabFormBtn','tabOfficerBtn','tabDPBtn','tabQueryResponseBtn','tabDownloadsBtn','tabStatusBtn'].forEach(id=>{
   $(id).addEventListener('click',()=>{ 
     hideAllSections(); 
     const map={
@@ -763,7 +836,8 @@ function setActiveTab(btnId){
       tabOfficerBtn:'officerSection',
       tabDPBtn:'dpSection',
       tabQueryResponseBtn:'queryResponseSection',
-      tabDownloadsBtn:'downloadsSection'
+      tabDownloadsBtn:'downloadsSection',
+      tabStatusBtn:'statusSection'
     }; 
     $(map[id]).classList.remove('hidden'); 
     setActiveTab(id); 
@@ -1832,12 +1906,384 @@ $('sendQueryResponseBtn').addEventListener('click', async ()=>{
     if (e.target === modal) closeModal();
   });
 })();
+// ==================== STATUS CHECK FUNCTIONALITY ====================
 
+$('checkStatusBtn').addEventListener('click', async () => {
+  const schoolCode = $('statusSchoolCode').value.trim().toUpperCase();
+  
+  if (!schoolCode) {
+    return Swal.fire({
+      icon: 'warning',
+      title: 'Kod Sekolah Diperlukan',
+      text: 'Sila masukkan kod sekolah anda.'
+    });
+  }
+  
+  const btn = $('checkStatusBtn');
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳ Mencari...';
+  
+  showLoading();
+  
+  try {
+    const res = await fetch(GAS_URL + '?action=checkStatus&schoolCode=' + encodeURIComponent(schoolCode));
+    const json = await res.json();
+    
+    hideLoading();
+    
+    if (!json.ok) {
+      $('statusResults').innerHTML = `
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-yellow-700 font-medium">
+                ${json.message || 'Tiada permohonan dijumpai untuk kod sekolah ini.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      `;
+      return;
+    }
+    
+    // Display results
+    renderStatusResults(json.applications || []);
+    
+  } catch (err) {
+    hideLoading();
+    Swal.fire({
+      icon: 'error',
+      title: 'Ralat Sambungan',
+      text: 'Tidak dapat menyambung ke pelayan. Sila cuba sebentar lagi.'
+    });
+    console.error('Status check error:', err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+});
+
+// Enter key support
+$('statusSchoolCode').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    $('checkStatusBtn').click();
+  }
+});
+
+function renderStatusResults(applications) {
+  const container = $('statusResults');
+  
+  if (!applications || applications.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-8 text-gray-500">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <p class="mt-2 font-medium">Tiada permohonan dijumpai</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // Sort by submission date (newest first)
+  applications.sort((a, b) => {
+    const dateA = new Date(a.submittedAt || 0);
+    const dateB = new Date(b.submittedAt || 0);
+    return dateB - dateA;
+  });
+  
+  const cards = applications.map(app => createStatusCard(app)).join('');
+  container.innerHTML = `
+    <div class="mb-4">
+      <h3 class="text-lg font-semibold text-gray-700">
+        📋 Dijumpai ${applications.length} permohonan
+      </h3>
+    </div>
+    ${cards}
+  `;
+}
+
+function createStatusCard(app) {
+  const statusConfig = getStatusConfig(app.status);
+  const requestId = app.requestId || app['Request ID'] || '';
+  const schoolName = app.schoolName || app['School Name'] || '';
+  const submittedAt = fmtDateToDisplay(app.submittedAt || app['Submission Time'] || '');
+  const travelStart = fmtDateToDisplay(app.travelStart || app['Travel Start'] || '');
+  const travelEnd = fmtDateToDisplay(app.travelEnd || app['Travel End'] || '');
+  const placeVisit = app.placeVisit || app['PlaceVisit'] || '';
+  const participantCount = app.participantCount || app['ParticipantCount'] || '';
+  const vehicleCount = app.vehicleCount || app['VehicleCount'] || '';
+  
+  // Query info - VIEW ONLY dengan link ke tab Query Response
+  let querySection = '';
+  if (app.queryId) {
+    const queryDate = fmtDateToDisplay(app.querySentDate || app['QuerySentDate'] || '');
+    const queryNote = app.queryNote || app['OfficerNote'] || '';
+    const respondDate = app.queryRespondDate || app['QueryRespondDate'] || '';
+    
+    // Check if already responded
+    const hasResponded = respondDate || String(app.status || '').toUpperCase().includes('RESPONDED');
+    
+    querySection = `
+      <div class="mt-4 pt-4 border-t ${hasResponded ? 'border-purple-200 bg-purple-50' : 'border-yellow-200 bg-yellow-50'} -mx-4 px-4 -mb-4 pb-4 rounded-b-lg">
+        <div class="flex items-start gap-2">
+          <svg class="h-5 w-5 ${hasResponded ? 'text-purple-600' : 'text-yellow-600'} mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+          </svg>
+          <div class="flex-1">
+            <p class="text-sm font-semibold ${hasResponded ? 'text-purple-800' : 'text-yellow-800'} mb-1">
+              ${hasResponded ? '✅ Query Telah Dijawab' : '⚠️ Maklumat Tambahan Diperlukan'}
+            </p>
+            <div class="text-xs ${hasResponded ? 'text-purple-700' : 'text-yellow-700'} space-y-1 mb-2">
+              <p><strong>Catatan:</strong> ${queryNote || '-'}</p>
+              <p><strong>Query ID:</strong> <code class="${hasResponded ? 'bg-purple-100' : 'bg-yellow-100'} px-2 py-0.5 rounded font-mono">${app.queryId}</code></p>
+              <p><strong>Tarikh Query:</strong> ${queryDate}</p>
+              ${respondDate ? `<p><strong>Tarikh Respon:</strong> ${fmtDateToDisplay(respondDate)} ✓</p>` : ''}
+            </div>
+            
+            ${!hasResponded ? `
+              <div class="bg-yellow-100 border border-yellow-300 rounded p-2 mb-2">
+                <p class="text-xs text-yellow-800">
+                  <strong>⏰ Tindakan Diperlukan:</strong> Sila hantar respon dalam masa 7 hari dari tarikh query.
+                </p>
+              </div>
+              <button 
+                onclick="goToQueryResponse('${app.queryId}')" 
+                class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white text-sm rounded-lg hover:bg-yellow-700 transition shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              >
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                Hantar Respon Query
+              </button>
+            ` : `
+              <div class="bg-purple-100 border border-purple-300 rounded p-2">
+                <p class="text-xs text-purple-800">
+                  ✓ Respon query telah diterima dan sedang disemak oleh pegawai.
+                </p>
+              </div>
+            `}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  // Letter links - VIEW & DOWNLOAD ONLY
+  let letterSection = '';
+  if (app.letters && app.letters.length > 0) {
+    const links = app.letters.map((url, i) => 
+      `<a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow-md hover:shadow-lg transform hover:-translate-y-0.5 text-sm font-medium">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        Muat Turun Surat ${app.letters.length > 1 ? (i + 1) : 'Kelulusan'}
+      </a>`
+    ).join(' ');
+    
+    letterSection = `
+      <div class="mt-4 pt-4 border-t border-green-200 bg-green-50 -mx-4 px-4 -mb-4 pb-4 rounded-b-lg">
+        <div class="flex items-start gap-2 mb-3">
+          <svg class="h-5 w-5 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-green-800 mb-1">✅ Surat Kelulusan Tersedia</p>
+            <p class="text-xs text-green-700 mb-3">Permohonan anda telah diluluskan. Sila muat turun surat kelulusan di bawah.</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          ${links}
+        </div>
+      </div>
+    `;
+  }
+  
+  return `
+    <div class="border-l-4 ${statusConfig.borderColor} bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-5 mb-4">
+      <!-- Header -->
+      <div class="flex items-start justify-between mb-4">
+        <div class="flex-1">
+          <h4 class="font-bold text-gray-800 text-lg mb-1">${schoolName}</h4>
+          <p class="text-sm text-gray-500">
+            <span class="inline-flex items-center gap-1">
+              <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
+              </svg>
+              ID: <code class="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">${requestId}</code>
+            </span>
+          </p>
+        </div>
+        <span class="${statusConfig.badgeClass} px-3 py-1.5 rounded-full text-xs font-bold shadow-sm">
+          ${statusConfig.icon} ${statusConfig.label}
+        </span>
+      </div>
+      
+      <!-- Info Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="text-gray-600 text-xs font-medium mb-1">📅 Tarikh Hantar Permohonan</p>
+          <p class="font-semibold text-gray-800">${submittedAt}</p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="text-gray-600 text-xs font-medium mb-1">✈️ Tarikh Lawatan</p>
+          <p class="font-semibold text-gray-800">${travelStart}${travelEnd && travelEnd !== travelStart ? ' - ' + travelEnd : ''}</p>
+        </div>
+        ${placeVisit ? `
+          <div class="bg-gray-50 p-3 rounded-lg md:col-span-2">
+            <p class="text-gray-600 text-xs font-medium mb-1">📍 Destinasi</p>
+            <p class="font-semibold text-gray-800">${placeVisit}</p>
+          </div>
+        ` : ''}
+        ${participantCount || vehicleCount ? `
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="text-gray-600 text-xs font-medium mb-1">👥 Bilangan Peserta</p>
+            <p class="font-semibold text-gray-800">${participantCount || '-'} orang</p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="text-gray-600 text-xs font-medium mb-1">🚐 Bilangan Kenderaan</p>
+            <p class="font-semibold text-gray-800">${vehicleCount || '-'} buah</p>
+          </div>
+        ` : ''}
+      </div>
+      
+      <!-- Status Description -->
+      <div class="bg-gradient-to-r from-gray-50 to-gray-100 -mx-5 px-5 py-3 -mb-5 rounded-b-lg border-t border-gray-200">
+        <div class="flex items-start gap-2">
+          <svg class="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+          </svg>
+          <p class="text-xs text-gray-700 leading-relaxed">${statusConfig.description}</p>
+        </div>
+      </div>
+      
+      <!-- Dynamic Sections -->
+      ${querySection}
+      ${letterSection}
+    </div>
+  `;
+}
+
+function getStatusConfig(status) {
+  const s = String(status || '').toUpperCase();
+  
+  if (s.includes('FINAL_APPROVED')) {
+    return {
+      label: 'DILULUSKAN',
+      icon: '✅',
+      badgeClass: 'bg-green-100 text-green-800',
+      borderColor: 'border-green-500',
+      description: 'Permohonan anda telah diluluskan. Sila muat turun surat kelulusan di atas.'
+    };
+  }
+  
+  if (s.includes('REVIEWED_FOR_TP') || s.includes('READY_FOR_DP') || s.includes('PREAPPROVED')) {
+    return {
+      label: 'DALAM PROSES (Menunggu Timbalan)',
+      icon: '⏳',
+      badgeClass: 'bg-blue-100 text-blue-800',
+      borderColor: 'border-blue-500',
+      description: 'Permohonan telah disemak oleh pegawai dan sedang menunggu kelulusan Timbalan Pengarah.'
+    };
+  }
+  
+  if (s.includes('QUERY_RESPONDED')) {
+    return {
+      label: 'QUERY DIJAWAB',
+      icon: '💬',
+      badgeClass: 'bg-purple-100 text-purple-800',
+      borderColor: 'border-purple-500',
+      description: 'Respon query telah diterima dan sedang disemak oleh pegawai.'
+    };
+  }
+  
+  if (s.includes('QUERY')) {
+    return {
+      label: 'MAKLUMAT TAMBAHAN DIPERLUKAN',
+      icon: '❓',
+      badgeClass: 'bg-yellow-100 text-yellow-800',
+      borderColor: 'border-yellow-500',
+      description: 'Pegawai memerlukan maklumat tambahan. Sila hantar respon query secepat mungkin.'
+    };
+  }
+  
+  if (s.includes('NEW')) {
+    return {
+      label: 'BARU',
+      icon: '🆕',
+      badgeClass: 'bg-gray-100 text-gray-800',
+      borderColor: 'border-gray-400',
+      description: 'Permohonan telah diterima dan sedang menunggu semakan pegawai.'
+    };
+  }
+  
+  return {
+    label: status || 'TIDAK DIKETAHUI',
+    icon: '❔',
+    badgeClass: 'bg-gray-100 text-gray-600',
+    borderColor: 'border-gray-300',
+    description: 'Status permohonan.'
+  };
+}
+
+function goToQueryResponse(queryId) {
+  // Hide all sections
+  hideAllSections();
+  
+  // Show query response section
+  $('queryResponseSection').classList.remove('hidden');
+  setActiveTab('tabQueryResponseBtn');
+  
+  // Auto-fill query ID
+  if (queryId) {
+    $('respQueryId').value = queryId;
+    
+    // Smooth scroll to form
+    setTimeout(() => {
+      $('respQueryId').scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+      
+      // Highlight with animation
+      $('respQueryId').classList.add('ring-4', 'ring-yellow-300', 'ring-opacity-50');
+      
+      // Show helpful alert
+      Swal.fire({
+        icon: 'info',
+        title: 'Sila Hantar Respon',
+        html: `
+          <p class="text-sm text-gray-700 mb-2">
+            Query ID <code class="bg-yellow-100 px-2 py-1 rounded font-mono">${queryId}</code> telah diisi.
+          </p>
+          <p class="text-sm text-gray-600">
+            Sila muat naik fail yang diminta dan hantar respon anda.
+          </p>
+        `,
+        confirmButtonText: 'Faham',
+        timer: 5000,
+        timerProgressBar: true
+      });
+      
+      // Remove highlight after 3 seconds
+      setTimeout(() => {
+        $('respQueryId').classList.remove('ring-4', 'ring-yellow-300', 'ring-opacity-50');
+      }, 3000);
+    }, 300);
+  }
+}
 console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </script>
 </body>
 
 </html>
+
 
 
 
