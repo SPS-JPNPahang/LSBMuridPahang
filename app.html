@@ -1,0 +1,1805 @@
+<!doctype html>
+<html lang="ms">const html = filePairs.map(fp=>{
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LAWATAN MURID SAMBIL BELAJAR</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-material-ui@5/material-ui.min.css">
+
+  <style>
+    .sidebar { background:#1f2937; color:#fff; min-height:100vh; }
+    .sidebar a { color: #cbd5e1; }
+    .sidebar .active { background:#0f172a; color:#fff; }
+    .tab-active { background:#2563eb !important; color:#fff !important; }
+    #filesModal { z-index: 60; }
+    table { table-layout: auto; width: 100%; }
+    td { vertical-align: top; }
+
+    .download-card {
+      border-radius: 0.75rem;
+      border: 1px solid #e6e6e6;
+      background: #fff;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: box-shadow .18s ease, transform .08s ease;
+    }
+    .download-card:hover { box-shadow: 0 10px 25px rgba(16,24,40,0.08); transform: translateY(-3px); }
+    .download-title { font-weight: 600; font-size: 1rem; color: #111827; }
+    .download-desc { color: #4b5563; font-size: .92rem; line-height:1.35; margin-top:.5rem; }
+    .download-actions { margin-top: .75rem; }
+    .download-btn { display:inline-flex; align-items:center; justify-content:center; gap: .5rem; cursor:pointer; }
+    .download-btn-primary { background:#2563eb; color:#fff; padding:.6rem .9rem; border-radius:0.5rem; font-weight:600; }
+    .download-btn-secondary { background:#f3f4f6; color:#111827; padding:.56rem .85rem; border-radius:0.5rem; font-weight:600; border:1px solid #e5e7eb; }
+
+    input[type="file"]::file-selector-button {
+      margin-right: .5rem;
+      padding: .35rem .6rem;
+      border-radius: .35rem;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    @media (min-width: 1280px) {
+      .xl-cards-gap { gap: 1.25rem; }
+    }
+
+    @keyframes gentlePulseCycle {
+      0%    { opacity: 1; transform: translateY(0); }
+      7.14% { opacity: 0.7; }
+      14.28%{ opacity: 1; }
+      21.42%{ opacity: 0.7; }
+      28.56%{ opacity: 1; }
+      35.70%{ opacity: 0.7; }
+      42.84%{ opacity: 1; }
+      50.00%{ opacity: 0.7; }
+      57.14%{ opacity: 1; }
+      64.28%{ opacity: 0.7; }
+      71.42%{ opacity: 1; }
+      100%  { opacity: 1; }
+    }
+
+    .animate-gentle-pulse {
+      animation: gentlePulseCycle 7s ease-in-out infinite;
+    }
+
+    .btn-access-granted {
+      background-color: #16a34a;
+      color: white;
+      border: none;
+    }
+
+    .btn-logout {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .45rem .6rem;
+      border-radius: .375rem;
+      border: none;
+      background: #dc2626;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .hidden-inline { display: none !important; }
+
+    .status-pulse {
+      transition: opacity .35s ease;
+      opacity: 1;
+    }
+
+    .status-new { background-color: #dbeafe !important; }
+    .status-query { background-color: #fef3c7 !important; }
+    .status-reviewed { background-color: #d1fae5 !important; }
+    .status-approved { background-color: #dcfce7 !important; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+<button id="menuToggle" class="md:hidden fixed top-3 left-3 bg-blue-600 text-white px-3 py-2 rounded-lg z-50 shadow-lg">☰ Menu</button>
+<button id="closeSidebar" class="hidden fixed top-3 right-3 bg-red-600 text-white text-2xl font-bold px-3 py-1 rounded z-50">×</button>
+
+<div class="flex">
+  <aside class="sidebar w-64 p-6">
+    <div class="flex flex-col items-center gap-4 mb-6">
+      <img id="logoImg" src="images/IMAGE2.png" alt="Logo JPN" class="w-36 h-36 object-contain">
+      <div class="text-center">
+        <div class="text-xl font-bold">LAWATAN MURID SAMBIL BELAJAR</div>
+        <div class="text-xs text-gray-300">Jabatan Pendidikan Negeri Pahang</div>
+      </div>
+    </div>
+
+    <nav class="space-y-2">
+      <button id="tabIntroBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Pengenalan</button>
+      <button id="tabFormBtn" class="w-full text-left px-4 py-2 rounded nav-tab">Borang Permohonan</button>
+      <button id="tabOfficerBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Semakan (Pegawai)</button>
+      <button id="tabDPBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Kelulusan (Timbalan)</button>
+      <button id="tabQueryResponseBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Tindak Balas Query</button>
+      <button id="tabDownloadsBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Muat Turun</button>
+    </nav>
+
+    <div class="mt-8 text-xs text-gray-400">Versi: 1.1 • Dibangunkan oleh Sektor Pengurusan Sekolah, JPN Pahang</div>
+  </aside>
+
+  <main class="flex-1 p-8">
+    <div class="mb-6">
+      <img id="headerImg" src="images/IMAGE1.png" alt="Header" class="w-full rounded-lg shadow-sm">
+    </div>
+
+    <section id="introSection" class="bg-white p-6 rounded shadow mb-6 hidden">
+      <h2 class="text-2xl font-semibold mb-2">Selamat Datang ke Portal LAWATAN MURID</h2>
+      <p class="text-gray-700">Portal ini membolehkan sekolah menghantar permohonan lawatan murid, pegawai menyemak, dan Timbalan membuat kelulusan. Gunakan tab di sebelah kiri untuk navigasi.</p>
+    </section>
+
+    <section id="formSection" class="bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">Borang Permohonan</h2>
+      <form id="permohonanForm" class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="block text-sm">Kod Sekolah</label><input id="schoolCode" name="schoolCode" class="w-full border p-2 rounded" required /></div>
+          <div><label class="block text-sm">Nama Sekolah</label><input id="schoolName" name="schoolName" class="w-full border p-2 rounded" required /></div>
+          <div><label class="block text-sm">Daerah</label><input id="daerah" name="daerah" class="w-full border p-2 rounded" placeholder="Contoh: Kuantan" /></div>
+          <div><label class="block text-sm">Poskod</label><input id="poskod" name="poskod" class="w-full border p-2 rounded" placeholder="Contoh: 25000" pattern="\d{5}" /></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="block text-sm">Email Sekolah</label><input id="schoolEmail" name="schoolEmail" type="email" class="w-full border p-2 rounded" required /></div>
+          <div><label class="block text-sm">Kategori</label><select id="category" name="category" class="w-full border p-2 rounded"><option>Menengah</option><option>Rendah</option></select></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="block text-sm">Tarikh Mula</label><input id="travelStart" name="travelStart" type="date" class="w-full border p-2 rounded" required /><p class="text-xs text-gray-500 mt-1">Tarikh mesti sekurang-kurangnya 30 hari dari hari ini.</p></div>
+          <div><label class="block text-sm">Tarikh Tamat</label><input id="travelEnd" name="travelEnd" type="date" class="w-full border p-2 rounded" required /><p class="text-xs text-gray-500 mt-1">Maksimum 4 hari selepas tarikh mula.</p></div>
+        </div>
+
+        <div>
+          <label class="block text-sm">Nama Ketua Rombongan</label>
+          <div id="leaderList" class="space-y-2 mt-2"></div>
+          <button type="button" id="addLeader" class="mt-2 px-3 py-1 bg-blue-600 text-white rounded">Tambah Ketua</button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="block text-sm">Bilangan Kenderaan</label><input id="vehicleCount" name="vehicleCount" type="number" min="1" class="w-full border p-2 rounded" value="1" required /></div>
+          <div><label class="block text-sm">Jumlah Ahli</label><input id="participantCount" name="participantCount" type="number" min="1" class="w-full border p-2 rounded" required /></div>
+          <div><label class="block text-sm">Bilangan Pengiring Murid</label><input id="bp" name="bp" type="number" min="0" class="w-full border p-2 rounded" placeholder="Contoh: 5" /></div>
+          <div><label class="block text-sm">Bilangan Murid</label><input id="bm" name="bm" type="number" min="0" class="w-full border p-2 rounded" placeholder="Contoh: 40" /></div>
+        </div>
+            
+        <div><label class="block text-sm">Tempat Pelancongan</label><input id="placeVisit" name="placeVisit" class="w-full border p-2 rounded" required /></div>
+        <div><label class="block text-sm">Alamat Penginapan</label><input id="accommodation" name="accommodation" class="w-full border p-2 rounded" /></div>
+
+        <div>
+          <label class="block text-sm font-semibold mb-2 text-gray-700">Muat Naik Fail (PDF) — ikut kategori (5 fail, maks 10MB setiap)</label>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card">
+              <label for="file_kertasKerja" class="block text-sm font-medium mb-1 text-gray-700">KERTAS KERJA</label>
+              <input type="file" id="file_kertasKerja" name="kertasKerja" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
+            </div>
+            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card">
+              <label for="file_maklumatAnggota" class="block text-sm font-medium mb-1 text-gray-700">MAKLUMAT ANGGOTA</label>
+              <input type="file" id="file_maklumatAnggota" name="maklumatAnggota" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
+            </div>
+            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card">
+              <label for="file_permitBas" class="block text-sm font-medium mb-1 text-gray-700">PERMIT BAS/KENDERAAN</label>
+              <input type="file" id="file_permitBas" name="permitBas" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
+            </div>
+            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card">
+              <label for="file_lesenPemandu" class="block text-sm font-medium mb-1 text-gray-700">LESEN PEMANDU</label>
+              <input type="file" id="file_lesenPemandu" name="lesenPemandu" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
+            </div>
+            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card col-span-2 md:col-span-3">
+              <label for="file_taklimat" class="block text-sm font-medium mb-1 text-gray-700">INTIPATI TAKLIMAT KESELAMATAN</label>
+              <input type="file" id="file_taklimat" name="taklimat" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <button id="submitBtn" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Hantar Permohonan</button>
+          <div id="submitStatus" class="self-center text-sm text-gray-600"></div>
+        </div>
+      </form>
+    </section>
+
+    <section id="officerSection" class="hidden bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-3">Semakan (Pegawai)</h2>
+
+      <div class="mb-4 flex items-center gap-3">
+        <div id="officerAuthWrap" class="flex items-center gap-3">
+          <button id="loginOfficer" class="px-4 py-2 bg-blue-600 text-white rounded">LOGIN Pegawai</button>
+          <button id="logoutOfficer" class="btn-logout hidden-inline" title="Log Keluar Pegawai">🚪LOGOUT</button>
+          <button id="refreshOfficer" class="px-3 py-1 bg-indigo-600 text-white rounded text-sm">Refresh</button>
+          <span id="officerLoggedAs" class="ml-3 text-sm text-gray-600"></span>
+        </div>
+
+        <div class="ml-auto flex items-center gap-2">
+          <input id="searchBox" class="border p-2 rounded text-sm" placeholder="Cari kod sekolah atau nama sekolah..." />
+          <button id="searchBtn" class="px-3 py-1 bg-blue-600 text-white rounded text-sm">Cari</button>
+          <button id="clearSearchBtn" class="px-3 py-1 bg-gray-200 rounded text-sm">Kosong</button>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mb-4 items-center">
+        <select id="filterCategory" class="border p-2 rounded">
+          <option value="">Semua Kategori</option>
+          <option value="Menengah">Menengah</option>
+          <option value="Rendah">Rendah</option>
+        </select>
+
+        <select id="filterStatus" class="border p-2 rounded">
+          <option value="">Semua Status</option>
+          <option value="NEW">NEW</option>
+          <option value="QUERY">QUERY</option>
+          <option value="QUERY_RESPONDED">QUERY_RESPONDED</option>
+          <option value="PREAPPROVED">PREAPPROVED</option>
+          <option value="READY_FOR_DP">READY_FOR_DP</option>
+          <option value="FINAL_APPROVED">FINAL_APPROVED</option>
+        </select>
+
+        <button id="applyFilters" class="px-3 py-1 bg-gray-200 rounded">Tapis</button>
+        <button id="clearFilters" class="px-3 py-1 bg-gray-100 rounded">Bersihkan</button>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4">
+        <div>
+          <h3 class="font-semibold mb-2">Permohonan Baru</h3>
+          <div id="tableNew" class="overflow-auto max-h-72 border rounded bg-white p-2"></div>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-2">Query</h3>
+          <div id="tableQuery" class="overflow-auto max-h-72 border rounded bg-white p-2"></div>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-2">Surat Diluluskan</h3>
+          <div id="tableApproved" class="overflow-auto max-h-72 border rounded bg-white p-2"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="dpSection" class="hidden bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-3">Kelulusan (Timbalan)</h2>
+      <div class="flex items-center gap-3">
+        <button id="loginDP" class="px-4 py-2 bg-blue-600 text-white rounded">Log masuk Timbalan</button>
+        <button id="logoutDP" class="hidden px-3 py-2 bg-red-600 text-white rounded">🚪 Log Keluar</button>
+        <span id="dpLoggedAs" class="ml-2 text-sm text-gray-600"></span>
+      </div>
+      <div id="dpRequestsTable" class="mt-4"></div>
+    </section>
+
+    <section id="queryResponseSection" class="hidden bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-3">Balas Query (Sekolah)</h2>
+      <p class="text-gray-700 mb-3">Jika sekolah terima email Query (mengandungi Query ID), gunakan borang di bawah untuk muat naik fail baru.</p>
+      <div class="space-y-3">
+        <div><label class="block text-sm">Query ID</label><input id="respQueryId" class="w-full border p-2 rounded" placeholder="Contoh: QRY-1762..." /></div>
+        <div><label class="block text-sm">Email Sekolah (untuk notifikasi)</label><input id="respSchoolEmail" class="w-full border p-2 rounded" placeholder="sekolah@example.com" /></div>
+        <div>
+          <label class="block text-sm font-semibold mb-2 text-gray-700">Muat Naik Fail (Query)</label>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card">
+              <label for="resp_file_kertasKerja" class="block text-sm font-medium mb-1 text-gray-700">KERTAS KERJA</label>
+              <input type="file" id="resp_file_kertasKerja" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
+            </div>
+            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card">
+              <label for="resp_file_maklumatAnggota" class="block text-sm font-medium mb-1 text-gray-700">MAKLUMAT ANGGOTA</label>
+              <input type="file" id="resp_file_maklumatAnggota" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
+            </div>
+            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card">
+              <label for="resp_file_permitBas" class="block text-sm font-medium mb-1 text-gray-700">PERMIT BAS/KENDERAAN</label>
+              <input type="file" id="resp_file_permitBas" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
+            </div>
+            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card">
+              <label for="resp_file_lesenPemandu" class="block text-sm font-medium mb-1 text-gray-700">LESEN PEMANDU</label>
+              <input type="file" id="resp_file_lesenPemandu" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
+            </div>
+            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card col-span-2 md:col-span-3">
+              <label for="resp_file_taklimat" class="block text-sm font-medium mb-1 text-gray-700">INTIPATI TAKLIMAT KESELAMATAN</label>
+              <input type="file" id="resp_file_taklimat" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
+            </div>
+          </div>
+        </div>
+        <div><button id="sendQueryResponseBtn" class="px-4 py-2 bg-green-600 text-white rounded">Hantar Respon Query</button></div>
+      </div>
+    </section>
+
+    <section id="downloadsSection" class="hidden bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">Muat Turun</h2>
+
+      <style>
+        #downloadsSection .downloads-grid {
+          display: grid;
+          grid-template-columns: repeat(1, 1fr);
+          gap: 1rem;
+        }
+        @media (min-width: 640px){ #downloadsSection .downloads-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 768px){ #downloadsSection .downloads-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 1024px){ #downloadsSection .downloads-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (min-width: 1280px){ #downloadsSection .downloads-grid { grid-template-columns: repeat(5, 1fr); } }
+
+        #downloadsSection .download-card {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          min-height: 140px;
+          padding: 14px;
+          border-radius: 10px;
+          border: 1px solid rgba(15,23,42,0.05);
+          background: linear-gradient(180deg, #ffffff, #fbfbfd);
+          transition: transform .16s ease, box-shadow .16s ease;
+          box-shadow: 0 2px 8px rgba(16,24,40,0.04);
+        }
+        #downloadsSection .download-card:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 12px 30px rgba(16,24,40,0.12);
+        }
+
+        #downloadsSection .download-title {
+          font-weight: 600;
+          color: #0f172a;
+          margin-bottom: 6px;
+          font-size: 1rem;
+        }
+        #downloadsSection .download-desc {
+          margin: 0;
+          color: #6b7280;
+          font-size: 0.92rem;
+          line-height: 1.25;
+        }
+
+        #downloadsSection .accent {
+          width: 6px;
+          border-radius: 6px;
+          margin-right: 12px;
+          flex-shrink: 0;
+        }
+        .accent--red { background: linear-gradient(180deg,#F97373,#DC2626); }
+        .accent--blue { background: linear-gradient(180deg,#60A5FA,#2563EB); }
+        .accent--teal { background: linear-gradient(180deg,#34D399,#059669); }
+        .accent--orange { background: linear-gradient(180deg,#FDBA74,#F97316); }
+        .accent--purple { background: linear-gradient(180deg,#C4B5FD,#7C3AED); }
+
+        #downloadsSection .card-head { display:flex; align-items:flex-start; gap:12px; }
+
+        #downloadsSection .download-actions { margin-top: 12px; display: flex; gap:8px; }
+        #downloadsSection .download-btn {
+          flex: 1;
+          padding: 10px 12px;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          border: 0;
+          transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+        }
+        #downloadsSection .download-btn-primary {
+          background: linear-gradient(180deg,#2563EB,#1D4ED8);
+          color: #fff;
+          box-shadow: 0 6px 16px rgba(37,99,235,0.12);
+        }
+        #downloadsSection .download-btn-primary:hover { transform: translateY(-3px); opacity: 0.98; }
+        #downloadsSection .download-btn-secondary {
+          background: #F3F4F6;
+          color: #0f172a;
+          border: 1px solid rgba(15,23,42,0.06);
+        }
+        #downloadsSection .download-btn-secondary:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(15,23,42,0.06); }
+
+        #downloadsSection .download-actions.column { flex-direction: column; }
+      </style>
+
+      <div class="downloads-grid">
+        <div class="download-card">
+          <div class="card-head">
+            <div class="accent accent--red" aria-hidden="true"></div>
+            <div>
+              <div class="download-title">SENARAI SEMAK</div>
+              <p class="download-desc">Senarai Semak Permohonan Lawatan Terkini 2025 — panduan rujukan.</p>
+            </div>
+          </div>
+          <div class="download-actions">
+            <button data-link="https://drive.google.com/file/d/1rNUmrYzOBM-96OkpjDGBmUsgCQx1jcGZ/view?usp=sharing" class="download-btn download-btn-primary" title="Buka Senarai Semak">Muat Turun</button>
+          </div>
+        </div>
+
+        <div class="download-card">
+          <div class="card-head">
+            <div class="accent accent--blue" aria-hidden="true"></div>
+            <div>
+              <div class="download-title">Kertas Kerja</div>
+              <p class="download-desc">SPK Bil 1 — Lampiran & contoh kertas kerja.</p>
+            </div>
+          </div>
+          <div class="download-actions">
+            <button data-link="https://drive.google.com/file/d/1dxj1uCowSiFcAp80MGVHD10En-UMQrvw/view?usp=sharing" class="download-btn download-btn-primary" title="Buka Kertas Kerja">Muat Turun</button>
+          </div>
+        </div>
+
+        <div class="download-card">
+          <div class="card-head">
+            <div class="accent accent--teal" aria-hidden="true"></div>
+            <div>
+              <div class="download-title">Lampiran A</div>
+              <p class="download-desc">Borang Lawatan Murid — Lampiran A (borang rasmi).</p>
+            </div>
+          </div>
+          <div class="download-actions">
+            <button data-link="https://drive.google.com/file/d/1RhUVrDDSTsFACgd4QHgzzqqkbNefuRxE/view?usp=drive_link" class="download-btn download-btn-primary" title="Buka Lampiran A">Muat Turun</button>
+          </div>
+        </div>
+
+        <div class="download-card">
+          <div class="card-head">
+            <div class="accent accent--orange" aria-hidden="true"></div>
+            <div>
+              <div class="download-title">SPI</div>
+              <p class="download-desc">Surat Pekeliling Ikhtisas KPM — pilih pekeliling yang dikehendaki.</p>
+            </div>
+          </div>
+          <div class="download-actions column">
+            <button data-link="https://drive.google.com/file/d/1OouJG3DcWHQhc4fLvo_dDqVA6zx_A6ay/view?usp=sharing" class="download-btn download-btn-primary" title="SPI KPM Bil 3 2019">SPI KPM Bil 3 / 2019</button>
+            <button data-link="https://drive.google.com/file/d/1VBd0YKVbYZ8KW-eFPizVh26KlifSfqRS/view?usp=sharing" class="download-btn download-btn-secondary" title="SPI KPM Bil 9 2023">SPI KPM Bil 9 / 2023</button>
+          </div>
+        </div>
+
+        <div class="download-card">
+          <div class="card-head">
+            <div class="accent accent--purple" aria-hidden="true"></div>
+            <div>
+              <div class="download-title">Permohonan Kelulusan</div>
+              <p class="download-desc">Surat Permohonan Kelulusan — format standard untuk muat turun.</p>
+            </div>
+          </div>
+          <div class="download-actions">
+            <button data-link="https://drive.google.com/file/d/1IbmtO2sCAvnPcjzqU0EaQKLPa5KGjrzT/view?usp=sharing" class="download-btn download-btn-primary" title="Muat Turun Permohonan Kelulusan">Muat Turun</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-xs text-gray-500">Tekan butang untuk membuka fail dalam tab baru.</div>
+    </section>
+
+  </main>
+</div>
+
+<div id="filesModal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-40">
+  <div class="bg-white rounded shadow-lg w-11/12 md:w-2/3 lg:w-1/2 p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h3 id="filesModalTitle" class="text-lg font-semibold">Fail Permohonan</h3>
+      <button id="filesModalClose" class="text-gray-500 hover:text-gray-800">Tutup ✕</button>
+    </div>
+    <div id="filesList" class="space-y-3 text-sm max-h-72 overflow-auto"></div>
+    <div class="mt-4 text-right"><button id="filesModalClose2" class="px-4 py-2 bg-gray-200 rounded">Tutup</button></div>
+  </div>
+</div>
+
+<div id="loadingModal" class="hidden fixed inset-0 items-center justify-center bg-black bg-opacity-30 z-50">
+  <div class="bg-white p-6 rounded shadow text-center"><div class="mb-2">Sila tunggu — proses sedang dijalankan...</div></div>
+</div>
+
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+<script>
+/* CONFIG - KEKALKAN URL ASAL ANDA */
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbx_B7hzQrDtlks5fAynamk1s143zUvCxVWEQwfeNC3-BmKCAR9CZ27Sqml7qhIWZN3O/exec';
+
+const $ = id => document.getElementById(id);
+function showLoading(){ $('loadingModal').classList.remove('hidden'); $('loadingModal').classList.add('flex'); }
+function hideLoading(){ $('loadingModal').classList.add('hidden'); $('loadingModal').classList.remove('flex'); }
+
+let requestsCache = [];
+let officerSecret = null;
+let dpSecret = null;
+
+function fmtDateToDisplay(isoOrRaw){
+  if (!isoOrRaw) return '';
+  const d = new Date(isoOrRaw);
+  if (isNaN(d.getTime())) {
+    const m = String(isoOrRaw).match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return String(isoOrRaw);
+    return `${m[3]}-${m[2]}-${m[1]}`;
+  }
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  return `${dd}-${mm}-${yyyy}`;
+}
+
+(function(){
+  const start = $('travelStart'), end = $('travelEnd');
+  if (!start||!end) return;
+  const setMin = () => {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const min = new Date(today.getTime() + 30*24*60*60*1000);
+    start.min = `${min.getFullYear()}-${String(min.getMonth()+1).padStart(2,'0')}-${String(min.getDate()).padStart(2,'0')}`;
+  };
+  const updateEndBounds = () => {
+    if (!start.value) { end.removeAttribute('max'); return; }
+    const s = new Date(start.value);
+    const max = new Date(s.getTime() + 4*24*60*60*1000);
+    end.min = start.value;
+    end.max = `${max.getFullYear()}-${String(max.getMonth()+1).padStart(2,'0')}-${String(max.getDate()).padStart(2,'0')}`;
+    if (end.value) {
+      const cur = new Date(end.value);
+      if (cur < s) end.value = start.value;
+      if (cur > max) end.value = end.max;
+    }
+  };
+  setMin(); start.addEventListener('change', updateEndBounds); updateEndBounds();
+})();
+
+let leaders = [];
+function renderLeaders(){ 
+  const c=$('leaderList'); 
+  if(!c) return; 
+  c.innerHTML=''; 
+  if (leaders.length===0) leaders.push({name:'',phone:''});
+  leaders.forEach((l,i)=>{ 
+    const div=document.createElement('div'); 
+    div.className='flex gap-2 items-center';
+    div.innerHTML = `<input class="flex-1 border p-2 rounded leaderName" placeholder="Nama Ketua ${i+1}" data-index="${i}" value="${l.name||''}" />
+                     <input class="w-40 border p-2 rounded leaderPhone" placeholder="No. Tel" data-index="${i}" value="${l.phone||''}" />
+                     <button type="button" data-index="${i}" class="removeLead bg-red-500 text-white px-2 rounded hover:bg-red-600">X</button>`; 
+    c.appendChild(div);
+  });
+  c.querySelectorAll('.removeLead').forEach(b=>b.addEventListener('click',e=>{leaders.splice(+e.target.dataset.index,1); renderLeaders();}));
+  c.querySelectorAll('.leaderName').forEach(i=>i.addEventListener('input',e=>leaders[+e.target.dataset.index].name=e.target.value));
+  c.querySelectorAll('.leaderPhone').forEach(i=>i.addEventListener('input',e=>leaders[+e.target.dataset.index].phone=e.target.value));
+}
+if ($('addLeader')) $('addLeader').addEventListener('click',()=>{leaders.push({name:'',phone:''}); renderLeaders();});
+renderLeaders();
+
+function validateFile(file) {
+  const maxSize = 10 * 1024 * 1024;
+  if (file.size > maxSize) {
+    return { ok: false, message: `${file.name} terlalu besar (max 10MB). Saiz: ${(file.size/1024/1024).toFixed(2)}MB` };
+  }
+  if (file.type !== 'application/pdf') {
+    return { ok: false, message: `${file.name} bukan fail PDF` };
+  }
+  return { ok: true };
+}
+
+async function fileToBase64(file){ 
+  return new Promise((res,rej)=>{ 
+    const r=new FileReader(); 
+    r.onload=()=>res({name:file.name,type:file.type||'application/pdf',data:r.result.split(',')[1]}); 
+    r.onerror=rej; 
+    r.readAsDataURL(file); 
+  }); 
+}
+
+function base64ToUint8Array(base64) {
+  const binary = atob(base64);
+  const len = binary.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+function uint8ArrayToBlob(u8, mime='application/pdf') {
+  return new Blob([u8], { type: mime });
+}
+
+function blobToFile(blob, name) {
+  try { return new File([blob], name, { type: blob.type }); }
+  catch(e) { blob.name = name; return blob; }
+}
+
+async function annotatePdfAndUpload({requestId, fileBlobOrFile, stampText='Disemak', stampImageFile=null, sourceLabel='ANNOTATED'}) {
+  if (!fileBlobOrFile) throw new Error('missing file');
+  const ab = await (fileBlobOrFile.arrayBuffer ? fileBlobOrFile.arrayBuffer() : fileBlobOrFile);
+  const pdfDoc = await PDFLib.PDFDocument.load(ab);
+  const helv = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+  let imgEmbed = null;
+  if (stampImageFile) {
+    const imgAB = await stampImageFile.arrayBuffer();
+    const mime = stampImageFile.type || 'image/png';
+    imgEmbed = (mime==='image/png') ? await pdfDoc.embedPng(imgAB) : await pdfDoc.embedJpg(imgAB);
+  }
+
+  const pages = pdfDoc.getPages();
+  for (let i = 0; i < pages.length; i++) {
+    const p = pages[i];
+    const { width, height } = p.getSize();
+    const fontSize = Math.max(10, Math.min(36, Math.floor(Math.min(width, height) / 18)));
+    const text = stampText || `Disemak ${new Date().toLocaleDateString()}`;
+    const textWidth = helv.widthOfTextAtSize(text, fontSize);
+    const margin = 18;
+    p.drawText(text, {
+      x: width - textWidth - margin,
+      y: margin + (imgEmbed ? 40 : 0),
+      size: fontSize,
+      font: helv,
+      color: PDFLib.rgb(0.85, 0.1, 0.1),
+      opacity: 0.95
+    });
+    if (imgEmbed) {
+      const scaled = imgEmbed.scale( Math.min(120 / imgEmbed.width, 60 / imgEmbed.height) );
+      p.drawImage(imgEmbed, {
+        x: margin,
+        y: margin,
+        width: scaled.width,
+        height: scaled.height,
+        opacity: 0.95
+      });
+    }
+  }
+
+  const modifiedBytes = await pdfDoc.save();
+  let binary = '';
+  const u8 = new Uint8Array(modifiedBytes);
+  for (let i = 0; i < u8.length; i++) binary += String.fromCharCode(u8[i]);
+  const b64 = btoa(binary);
+
+  const fileName = 'ANNOTATED_' + (fileBlobOrFile.name || ('file_' + Date.now() + '.pdf'));
+  const payload = { requestId: requestId || '', fileName: fileName, dataBase64: b64, sourceLabel: sourceLabel };
+  const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type:'uploadAnnotatedPdf', payload }) });
+  return await res.json();
+}
+
+async function fetchDriveFileAsFile(driveUrlOrId) {
+  let id = '';
+  const m = String(driveUrlOrId||'').match(/\/d\/([a-zA-Z0-9_-]{10,})/);
+  if (m) id = m[1];
+  else id = driveUrlOrId;
+  if (!id) throw new Error('Invalid Drive URL/ID');
+  const r = await fetch(GAS_URL + '?action=fetchFileBase64&fileId=' + encodeURIComponent(id));
+  const j = await r.json();
+  if (!j.ok || !j.dataBase64) throw new Error('fetchFileBase64 failed');
+  const u8 = base64ToUint8Array(j.dataBase64);
+  const blob = uint8ArrayToBlob(u8, j.mimeType || 'application/pdf');
+  return blobToFile(blob, j.name || ('file_' + id + '.pdf'));
+}
+
+$('permohonanForm').addEventListener('submit', async function(ev){
+  ev.preventDefault(); 
+  $('submitBtn').disabled=true;
+  
+  const payload = {
+    schoolCode: $('schoolCode').value.trim(),
+    schoolName: $('schoolName').value.trim(),
+    daerah: $('daerah').value.trim(),
+    poskod: $('poskod').value.trim(),
+    schoolEmail: $('schoolEmail').value.trim(),
+    category: $('category').value,
+    travelStartDate: $('travelStart').value,
+    travelEndDate: $('travelEnd').value,
+    leaderNames: leaders.map(l=>l.name).filter(Boolean),
+    leaderPhones: leaders.map(l=>l.phone).filter(Boolean),
+    vehicleCount: $('vehicleCount').value,
+    participantCount: $('participantCount').value,
+    bp: $('bp').value,
+    bm: $('bm').value,
+    placeVisit: $('placeVisit').value,
+    accommodation: $('accommodation').value
+  };
+
+  const start=new Date(payload.travelStartDate), end=new Date(payload.travelEndDate);
+  const today=new Date(); today.setHours(0,0,0,0); 
+  const min=new Date(today.getTime()+30*24*60*60*1000);
+  
+  if (isNaN(start.getTime())||start<min){ 
+    await Swal.fire({icon:'error',title:'Tarikh tidak sah',text:'Tarikh mula mesti sekurang-kurangnya 30 hari.'}); 
+    $('submitBtn').disabled=false; 
+    return; 
+  }
+  
+  const maxEnd = new Date(start.getTime()+4*24*60*60*1000);
+  if (isNaN(end.getTime())||end<start||end>maxEnd){ 
+    await Swal.fire({icon:'error',title:'Tarikh tamat tidak sah',text:`Tarikh tamat mesti antara ${start.toISOString().slice(0,10)} dan ${maxEnd.toISOString().slice(0,10)}.`}); 
+    $('submitBtn').disabled=false; 
+    return; 
+  }
+
+  showLoading();
+  try {
+    const fileMap = {
+      kertasKerja:$('file_kertasKerja').files[0], 
+      maklumatAnggota:$('file_maklumatAnggota').files[0],
+      permitBas:$('file_permitBas').files[0], 
+      lesenPemandu:$('file_lesenPemandu').files[0], 
+      taklimat:$('file_taklimat').files[0]
+    };
+    
+    for (const key in fileMap) {
+      if (fileMap[key]) {
+        const validation = validateFile(fileMap[key]);
+        if (!validation.ok) {
+          hideLoading();
+          await Swal.fire({icon:'error',title:'Fail tidak sah',text:validation.message});
+          $('submitBtn').disabled=false;
+          return;
+        }
+      }
+    }
+    
+    const filesBase64 = {};
+    for (const k in fileMap) if (fileMap[k]) filesBase64[k]=await fileToBase64(fileMap[k]);
+    
+    const body = JSON.stringify({type:'new', payload, filesBase64});
+    const res = await fetch(GAS_URL, {method:'POST', body});
+    const j = await res.json(); 
+    hideLoading();
+    
+    if (j.ok){ 
+      await Swal.fire({icon:'success',title:'Permohonan berjaya dihantar',html:`Nombor rujukan: <b>${j.requestId||''}</b>`}); 
+      this.reset(); 
+      leaders=[]; 
+      renderLeaders(); 
+    }
+    else await Swal.fire({icon:'error',title:'Gagal',text:j.message||j.error||JSON.stringify(j)});
+  } catch (err){ 
+    hideLoading(); 
+    await Swal.fire({icon:'error',title:'Ralat sambungan',text:err.message||''}); 
+  }
+  finally{ $('submitBtn').disabled=false; }
+});
+
+function hideAllSections(){ 
+  ['introSection','formSection','officerSection','dpSection','queryResponseSection','downloadsSection'].forEach(id=>$(id).classList.add('hidden')); 
+}
+
+function setActiveTab(btnId){
+  document.querySelectorAll('.nav-tab').forEach(b=>{ 
+    b.classList.remove('tab-active'); 
+    b.classList.remove('bg-blue-600'); 
+    b.classList.remove('text-white'); 
+  });
+  const el = $(btnId); 
+  if (el) el.classList.add('tab-active');
+}
+
+['tabIntroBtn','tabFormBtn','tabOfficerBtn','tabDPBtn','tabQueryResponseBtn','tabDownloadsBtn'].forEach(id=>{
+  $(id).addEventListener('click',()=>{ 
+    hideAllSections(); 
+    const map={
+      tabIntroBtn:'introSection',
+      tabFormBtn:'formSection',
+      tabOfficerBtn:'officerSection',
+      tabDPBtn:'dpSection',
+      tabQueryResponseBtn:'queryResponseSection',
+      tabDownloadsBtn:'downloadsSection'
+    }; 
+    $(map[id]).classList.remove('hidden'); 
+    setActiveTab(id); 
+  });
+});
+
+hideAllSections();
+setActiveTab('tabIntroBtn');
+$('introSection').classList.remove('hidden');
+
+$('loginOfficer').addEventListener('click', async ()=>{
+  const { value: pw } = await Swal.fire({
+    title: 'Akses Pegawai',
+    input: 'password',
+    inputLabel: 'Masukkan kata laluan Pegawai',
+    showCancelButton: true,
+    confirmButtonText: 'LOG IN'
+  });
+  
+  if (!pw) return;
+
+  try {
+    showLoading();
+    const check = await fetch(GAS_URL + '?action=checkSecret&secret=' + encodeURIComponent(pw));
+    const cj = await check.json();
+    hideLoading();
+
+    if (cj.ok) {
+      officerSecret = pw;
+      const btn = $('loginOfficer');
+      btn.textContent = 'Akses Dibenarkan';
+      btn.classList.remove('bg-blue-600');
+      btn.classList.add('btn-access-granted', 'animate-gentle-pulse');
+      btn.disabled = true;
+
+      const statusEl = $('officerLoggedAs');
+      statusEl.textContent = ' (Sistem Online)';
+      statusEl.classList.add('status-pulse');
+
+      const logoutBtn = $('logoutOfficer');
+      logoutBtn.classList.remove('hidden-inline');
+
+      if (!logoutBtn._hasHandler) {
+        logoutBtn._hasHandler = true;
+        logoutBtn.addEventListener('click', async () => {
+          const ok = await Swal.fire({
+            title: 'Log Out?',
+            text: 'Adakah anda pasti.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Log Out',
+            cancelButtonText: 'Batal'
+          });
+          if (!ok.isConfirmed) return;
+
+          officerSecret = null;
+          const b = $('loginOfficer');
+          b.textContent = 'LOGIN Pegawai';
+          b.classList.remove('btn-access-granted', 'animate-gentle-pulse');
+          b.classList.add('bg-blue-600');
+          b.disabled = false;
+
+          $('logoutOfficer').classList.add('hidden-inline');
+          $('officerLoggedAs').textContent = '';
+          requestsCache = [];
+          renderTablesFromCache();
+          Swal.fire({icon:'success', title:'Log Out berjaya', timer:1500, showConfirmButton:false});
+        });
+      }
+
+      await loadRequests();
+      Swal.fire({ icon:'success', title:'Akses Dibenarkan', text:'Sistem Online.', timer:1800, showConfirmButton:false });
+    } else {
+      Swal.fire({ icon: 'error', title: 'Kata laluan salah' });
+    }
+  } catch (err) {
+    hideLoading();
+    Swal.fire({ icon: 'error', title: 'Ralat sambungan', text: err.message || '' });
+  }
+});
+
+$('refreshOfficer').addEventListener('click', async () => {
+  if (!officerSecret) {
+    return Swal.fire({ icon:'warning', title:'Sila log masuk dahulu' });
+  }
+  
+  const btn = $('refreshOfficer');
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Refreshing...';
+  
+  showLoading();
+  try {
+    await loadRequests();
+    Swal.fire({ icon:'success', title:'Data dikemaskini', timer:900, showConfirmButton:false });
+  } catch (err) {
+    Swal.fire({ icon:'error', title:'Gagal kemaskini', text: err.message || String(err) });
+  } finally { 
+    hideLoading();
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+});
+
+$('applyFilters').addEventListener('click', ()=> renderTablesFromCache());
+$('clearFilters').addEventListener('click', ()=>{ 
+  $('filterCategory').value=''; 
+  $('filterStatus').value=''; 
+  $('searchBox').value=''; 
+  renderTablesFromCache(); 
+});
+
+$('searchBtn').addEventListener('click', ()=> renderTablesFromCache());
+$('clearSearchBtn').addEventListener('click', ()=>{ 
+  $('searchBox').value=''; 
+  renderTablesFromCache(); 
+});
+function makeTable(rows, cols){
+  const t = document.createElement('table'); 
+  t.className='w-full text-sm';
+  const thead = document.createElement('thead'); 
+  const trh = document.createElement('tr'); 
+  trh.className='bg-gray-100';
+  cols.forEach(c=>{ 
+    const th=document.createElement('th'); 
+    th.className='p-2 text-left'; 
+    th.textContent=c; 
+    trh.appendChild(th); 
+  }); 
+  thead.appendChild(trh); 
+  t.appendChild(thead);
+  
+  const tb=document.createElement('tbody');
+  rows.forEach(r=>{ 
+    const tr=document.createElement('tr'); 
+    tr.className='border-b align-top';
+    cols.forEach(c=>{ 
+      const td=document.createElement('td'); 
+      td.className='p-2 align-top'; 
+      td.innerHTML = r[c]||''; 
+      
+      if (c === 'Status' && r[c]) {
+        const status = String(r[c]).toUpperCase();
+        if (status.includes('NEW')) td.classList.add('status-new');
+        else if (status.includes('QUERY')) td.classList.add('status-query');
+        else if (status.includes('REVIEWED') || status.includes('PREAPPROVED')) td.classList.add('status-reviewed');
+        else if (status.includes('FINAL_APPROVED')) td.classList.add('status-approved');
+      }
+      
+      tr.appendChild(td); 
+    });
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb); 
+  return t;
+}
+
+async function loadRequests(){
+  if (!officerSecret) {
+    if (requestsCache && requestsCache.length) { renderTablesFromCache(); return; }
+    return Swal.fire({icon:'warning',title:'Sila log masuk dahulu.'});
+  }
+  try {
+    showLoading();
+    const res = await fetch(GAS_URL + '?action=listRequests&secret=' + encodeURIComponent(officerSecret));
+    const j = await res.json();
+    hideLoading();
+    if (!j.ok) return Swal.fire({icon:'error',title:'Gagal',text:j.message||''});
+    const requests = j.requests || [];
+    requestsCache = requests;
+    renderTablesFromCache();
+  } catch (err) { 
+    hideLoading(); 
+    Swal.fire({icon:'error',title:'Ralat',text:err.message||''}); 
+  }
+}
+
+function extractQueries(req){
+  if (!req) return [];
+  if (Array.isArray(req['QueryHistory']) && req['QueryHistory'].length) {
+    return req['QueryHistory'].map(q=>({
+      id: q.id || q.QueryID || q.queryId || '',
+      sentDate: q.sentDate || q.QuerySentDate || q.sent_at || q.date || '',
+      respondedDate: q.respondedDate || q.QueryRespondDate || q.responded_at || q.response_date || '',
+      note: q.note || q.note_text || q.message || ''
+    }));
+  }
+  const queries = [];
+  const txt = String(req['OfficerNote']||req['OfficerNotes']||'');
+  if (txt) {
+    const re = /QueryID[:\s]*([A-Z0-9\-_]+)/ig;
+    let m;
+    while ((m = re.exec(txt)) !== null) {
+      const id = m[1];
+      const slice = txt.slice(Math.max(0,m.index-120), m.index+120);
+      const dateMatch = slice.match(/(\d{4}-\d{2}-\d{2})/);
+      queries.push({ id, sentDate: dateMatch ? dateMatch[0] : '', respondedDate:'', note: slice.trim() });
+    }
+  }
+  if (req['QueryID'] && !queries.find(q=>q.id===req['QueryID'])) {
+    queries.push({ 
+      id: req['QueryID'], 
+      sentDate: req['QuerySentDate']||req['QueryDate']||'', 
+      respondedDate: req['QueryRespondDate']||req['QueryRespondedDate']||'', 
+      note: req['OfficerNote']||'' 
+    });
+  }
+  return queries;
+}
+
+function buildHeaderIndex(headers) {
+  const map = {};
+  (headers || []).forEach((h, i) => {
+    const key = (h || '').toString().trim();
+    if (key) map[key] = i;
+  });
+  return map;
+}
+
+function renderTablesFromCache(){
+  const requests = requestsCache || [];
+  const selCategory = $('filterCategory').value.trim();
+  const selStatus = $('filterStatus').value.trim();
+  const search = ($('searchBox').value || '').trim().toLowerCase();
+
+  if (!officerSecret) {
+    $('tableNew').innerHTML = `<p class="p-4 text-gray-500 italic">Sila log masuk sebagai Pegawai untuk melihat senarai permohonan.</p>`;
+    $('tableQuery').innerHTML = `<p class="p-4 text-gray-500 italic">Sila log masuk sebagai Pegawai untuk melihat senarai permohonan.</p>`;
+    $('tableApproved').innerHTML = `<p class="p-4 text-gray-500 italic">Sila log masuk sebagai Pegawai untuk melihat senarai permohonan.</p>`;
+    return;
+  }
+
+  const newRows = [], queryRows = [], approvedRows = [];
+
+  function matchesSearch(req){
+    if (!search) return true;
+    const code = String(req['School Code'] || req['SchoolCode'] || req['schoolCode'] || '').toLowerCase();
+    const name = String(req['School Name'] || req['SchoolName'] || req['schoolName'] || '').toLowerCase();
+    return code.includes(search) || name.includes(search);
+  }
+
+  requests.forEach(req => {
+    const reqCategory = req['Category'] || req['category'] || req['Kategori'] || req['kategori'] || req['OfficerPIC'] || '';
+
+    if (selCategory && String(reqCategory) !== selCategory) return;
+    if (selStatus && String(req['Status']||'') !== selStatus) return;
+    if (!matchesSearch(req)) return;
+
+    const id = req['Request ID'] || '';
+    const kodSek = req['School Code'] || req['SchoolCode'] || req['schoolCode'] || '';
+    const school = req['School Name'] || req['SchoolName'] || req['schoolName'] || '';
+
+    let lnRaw = req['LeaderNames'] || req['LeaderName'] || req['leaderNames'] || '';
+    let lpRaw = req['LeaderPhones'] || req['LeaderPhone'] || req['leaderPhones'] || '';
+    let lnArr = [], lpArr = [];
+    try {
+      if (typeof lnRaw === 'string' && lnRaw.trim().startsWith('[')) lnArr = JSON.parse(lnRaw);
+      else if (Array.isArray(lnRaw)) lnArr = lnRaw;
+      else if (lnRaw) lnArr = [lnRaw];
+    } catch(e){ lnArr = Array.isArray(lnRaw)? lnRaw: (lnRaw? [lnRaw]:[]); }
+    try {
+      if (typeof lpRaw === 'string' && lpRaw.trim().startsWith('[')) lpArr = JSON.parse(lpRaw);
+      else if (Array.isArray(lpRaw)) lpArr = lpRaw;
+      else if (lpRaw) lpArr = [lpRaw];
+    } catch(e){ lpArr = Array.isArray(lpRaw)? lpRaw: (lpRaw? [lpRaw]:[]); }
+
+    const namaKetuaDisplay = lnArr.map(x=>String(x).trim()).filter(Boolean).join('<br/>');
+    const noTelDisplay = lpArr.map(x=>String(x).trim()).filter(Boolean).join('<br/>');
+
+    const travelStart = req['Travel Start'] || req['TravelStart'] || req['travelStart'] || '';
+    const status = req['Status'] || '';
+    const S = String(status || '').toUpperCase().trim();
+
+    const noSurat = req['NoSuratFull'] || (req['Letters'] ? `Surat dijana (${String(req['Letters']).split(/\s*;\s*/).filter(Boolean).length})` : (req['OfficerNote'] && (String(req['OfficerNote']).match(/QueryID:([A-Z0-9\-\_]+)/i) || [])[1] ? `Query: ${(String(req['OfficerNote']).match(/QueryID:([A-Z0-9\-\_]+)/i)||[])[1]}` : '-'));
+
+    const actionsGeneric = `<div class="flex gap-2"><button data-id="${id}" class="view-files px-2 py-1 border rounded text-xs hover:bg-gray-100">Lihat Fail</button></div>`;
+    const actionsWithOfficerBtns = `<div class="flex gap-2">
+        <button data-id="${id}" class="view-files px-2 py-1 bg-pink-400 border rounded text-xs hover:bg-pink-500">PDF Fail</button>
+        <button data-id="${id}" class="btn-query px-2 py-1 bg-yellow-400 rounded text-xs hover:bg-yellow-500">Query</button>
+        <button data-id="${id}" class="btn-preapprove px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700">Disemak (TP)</button>
+      </div>`;
+
+    if (S.indexOf('QUERY') > -1) {
+      const queries = extractQueries(req);
+      if (queries.length === 0) {
+        const qRow = {
+          'Kod Sekolah': kodSek,
+          'Nama Sekolah': school,
+          'Kategori': reqCategory || '',
+          'Tarikh Query': fmtDateToDisplay(req['QuerySentDate'] || req['QueryDate'] || req['Query Sent'] || req['QuerySent'] || ''),
+          'Tarikh Respon': fmtDateToDisplay(req['QueryRespondDate'] || req['QueryRespondedDate'] || req['QueryResponseDate'] || req['QueryRespondDate'] || ''),
+          'Catatan Query': (req['OfficerNote']||req['OfficerNotes']||''),
+          'Kod Query': req['QueryID'] || '',
+          'Status': status,
+          'Surat': noSurat,
+          'Tindakan': actionsWithOfficerBtns
+        };
+        queryRows.push(qRow);
+      } else {
+        queries.forEach(q=>{
+          queryRows.push({
+            'Kod Sekolah': kodSek,
+            'Nama Sekolah': school,
+            'Kategori': reqCategory || '',
+            'Tarikh Query': fmtDateToDisplay(q.sentDate || req['QuerySentDate'] || ''),
+            'Tarikh Respon': fmtDateToDisplay(q.respondedDate || req['QueryRespondDate'] || ''),
+            'Catatan Query': q.note || '',
+            'Kod Query': q.id || '',
+            'Status': status,
+            'Surat': noSurat,
+            'Tindakan': actionsWithOfficerBtns
+          });
+        });
+      }
+    } else if (S.indexOf('FINAL_APPROVED') > -1 || S.indexOf('READY_FOR_DP') > -1 || S.indexOf('PREAPPROVED') > -1 || S.indexOf('REVIEWED_FOR_TP')> -1) {
+      const letterDate = req['LetterDate'] || req['TarikhSurat'] || req['DateApproved'] || req['ApprovedDate'] || '';
+
+      const letterUrls = String(req['Letters']||'')
+        .split(/\s*;\s*/)
+        .map(u => u && u.trim())
+        .filter(Boolean);
+
+      let letterLink = '';
+      if (letterUrls.length === 1) {
+        letterLink = `<a href="${letterUrls[0]}" target="_blank" class="text-blue-600 underline hover:text-blue-800">Muat Turun</a>`;
+      } else if (letterUrls.length > 1) {
+        letterLink = letterUrls
+          .map((u,i) => `<a href="${u}" target="_blank" class="text-blue-600 underline hover:text-blue-800">Muat Turun ${i+1}</a>`)
+          .join(' &nbsp;|&nbsp; ');
+      }
+
+      approvedRows.push({
+        'Kod Sekolah': kodSek,
+        'Nama Sekolah': school,
+        'Kategori': req['Category'] || req['category'] || '',
+        'Tarikh Surat Lulus': fmtDateToDisplay(letterDate || req['GeneratedDate'] || req['NoSuratDate'] || ''),
+        'Link Surat': letterLink,
+        'Status': status,
+        'Surat': noSurat,
+        'Tindakan': actionsGeneric
+      });
+    } else {
+      newRows.push({
+        'Kod Sekolah': kodSek,
+        'Nama Sekolah': school,
+        'Nama Ketua': namaKetuaDisplay || '',
+        'No Tel Ketua': noTelDisplay || '',
+        'Kategori': reqCategory || '',
+        'Tarikh': fmtDateToDisplay(travelStart),
+        'Status': status,
+        'Surat': noSurat,
+        'Tindakan': actionsWithOfficerBtns
+      });
+    }
+  });
+
+  approvedRows.sort((a,b)=>{
+    const pa = a['Tarikh Surat Lulus'] ? a['Tarikh Surat Lulus'].split('-').reverse().join('-') : '';
+    const pb = b['Tarikh Surat Lulus'] ? b['Tarikh Surat Lulus'].split('-').reverse().join('-') : '';
+    return pb.localeCompare(pa);
+  });
+
+  $('tableNew').innerHTML = '';
+  $('tableQuery').innerHTML = '';
+  $('tableApproved').innerHTML = '';
+
+  if (newRows.length === 0) {
+    $('tableNew').innerHTML = `<p class="p-4 text-gray-500 italic">Tiada permohonan baru sepadan.</p>`;
+  } else {
+    const colsNew = ['Kod Sekolah','Nama Sekolah','Nama Ketua','No Tel Ketua','Kategori','Tarikh','Status','Surat','Tindakan'];
+    $('tableNew').appendChild(makeTable(newRows, colsNew));
+  }
+
+  if (queryRows.length === 0) {
+    $('tableQuery').innerHTML = `<p class="p-4 text-gray-500 italic">Tiada permohonan dalam status query.</p>`;
+  } else {
+    const colsQuery = ['Kod Sekolah','Nama Sekolah','Kategori','Tarikh Query','Tarikh Respon','Kod Query','Catatan Query','Status','Surat','Tindakan'];
+    $('tableQuery').appendChild(makeTable(queryRows, colsQuery));
+  }
+
+  if (approvedRows.length === 0) {
+    $('tableApproved').innerHTML = `<p class="p-4 text-gray-500 italic">Tiada permohonan yang telah diluluskan.</p>`;
+  } else {
+    const colsApp = ['Kod Sekolah','Nama Sekolah','Kategori','Tarikh Surat Lulus','Link Surat','Status','Surat','Tindakan'];
+    $('tableApproved').appendChild(makeTable(approvedRows, colsApp));
+  }
+
+  document.querySelectorAll('.view-files').forEach(btn=>{
+    btn.addEventListener('click', async (ev)=>{
+      const id = ev.currentTarget.dataset.id;
+      const req = (requestsCache || []).find(r => String(r['Request ID']) === String(id));
+      if (!req) return Swal.fire({ icon:'error', title:'Tidak jumpa rekod' });
+
+      const filePairs = [
+        {label:'KERTAS KERJA', raw: req['File_KERTAS_KERJA'] || req['kertasKerjaUrl'] || ''},
+        {label:'MAKLUMAT ANGGOTA', raw: req['File_MAKLUMAT_ANGGOTA'] || req['maklumatAnggotaUrl'] || ''},
+        {label:'PERMIT BAS', raw: req['File_PERMIT_BAS'] || req['permitBasUrl'] || ''},
+        {label:'LESEN PEMANDU', raw: req['File_LESEN_PEMANDU'] || req['lesenPemanduUrl'] || ''},
+        {label:'INTIPATI TAKLIMAT', raw: req['File_TAKLIMAT'] || req['taklimatUrl'] || ''}
+      ];
+
+      const html = filePairs.map(fp=>{
+        const urls = String(fp.raw||'').split(/\s*;\s*/).filter(Boolean);
+        if (urls.length === 0) return `<p><strong>${fp.label}:</strong> <em>Tiada fail</em></p>`;
+        const links = urls.map((u,i)=>`<div><a href="${u}" target="_blank" class="text-blue-600 hover:underline">Buka ${fp.label} ${urls.length>1?('('+ (i+1) +')'):''}</a></div>`).join('');
+        return `<p><strong>${fp.label}:</strong><br/>${links}</p>`;
+      }).join('');
+
+      await Swal.fire({
+        title: 'Fail Permohonan',
+        html: html,
+        width: 800,
+        showCloseButton: true,
+        showCancelButton: true,
+        confirmButtonText: 'Tutup',
+      });
+    });
+  });
+
+  document.querySelectorAll('.btn-query').forEach(btn=>{
+    btn.addEventListener('click', async ev=>{
+      const id = ev.currentTarget.dataset.id;
+      const targetBtn = ev.currentTarget;
+      targetBtn.disabled = true;
+      const origText = targetBtn.textContent;
+      targetBtn.textContent = 'Processing...';
+      
+      try {
+        const { value: note } = await Swal.fire({ 
+          title:'Catatan (kenapa query):', 
+          input:'textarea', 
+          inputPlaceholder:'Tulis sebab...', 
+          showCancelButton:true, 
+          confirmButtonText:'Hantar Query' 
+        });
+        if (!note) return;
+        const ok = await sendOfficerAction(id,'query', note, 'Menengah');
+        if (ok && officerSecret) await loadRequests();
+      } finally {
+        targetBtn.disabled = false;
+        targetBtn.textContent = origText;
+      }
+    });
+  });
+
+  document.querySelectorAll('.btn-preapprove').forEach(btn=>{
+    btn.addEventListener('click', async ev=>{
+      const id = ev.currentTarget.dataset.id;
+      const req = (requestsCache || []).find(r => String(r['Request ID']) === String(id));
+      if (!req) return Swal.fire({ icon:'error', title:'Tidak jumpa rekod' });
+      
+      const targetBtn = ev.currentTarget;
+      targetBtn.disabled = true;
+      const origText = targetBtn.textContent;
+      targetBtn.textContent = 'Processing...';
+      
+      try {
+        // Step 1: Get jilid/bil/tarikh
+        const { value: formValues } = await Swal.fire({
+          title: 'Semak & Hantar kepada Timbalan',
+          html: `
+            <div style="text-align:left">
+              <label for="swal_noJilid" style="font-weight:600;margin-bottom:4px;display:block">No Jilid (contoh: 24)</label>
+              <input id="swal_noJilid" class="swal2-input" placeholder="No Jilid (contoh: 24)">
+
+              <label for="swal_bilSurat" style="font-weight:600;margin-bottom:4px;display:block">Bil Surat (contoh: 25)</label>
+              <input id="swal_bilSurat" class="swal2-input" placeholder="Bil Surat (contoh: 25)">
+
+              <label for="swal_tarikhSurat" style="font-weight:600;margin-bottom:4px;display:block">Tarikh Surat</label>
+              <input id="swal_tarikhSurat" type="date" class="swal2-input" value="${new Date().toISOString().slice(0,10)}">
+
+              <label for="swal_pic" style="font-weight:600;margin-bottom:4px;display:block">PIC</label>
+              <select id="swal_pic" class="swal2-input">
+                <option value="Menengah" selected>Menengah</option>
+                <option value="Rendah">Rendah</option>
+              </select>
+
+              <label for="swal_note" style="font-weight:600;margin-bottom:4px;display:block;margin-top:8px">Catatan pendek untuk Timbalan (pilihan)</label>
+              <textarea id="swal_note" class="swal2-textarea" placeholder="Catatan pendek untuk Timbalan (pilihan)..."></textarea>
+            </div>
+          `,
+          focusConfirm: false,
+          showCancelButton: true,
+          confirmButtonText: 'Seterusnya →',
+          cancelButtonText: 'Batal',
+          preConfirm: () => {
+            const noJ = (document.getElementById('swal_noJilid')||{}).value.trim();
+            const bil = (document.getElementById('swal_bilSurat')||{}).value.trim();
+            const tar = (document.getElementById('swal_tarikhSurat')||{}).value;
+            const pic = (document.getElementById('swal_pic')||{}).value;
+            const note = (document.getElementById('swal_note')||{}).value.trim();
+
+            if (!noJ || !bil) {
+              Swal.showValidationMessage('Sila isi sekurang-kurangnya No Jilid dan Bil Surat');
+              return false;
+            }
+            return { noJilid: noJ, bilSurat: bil, tarikhSurat: tar, pic, note };
+          }
+        });
+
+        if (!formValues) {
+          targetBtn.disabled = false;
+          targetBtn.textContent = origText;
+          return;
+        }
+
+        // Step 2: Tanya nak cop atau tidak
+        const { value: wantStamp } = await Swal.fire({
+          title: 'Tambah Cop Pada PDF?',
+          html: `
+            <p>Adakah anda mahu menambah cop rasmi pada PDF sebelum hantar ke Timbalan?</p>
+            <p style="font-size:0.9em;color:#666;margin-top:8px">
+              <strong>Cop akan ditambah pada:</strong><br/>
+              • KERTAS KERJA<br/>
+              • MAKLUMAT ANGGOTA<br/>
+              • Semua mukasurat dalam setiap PDF
+            </p>
+          `,
+          icon: 'question',
+          showCancelButton: true,
+          showDenyButton: true,
+          confirmButtonText: 'Ya, Tambah Cop',
+          denyButtonText: 'Tidak, Terus Hantar',
+          cancelButtonText: 'Batal'
+        });
+
+        if (wantStamp === undefined) {
+          targetBtn.disabled = false;
+          targetBtn.textContent = origText;
+          return;
+        }
+
+        const composedNote = `No Jilid: ${formValues.noJilid}, Bil: ${formValues.bilSurat}, Tarikh: ${formValues.tarikhSurat || '-'}, PIC: ${formValues.pic || '-'}${formValues.note ? ' | Catatan: ' + formValues.note : ''}`;
+
+        function toIsoDateIfNeeded(s) {
+          if (!s) return '';
+          if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+          const cleaned = s.replace(/\//g, '-');
+          const parts = cleaned.split('-');
+          if (parts.length === 3) {
+            const dd = parts[0].padStart(2,'0'), mm = parts[1].padStart(2,'0'), yyyy = parts[2];
+            return `${yyyy}-${mm}-${dd}`;
+          }
+          return s;
+        }
+
+        const backendOptions = {
+          letterJilid: formValues.noJilid || '',
+          letterNo: formValues.bilSurat || '',
+          letterDate: toIsoDateIfNeeded(formValues.tarikhSurat || '')
+        };
+
+        // Step 3: If want stamp, do stamping
+        if (wantStamp === true) {
+          showLoading();
+          
+          try {
+            const filesToStamp = [
+              { label: 'KERTAS KERJA', url: req['File_KERTAS_KERJA'] || req['kertasKerjaUrl'] || '' },
+              { label: 'MAKLUMAT ANGGOTA', url: req['File_MAKLUMAT_ANGGOTA'] || req['maklumatAnggotaUrl'] || '' }
+            ].filter(f => f.url);
+
+            if (filesToStamp.length === 0) {
+              hideLoading();
+              await Swal.fire({
+                icon: 'warning',
+                title: 'Tiada PDF',
+                text: 'Tiada PDF untuk dicop. Sistem akan teruskan tanpa cop.'
+              });
+            } else {
+              // Load stamp image
+              let stampImageFile = null;
+              try {
+                const stampUrl = 'https://sps-jpnpahang.github.io/LSBMuridPahang/images/cop_jpnpahang.png';
+                const stampResp = await fetch(stampUrl);
+                const stampBlob = await stampResp.blob();
+                stampImageFile = new File([stampBlob], 'cop_jpnpahang.png', { type: 'image/png' });
+              } catch (e) {
+                console.log('Failed to load stamp, using text only:', e);
+              }
+
+              // Stamp each PDF
+              for (const fileInfo of filesToStamp) {
+                try {
+                  const urls = fileInfo.url.split(/\s*;\s*/).filter(Boolean);
+                  if (urls.length === 0) continue;
+                  const firstUrl = urls[0];
+
+                  const driveFile = await fetchDriveFileAsFile(firstUrl);
+                  
+                  const res = await annotatePdfAndUpload({
+                    requestId: id,
+                    fileBlobOrFile: driveFile,
+                    stampText: 'TELAH DISEMAK',
+                    stampImageFile: stampImageFile,
+                    sourceLabel: fileInfo.label
+                  });
+
+                  if (!res || !res.ok) {
+                    console.error('Failed to stamp:', fileInfo.label, res);
+                  }
+                } catch (err) {
+                  console.error('Error stamping:', fileInfo.label, err);
+                }
+              }
+
+              hideLoading();
+              await Swal.fire({
+                icon: 'success',
+                title: 'Cop Berjaya Ditambah',
+                text: `${filesToStamp.length} PDF telah dicop dan disimpan.`,
+                timer: 1500,
+                showConfirmButton: false
+              });
+            }
+          } catch (err) {
+            hideLoading();
+            console.error('Stamping error:', err);
+            await Swal.fire({
+              icon: 'error',
+              title: 'Ralat Cop',
+              text: 'Gagal tambah cop. Sistem akan teruskan tanpa cop.'
+            });
+          }
+        }
+
+        // Step 4: Send to backend
+        showLoading();
+        const ok = await sendOfficerAction(id, 'preapprove', composedNote, formValues.pic || 'Menengah', backendOptions);
+        hideLoading();
+
+        if (!ok) {
+          targetBtn.disabled = false;
+          targetBtn.textContent = origText;
+          return;
+        }
+
+        await Swal.fire({
+          icon: 'success',
+          title: 'Maklumat disimpan',
+          text: 'Permohonan telah dihantar ke Timbalan untuk tindakan.',
+          timer: 1400,
+          showConfirmButton: false
+        });
+
+        if (officerSecret) await loadRequests();
+        else renderTablesFromCache();
+
+      } catch (err) {
+        hideLoading();
+        console.error('Preapprove error:', err);
+        await Swal.fire({
+          icon: 'error',
+          title: 'Ralat',
+          text: err.message || String(err)
+        });
+      } finally {
+        targetBtn.disabled = false;
+        targetBtn.textContent = origText;
+      }
+    });
+  });
+}
+
+async function sendOfficerAction(id, type, note = '', pic = 'Menengah', options = {}) {
+  if (!officerSecret) {
+    return Swal.fire({ icon: 'warning', title: 'Sila log masuk sebagai Pegawai untuk tindakan ini.' });
+  }
+  showLoading();
+
+  let url = GAS_URL + '?action=officerAction' +
+            '&id=' + encodeURIComponent(id) +
+            '&type=' + encodeURIComponent(type) +
+            '&note=' + encodeURIComponent(note) +
+            '&pic=' + encodeURIComponent(pic) +
+            '&secret=' + encodeURIComponent(officerSecret);
+
+  if (options.letterJilid !== undefined && options.letterJilid !== null && String(options.letterJilid).length) {
+    url += '&letterJilid=' + encodeURIComponent(options.letterJilid);
+  }
+  if (options.letterNo !== undefined && options.letterNo !== null && String(options.letterNo).length) {
+    url += '&letterNo=' + encodeURIComponent(options.letterNo);
+  }
+  if (options.letterDate !== undefined && options.letterDate !== null && String(options.letterDate).length) {
+    url += '&letterDate=' + encodeURIComponent(options.letterDate);
+  }
+
+  try {
+    const r = await fetch(url);
+    const j = await r.json();
+    hideLoading();
+    if (!j || !j.ok) {
+      console.error('sendOfficerAction failed', j);
+      Swal.fire({ icon: 'error', title: 'Tindakan gagal', text: (j && j.message) ? j.message : 'Server returned error' });
+      return false;
+    }
+    return true;
+  } catch (err) {
+    hideLoading();
+    console.error('sendOfficerAction catch', err);
+    Swal.fire({ icon: 'error', title: 'Ralat Sambungan', text: String(err) });
+    return false;
+  }
+}
+
+$('loginDP').addEventListener('click', async ()=>{
+  const { value: pw } = await Swal.fire({
+    title: 'Kata Laluan Timbalan Pengarah',
+    input: 'password',
+    showCancelButton: true,
+    confirmButtonText: 'Log Masuk'
+  });
+  if (!pw) return;
+
+  try {
+    showLoading();
+    const res = await fetch(GAS_URL + '?action=checkSecret&secret=' + encodeURIComponent(pw));
+    const j = await res.json();
+    hideLoading();
+
+    if (j.ok) {
+      dpSecret = pw;
+
+      const btn = $('loginDP');
+      btn.textContent = 'Akses Dibenarkan';
+      btn.classList.remove('bg-blue-600');
+      btn.classList.add('bg-green-600','animate-gentle-pulse');
+      btn.disabled = true;
+
+      $('logoutDP').classList.remove('hidden');
+      $('dpLoggedAs').textContent = '(Sistem dalam mod sedia)';
+      $('dpLoggedAs').classList.add('text-green-600');
+
+      await Swal.fire({ icon:'success', title:'Selamat Datang Tuan Timbalan Pengarah', timer:1200, showConfirmButton:false });
+await loadDpList();
+    } else {
+      Swal.fire({ icon: 'error', title: 'Kata laluan salah' });
+    }
+  } catch (err) {
+    hideLoading();
+    Swal.fire({ icon: 'error', title: 'Ralat sambungan', text: err.message || '' });
+  }
+});
+
+$('logoutDP').addEventListener('click', async () => {
+  const ok = await Swal.fire({
+    title: 'Log Keluar?',
+    text: 'Adakah anda pasti mahu log keluar?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Ya, Log Keluar',
+    cancelButtonText: 'Batal'
+  });
+  if (!ok.isConfirmed) return;
+
+  dpSecret = null;
+
+  const btn = $('loginDP');
+  btn.textContent = 'Log masuk Timbalan';
+  btn.classList.remove('bg-green-600','animate-gentle-pulse');
+  btn.classList.add('bg-blue-600');
+  btn.disabled = false;
+
+  $('logoutDP').classList.add('hidden');
+  $('dpLoggedAs').textContent = '';
+
+  $('dpRequestsTable').innerHTML = `<p class="p-4 text-gray-500 italic">Sila log masuk Timbalan untuk melihat senarai permohonan.</p>`;
+
+  Swal.fire({ icon:'success', title:'Terima kasih Tuan Timbalan Pengarah', timer:1200, showConfirmButton:false });
+});
+
+async function loadDpList(){
+  if (!dpSecret) {
+    $('dpRequestsTable').innerHTML = `<p class="p-4 text-gray-500 italic">Sila log masuk Timbalan untuk melihat senarai permohonan.</p>`;
+    return;
+  }
+  try {
+    showLoading();
+    const res = await fetch(GAS_URL + '?action=listRequests&secret=' + encodeURIComponent(dpSecret));
+    const j = await res.json();
+    hideLoading();
+
+    if (!j.ok) {
+      $('dpRequestsTable').innerHTML = `<p class="p-4 text-red-500">${j.message||'Gagal'}</p>`;
+      return;
+    }
+
+    const requests = (j.requests || []).filter(req => {
+      const s = String(req['Status'] || '').toUpperCase();
+      return s.indexOf('PREAPPROVED') > -1 || s.indexOf('READY_FOR_DP') > -1 || s.indexOf('REVIEWED_FOR_TP') > -1;
+    });
+
+    if (requests.length === 0) {
+      $('dpRequestsTable').innerHTML = `<p class="p-4 text-gray-500 italic">Tiada permohonan menunggu kelulusan Timbalan.</p>`;
+      return;
+    }
+
+    const rows = [];
+    requests.forEach(req => {
+      const id = req['Request ID'] || '';
+      const kodSek = req['School Code'] || req['SchoolCode'] || req['schoolCode'] || '';
+      const school = req['School Name'] || req['SchoolName'] || req['schoolName'] || '';
+      const category = req['Category'] || req['category'] || '';
+
+      let lnRaw = req['LeaderNames'] || req['LeaderName'] || req['leaderNames'] || '';
+      let lpRaw = req['LeaderPhones'] || req['LeaderPhone'] || req['leaderPhones'] || '';
+      let lnArr = [], lpArr = [];
+      try {
+        if (typeof lnRaw === 'string' && lnRaw.trim().startsWith('[')) lnArr = JSON.parse(lnRaw);
+        else if (Array.isArray(lnRaw)) lnArr = lnRaw;
+        else if (lnRaw) lnArr = [lnRaw];
+      } catch(e){ lnArr = Array.isArray(lnRaw)? lnRaw: (lnRaw? [lnRaw]:[]); }
+      try {
+        if (typeof lpRaw === 'string' && lpRaw.trim().startsWith('[')) lpArr = JSON.parse(lpRaw);
+        else if (Array.isArray(lpRaw)) lpArr = lpArr;
+        else if (lpRaw) lpArr = [lpRaw];
+      } catch(e){ lpArr = Array.isArray(lpRaw)? lpRaw: (lpRaw? [lpRaw]:[]); }
+
+      const namaKetuaDisplay = lnArr.map(x=>String(x).trim()).filter(Boolean).join('<br/>');
+      const noTelDisplay = lpArr.map(x=>String(x).trim()).filter(Boolean).join('<br/>');
+
+      const travelStart = req['Travel Start'] || req['TravelStart'] || req['travelStart'] || '';
+      const status = req['Status'] || '';
+
+      const filePairs = [
+        {label:'KERTAS KERJA', raw: req['File_KERTAS_KERJA'] || req['kertasKerjaUrl'] || ''},
+        {label:'MAKLUMAT ANGGOTA', raw: req['File_MAKLUMAT_ANGGOTA'] || req['maklumatAnggotaUrl'] || ''},
+        {label:'PERMIT BAS', raw: req['File_PERMIT_BAS'] || req['permitBasUrl'] || ''},
+        {label:'LESEN PEMANDU', raw: req['File_LESEN_PEMANDU'] || req['lesenPemanduUrl'] || ''},
+        {label:'INTIPATI TAKLIMAT', raw: req['File_TAKLIMAT'] || req['taklimatUrl'] || ''}
+      ];
+
+      const filesHtml = filePairs.map(fp=>{
+        const urls = String(fp.raw||'').split(/\s*;\s*/).filter(Boolean);
+        if (urls.length === 0) return `<p><strong>${fp.label}:</strong> <em>Tiada fail</em></p>`;
+        const links = urls.map((u,i)=>`<div><a href="${u}" target="_blank" class="text-blue-600 hover:underline">Buka ${fp.label} ${urls.length>1?('('+(i+1)+')'):''}</a></div>`).join('');
+        return `<p><strong>${fp.label}:</strong><br/>${links}</p>`;
+      }).join('');
+
+      const actions = `<div class="flex gap-2">
+        <button data-id="${id}" class="dp-view-files px-2 py-1 border rounded text-xs hover:bg-gray-100">Lihat Fail</button>
+        <button data-id="${id}" class="dp-approve px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700">Lulus & Hantar Surat</button>
+      </div>`;
+
+      rows.push({
+        'Kod Sekolah': kodSek,
+        'Nama Sekolah': school,
+        'Nama Ketua': namaKetuaDisplay,
+        'No Tel Ketua': noTelDisplay,
+        'Kategori': category,
+        'Tarikh': fmtDateToDisplay(travelStart),
+        'Status': status,
+        'Tindakan': actions
+      });
+    });
+
+    const cols = ['Kod Sekolah','Nama Sekolah','Nama Ketua','No Tel Ketua','Kategori','Tarikh','Status','Tindakan'];
+    $('dpRequestsTable').innerHTML = '';
+    $('dpRequestsTable').appendChild(makeTable(rows, cols));
+
+    document.querySelectorAll('.dp-view-files').forEach(btn=>{
+      btn.addEventListener('click', async ev=>{
+        const id = ev.currentTarget.dataset.id;
+        const req = requests.find(r => String(r['Request ID']) === String(id));
+        if (!req) return Swal.fire({ icon:'error', title:'Tidak jumpa rekod' });
+
+        const filePairs = [
+          {label:'KERTAS KERJA', raw: req['File_KERTAS_KERJA'] || req['kertasKerjaUrl'] || ''},
+          {label:'MAKLUMAT ANGGOTA', raw: req['File_MAKLUMAT_ANGGOTA'] || req['maklumatAnggotaUrl'] || ''},
+          {label:'PERMIT BAS', raw: req['File_PERMIT_BAS'] || req['permitBasUrl'] || ''},
+          {label:'LESEN PEMANDU', raw: req['File_LESEN_PEMANDU'] || req['lesenPemanduUrl'] || ''},
+          {label:'INTIPATI TAKLIMAT', raw: req['File_TAKLIMAT'] || req['taklimatUrl'] || ''}
+        ];
+
+        const html = filePairs.map(fp=>{
+          const urls = String(fp.raw||'').split(/\s*;\s*/).filter(Boolean);
+          if (urls.length === 0) return `<p><strong>${fp.label}:</strong> <em>Tiada fail</em></p>`;
+          const links = urls.map((u,i)=>`<div><a href="${u}" target="_blank" class="text-blue-600 hover:underline">Buka ${fp.label} ${urls.length>1?('('+(i+1)+')'):''}</a></div>`).join('');
+          return `<p><strong>${fp.label}:</strong><br/>${links}</p>`;
+        }).join('');
+
+        await Swal.fire({ title: 'Fail Permohonan', html, width: 800, showCloseButton: true, confirmButtonText: 'Tutup' });
+      });
+    });
+
+    document.querySelectorAll('.dp-approve').forEach(btn=>{
+      btn.addEventListener('click', async ev=>{
+        const id = ev.currentTarget.dataset.id;
+        const req = requests.find(r => String(r['Request ID']) === String(id));
+        if (!req) return Swal.fire({ icon:'error', title:'Tidak jumpa rekod' });
+
+        const confirm = await Swal.fire({
+          title: 'Luluskan permohonan ini?',
+          text: `${req['School Name']||''} — Tarikh ${fmtDateToDisplay(req['Travel Start']||'')}`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Ya, Luluskan & Jana Surat',
+          cancelButtonText: 'Batal'
+        });
+        if (!confirm.isConfirmed) return;
+
+        showLoading();
+        try {
+          const res = await fetch(GAS_URL + '?action=dpApprove&id=' + encodeURIComponent(id) + '&secret=' + encodeURIComponent(dpSecret));
+          const j = await res.json();
+          hideLoading();
+
+          if (j.ok) {
+            await Swal.fire({ icon:'success', title:'Permohonan diluluskan!', text:'Surat telah dijana dan dihantar kepada sekolah.', timer:2000 });
+            await loadDpList();
+          } else {
+            Swal.fire({ icon:'error', title:'Gagal', text: j.message || j.error || 'Ralat tidak diketahui' });
+          }
+        } catch (err) {
+          hideLoading();
+          Swal.fire({ icon:'error', title:'Ralat', text: err.message || String(err) });
+        }
+      });
+    });
+
+  } catch (err) {
+    hideLoading();
+    $('dpRequestsTable').innerHTML = `<p class="p-4 text-red-500">Ralat: ${err.message||''}</p>`;
+  }
+}
+
+$('sendQueryResponseBtn').addEventListener('click', async ()=>{
+  const queryId = $('respQueryId').value.trim();
+  const email = $('respSchoolEmail').value.trim();
+
+  if (!queryId) return Swal.fire({ icon:'warning', title:'Query ID diperlukan' });
+  if (!email) return Swal.fire({ icon:'warning', title:'Email sekolah diperlukan untuk notifikasi' });
+
+  const fileMap = {
+    kertasKerja: $('resp_file_kertasKerja').files[0],
+    maklumatAnggota: $('resp_file_maklumatAnggota').files[0],
+    permitBas: $('resp_file_permitBas').files[0],
+    lesenPemandu: $('resp_file_lesenPemandu').files[0],
+    taklimat: $('resp_file_taklimat').files[0]
+  };
+
+  let anyFile = false;
+  for (const k in fileMap) {
+    if (fileMap[k]) {
+      anyFile = true;
+      const validation = validateFile(fileMap[k]);
+      if (!validation.ok) {
+        return Swal.fire({ icon:'error', title:'Fail tidak sah', text: validation.message });
+      }
+    }
+  }
+  if (!anyFile) return Swal.fire({ icon:'warning', title:'Tiada fail', text:'Sila pilih sekurang-kurangnya satu fail PDF untuk muat naik.' });
+
+  showLoading();
+  try {
+    const filesBase64 = {};
+    for (const k in fileMap) if (fileMap[k]) filesBase64[k] = await fileToBase64(fileMap[k]);
+
+    const body = JSON.stringify({ type:'queryResponse', queryId, schoolEmail: email, filesBase64 });
+    const res = await fetch(GAS_URL, { method:'POST', body });
+    const j = await res.json();
+    hideLoading();
+
+    if (j.ok) {
+      await Swal.fire({ icon:'success', title:'Respon Query berjaya dihantar!', text:'Fail telah dikemaskini dan pegawai akan diberitahu.' });
+      $('respQueryId').value = '';
+      $('respSchoolEmail').value = '';
+      ['resp_file_kertasKerja','resp_file_maklumatAnggota','resp_file_permitBas','resp_file_lesenPemandu','resp_file_taklimat'].forEach(id=>{ if ($(id)) $(id).value=''; });
+    } else {
+      Swal.fire({ icon:'error', title:'Gagal', text: j.message || j.error || 'Ralat tidak diketahui' });
+    }
+  } catch (err) {
+    hideLoading();
+    Swal.fire({ icon:'error', title:'Ralat', text: err.message || String(err) });
+  }
+});
+
+(function setupMobileMenu(){
+  const sidebar = document.querySelector('.sidebar');
+  const menuToggle = $('menuToggle');
+  const closeSidebar = $('closeSidebar');
+
+  if (!sidebar || !menuToggle || !closeSidebar) return;
+
+  menuToggle.addEventListener('click', () => {
+    sidebar.classList.remove('hidden');
+    sidebar.classList.add('fixed','z-40','bg-gray-900','text-white','w-64','h-screen','p-6');
+    closeSidebar.classList.remove('hidden');
+  });
+
+  closeSidebar.addEventListener('click', () => {
+    sidebar.classList.add('hidden');
+    closeSidebar.classList.add('hidden');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!sidebar.contains(e.target) && !menuToggle.contains(e.target) && window.innerWidth < 768) {
+      sidebar.classList.add('hidden');
+      closeSidebar.classList.add('hidden');
+    }
+  });
+})();
+
+(function setupDownloads(){
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest && e.target.closest('#downloadsSection .download-btn');
+    if (!btn) return;
+
+    const url = btn.getAttribute('data-link') || btn.dataset.link || '#';
+    if (!url || url === '#') {
+      Swal.fire({ icon:'info', title:'Tiada fail', text:'Link muat turun belum dikonfigurasikan.' });
+      return;
+    }
+
+    window.open(url, '_blank', 'noopener,noreferrer');
+  });
+})();
+
+(function setupFilesModal(){
+  const modal = $('filesModal');
+  if (!modal) return;
+
+  const closeBtn1 = $('filesModalClose');
+  const closeBtn2 = $('filesModalClose2');
+
+  function closeModal(){
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+
+  if (closeBtn1) closeBtn1.addEventListener('click', closeModal);
+  if (closeBtn2) closeBtn2.addEventListener('click', closeModal);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+})();
+
+console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
+</script>
+</body>
+</html>
