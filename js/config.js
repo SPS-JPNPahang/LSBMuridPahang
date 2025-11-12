@@ -6,7 +6,7 @@
 // ===== CONFIGURATION - KEKALKAN URL ASAL ANDA =====
 const CONFIG = {
   // Google Apps Script URL (JANGAN UBAH)
-  GAS_URL: 'https://script.google.com/macros/s/AKfycbx_B7hzQrDtlks5fAynamk1s143zUvCxVWEQwfeNC3-BmKCAR9CZ27Sqml7qhIWZN3O/exec',
+  GAS_URL: 'https://script.google.com/macros/s/AKfycbwTu6cppOshXOA1KdmwnMSfunhvolTpenIVHctjxnUIvU7HuB633XkcbiMJiK4cvf4u-w/exec',
   
   // File Settings
   MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
@@ -135,4 +135,5 @@ function blobToFile(blob, name) {
 // ===== EXPORT FOR OTHER MODULES =====
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { CONFIG, $, showLoading, hideLoading, log, logError };
+
 }
