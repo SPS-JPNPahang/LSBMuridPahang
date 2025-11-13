@@ -1949,11 +1949,16 @@ $('checkStatusBtn').addEventListener('click', async () => {
           </div>
         </div>
       `;
+      // ✨ TAMBAHAN BARU - Clear input after search
+      $('statusSchoolCode').value = '';
+      
       return;
     }
     
     // Display results
     renderStatusResults(json.applications || []);
+      // ✨ TAMBAHAN BARU - Clear input after successful search
+    $('statusSchoolCode').value = '';
     
   } catch (err) {
     hideLoading();
@@ -2020,17 +2025,17 @@ function createStatusCard(app) {
   const participantCount = app.participantCount || app['ParticipantCount'] || '';
   const vehicleCount = app.vehicleCount || app['VehicleCount'] || '';
   
-  // Query info - VIEW ONLY dengan link ke tab Query Response
+  // ✨ ENHANCED: Always show officer notes if available
+  const officerNote = app.queryNote || app.officerNote || app['OfficerNote'] || '';
+  
+  // Query info section
   let querySection = '';
   if (app.queryId) {
     const queryDate = fmtDateToDisplay(app.querySentDate || app['QuerySentDate'] || '');
-    const queryNote = app.queryNote || app['OfficerNote'] || '';
     const respondDate = app.queryRespondDate || app['QueryRespondDate'] || '';
-    
-    // Check if already responded
     const hasResponded = respondDate || String(app.status || '').toUpperCase().includes('RESPONDED');
     
-    // Calculate deadline (7 days from query date)
+    // Calculate deadline
     let deadlineText = '';
     let isOverdue = false;
     if (app.querySentDate && !hasResponded) {
@@ -2053,52 +2058,57 @@ function createStatusCard(app) {
     
     querySection = `
       <div class="mt-4 pt-4 border-t ${hasResponded ? 'border-purple-200 bg-purple-50' : (isOverdue ? 'border-red-200 bg-red-50' : 'border-yellow-200 bg-yellow-50')} -mx-5 px-5 -mb-5 pb-5 rounded-b-lg">
-        <div class="flex items-start gap-2">
+        <div class="flex items-start gap-3">
           <svg class="h-6 w-6 ${hasResponded ? 'text-purple-600' : (isOverdue ? 'text-red-600' : 'text-yellow-600')} mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
           </svg>
           <div class="flex-1">
-            <p class="text-base font-bold ${hasResponded ? 'text-purple-800' : (isOverdue ? 'text-red-800' : 'text-yellow-800')} mb-2">
+            <p class="text-base font-bold ${hasResponded ? 'text-purple-800' : (isOverdue ? 'text-red-800' : 'text-yellow-800')} mb-3">
               ${hasResponded ? '✅ Query Telah Dijawab' : (isOverdue ? '⚠️ LEWAT TARIKH TAMAT! Permohonan Mungkin Terbatal' : '⚠️ Maklumat Tambahan Diperlukan')}
             </p>
             
             <!-- Query Details Box -->
             <div class="${hasResponded ? 'bg-purple-100 border-purple-300' : (isOverdue ? 'bg-red-100 border-red-300' : 'bg-yellow-100 border-yellow-300')} border-2 rounded-lg p-4 mb-3">
-              <div class="space-y-2 text-sm">
-                <div class="flex items-start gap-2">
-                  <span class="font-semibold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')} min-w-[120px]">📝 Catatan Pegawai:</span>
-                  <span class="${hasResponded ? 'text-purple-800' : (isOverdue ? 'text-red-800' : 'text-yellow-800')} flex-1 whitespace-pre-wrap">${queryNote || 'Tiada catatan'}</span>
-                </div>
-                
-                <div class="flex items-center gap-2">
-                  <span class="font-semibold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')} min-w-[120px]">🔖 No. Query:</span>
-                  <code class="${hasResponded ? 'bg-purple-200 text-purple-900' : (isOverdue ? 'bg-red-200 text-red-900' : 'bg-yellow-200 text-yellow-900')} px-3 py-1 rounded font-mono text-sm font-semibold">${app.queryId}</code>
-                </div>
-                
-                <div class="flex items-center gap-2">
-                  <span class="font-semibold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')} min-w-[120px]">📅 Tarikh Query:</span>
-                  <span class="${hasResponded ? 'text-purple-800' : (isOverdue ? 'text-red-800' : 'text-yellow-800')} font-medium">${queryDate || 'Tidak diketahui'}</span>
-                </div>
-                
-                ${!hasResponded && deadlineText ? `
-                  <div class="flex items-center gap-2">
-                    <span class="font-semibold ${isOverdue ? 'text-red-900' : 'text-yellow-900'} min-w-[120px]">⏰ Tarikh Tamat:</span>
-                    <span class="${isOverdue ? 'text-red-900 font-bold' : 'text-yellow-900 font-semibold'}">${deadlineText} ${isOverdue ? '(LEWAT!)' : ''}</span>
+              <div class="space-y-3 text-sm">
+                ${officerNote ? `
+                  <div class="flex items-start gap-2">
+                    <span class="font-semibold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')} whitespace-nowrap">📝 Catatan Pegawai:</span>
+                    <span class="${hasResponded ? 'text-purple-800' : (isOverdue ? 'text-red-800' : 'text-yellow-800')} flex-1 whitespace-pre-wrap leading-relaxed">${officerNote}</span>
                   </div>
+                  <div class="${hasResponded ? 'bg-purple-200' : (isOverdue ? 'bg-red-200' : 'bg-yellow-200')} h-px"></div>
                 ` : ''}
                 
-                ${hasResponded ? `
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-semibold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')}">🔖 No. Query:</span>
+                  <code class="${hasResponded ? 'bg-purple-200 text-purple-900' : (isOverdue ? 'bg-red-200 text-red-900' : 'bg-yellow-200 text-yellow-900')} px-3 py-1 rounded font-mono text-sm font-bold">${app.queryId}</code>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div class="flex items-center gap-2">
-                    <span class="font-semibold text-purple-900 min-w-[120px]">✓ Tarikh Respon:</span>
-                    <span class="text-purple-800 font-medium">${fmtDateToDisplay(respondDate)}</span>
+                    <span class="font-semibold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')}">📅 Tarikh Query:</span>
+                    <span class="${hasResponded ? 'text-purple-800' : (isOverdue ? 'text-red-800' : 'text-yellow-800')} font-medium">${queryDate || 'Tidak diketahui'}</span>
                   </div>
-                ` : ''}
+                  
+                  ${!hasResponded && deadlineText ? `
+                    <div class="flex items-center gap-2">
+                      <span class="font-semibold ${isOverdue ? 'text-red-900' : 'text-yellow-900'}">⏰ Tarikh Tamat:</span>
+                      <span class="${isOverdue ? 'text-red-900 font-bold' : 'text-yellow-900 font-semibold'}">${deadlineText} ${isOverdue ? '(LEWAT!)' : ''}</span>
+                    </div>
+                  ` : ''}
+                  
+                  ${hasResponded ? `
+                    <div class="flex items-center gap-2">
+                      <span class="font-semibold text-purple-900">✓ Tarikh Respon:</span>
+                      <span class="text-purple-800 font-medium">${fmtDateToDisplay(respondDate)}</span>
+                    </div>
+                  ` : ''}
+                </div>
               </div>
             </div>
             
             ${!hasResponded ? `
               <!-- Warning Box -->
-              <div class="${isOverdue ? 'bg-red-50 border-red-400' : 'bg-orange-50 border-orange-400'} border-2 rounded-lg p-4 mb-3">
+              <div class="${isOverdue ? 'bg-red-50 border-red-400' : 'bg-orange-50 border-orange-400'} border-2 rounded-lg p-3 mb-3">
                 <div class="flex items-start gap-2">
                   <svg class="h-5 w-5 ${isOverdue ? 'text-red-600' : 'text-orange-600'} mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
@@ -2117,7 +2127,7 @@ function createStatusCard(app) {
                 </div>
               </div>
               
-              <!-- Email Reminder Box -->
+              <!-- Email Reminder -->
               <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-3 mb-3">
                 <div class="flex items-start gap-2">
                   <svg class="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -2158,7 +2168,25 @@ function createStatusCard(app) {
     `;
   }
   
-  // Letter links - VIEW & DOWNLOAD ONLY
+  // ✨ NEW: Show officer notes even without query (for transparency)
+  let notesSection = '';
+  if (!app.queryId && officerNote && officerNote.trim()) {
+    notesSection = `
+      <div class="mt-4 pt-4 border-t border-blue-200 bg-blue-50 -mx-5 px-5 pb-4 ${!app.letters || app.letters.length === 0 ? '-mb-5 rounded-b-lg' : ''}">
+        <div class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+          </svg>
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-blue-900 mb-1">💬 Nota Pegawai</p>
+            <p class="text-xs text-blue-800 leading-relaxed whitespace-pre-wrap">${officerNote}</p>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  // Letter section
   let letterSection = '';
   if (app.letters && app.letters.length > 0) {
     const links = app.letters.map((url, i) => 
@@ -2237,7 +2265,7 @@ function createStatusCard(app) {
       </div>
       
       <!-- Status Description -->
-      <div class="bg-gradient-to-r from-gray-50 to-gray-100 -mx-5 px-5 py-3 ${querySection || letterSection ? '' : '-mb-5 rounded-b-lg'} border-t border-gray-200">
+      <div class="bg-gradient-to-r from-gray-50 to-gray-100 -mx-5 px-5 py-3 ${querySection || notesSection || letterSection ? '' : '-mb-5 rounded-b-lg'} border-t border-gray-200">
         <div class="flex items-start gap-2">
           <svg class="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
@@ -2248,6 +2276,7 @@ function createStatusCard(app) {
       
       <!-- Dynamic Sections -->
       ${querySection}
+      ${notesSection}
       ${letterSection}
     </div>
   `;
@@ -2366,8 +2395,3 @@ console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </body>
 
 </html>
-
-
-
-
-
