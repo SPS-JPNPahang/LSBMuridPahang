@@ -56,11 +56,6 @@ LSBMuridPahang/
 
 ## 🔧 Setup
 
-### Requirements
-- Browser moden (Chrome, Firefox, Edge)
-- Sambungan internet
-- Google Apps Script backend (sudah dikonfigurasikan)
-
 ### Configuration
 Semua konfigurasi ada dalam `js/config.js`:
 - Google Apps Script URL
@@ -98,44 +93,8 @@ Untuk sokongan teknikal, hubungi:
 ## 📅 Versi
 
 **Versi 1.1** - November 2025
+- 🎗️ FARIZAN,ZACK,ALIAS.IZZAT,SHAMIL
 - ✅ Sistem annotate PDF dengan cop
 - ✅ Query management yang lebih baik
 - ✅ UI/UX yang diperbaiki
 - ✅ Mobile responsive
-
----
-
-**Dibangunkan oleh Sektor Pengurusan Sekolah, Jabatan Pendidikan Negeri Pahang**
-```
-
----
-
-## ✅ **SAVE `README.md`**
-
-1. Copy kod di atas
-2. Paste dalam Notepad
-3. **File → Save As**
-4. **Nama fail:** `README.md`
-5. **Save as type:** **All Files**
-6. **Save dalam:** `LSBMuridPahang` folder
-
----
-
-## 🎊 **TAHNIAH! SEMUA FAIL SUDAH LENGKAP!**
-
-Sekarang struktur folder anda:
-```
-LSBMuridPahang/
-├── index.html          ✅
-├── app.html            ✅ BARU
-├── README.md           ✅ BARU
-├── css/
-│   └── styles.css      ✅
-├── js/
-│   ├── config.js       ✅
-│   ├── utils.js        ✅
-│   ├── auth.js         ✅
-│   └── forms.js        ✅
-└── images/
-    ├── IMAGE1.png      ❓ PERLU COPY
-    └── IMAGE2.png      ❓ PERLU COPY
