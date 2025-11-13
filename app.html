@@ -2025,19 +2025,21 @@ function createStatusCard(app) {
   const participantCount = app.participantCount || app['ParticipantCount'] || '';
   const vehicleCount = app.vehicleCount || app['VehicleCount'] || '';
   
-  // ✨ ENHANCED: Always show officer notes if available
+  // Extract officer notes
   const officerNote = app.queryNote || app.officerNote || app['OfficerNote'] || '';
   
-  // Query info section
+  // Query info section - ENHANCED VERSION
   let querySection = '';
   if (app.queryId) {
     const queryDate = fmtDateToDisplay(app.querySentDate || app['QuerySentDate'] || '');
     const respondDate = app.queryRespondDate || app['QueryRespondDate'] || '';
     const hasResponded = respondDate || String(app.status || '').toUpperCase().includes('RESPONDED');
     
-    // Calculate deadline
+    // Calculate deadline (7 days from query)
     let deadlineText = '';
     let isOverdue = false;
+    let daysRemaining = 0;
+    
     if (app.querySentDate && !hasResponded) {
       try {
         const qDate = new Date(app.querySentDate);
@@ -2049,7 +2051,9 @@ function createStatusCard(app) {
           today.setHours(0, 0, 0, 0);
           deadline.setHours(0, 0, 0, 0);
           
-          isOverdue = today > deadline;
+          const timeDiff = deadline - today;
+          daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+          isOverdue = daysRemaining < 0;
         }
       } catch (e) {
         console.error('Date calculation error:', e);
@@ -2057,129 +2061,200 @@ function createStatusCard(app) {
     }
     
     querySection = `
-      <div class="mt-4 pt-4 border-t ${hasResponded ? 'border-purple-200 bg-purple-50' : (isOverdue ? 'border-red-200 bg-red-50' : 'border-yellow-200 bg-yellow-50')} -mx-5 px-5 -mb-5 pb-5 rounded-b-lg">
-        <div class="flex items-start gap-3">
-          <svg class="h-6 w-6 ${hasResponded ? 'text-purple-600' : (isOverdue ? 'text-red-600' : 'text-yellow-600')} mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-          </svg>
+      <!-- ========== QUERY SECTION ========== -->
+      <div class="mt-0 pt-5 border-t-4 ${hasResponded ? 'border-purple-400 bg-gradient-to-br from-purple-50 to-purple-100' : (isOverdue ? 'border-red-500 bg-gradient-to-br from-red-50 to-red-100' : 'border-yellow-400 bg-gradient-to-br from-yellow-50 to-yellow-100')} -mx-5 px-5 -mb-5 pb-5 rounded-b-lg">
+        
+        <!-- Query Status Header -->
+        <div class="flex items-center gap-3 mb-4">
+          <div class="flex-shrink-0 w-12 h-12 ${hasResponded ? 'bg-purple-500' : (isOverdue ? 'bg-red-600' : 'bg-yellow-500')} rounded-full flex items-center justify-center shadow-lg">
+            <svg class="h-7 w-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+              ${hasResponded ? 
+                '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>' :
+                '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>'
+              }
+            </svg>
+          </div>
           <div class="flex-1">
-            <p class="text-base font-bold ${hasResponded ? 'text-purple-800' : (isOverdue ? 'text-red-800' : 'text-yellow-800')} mb-3">
-              ${hasResponded ? '✅ Query Telah Dijawab' : (isOverdue ? '⚠️ LEWAT TARIKH TAMAT! Permohonan Mungkin Terbatal' : '⚠️ Maklumat Tambahan Diperlukan')}
+            <h3 class="text-lg font-bold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')} leading-tight">
+              ${hasResponded ? '✅ Query Telah Dijawab' : (isOverdue ? '⚠️ OVERDUE - Permohonan Mungkin Terbatal' : '❓ Maklumat Tambahan Diperlukan')}
+            </h3>
+            <p class="text-xs ${hasResponded ? 'text-purple-700' : (isOverdue ? 'text-red-700' : 'text-yellow-700')} mt-0.5">
+              ${hasResponded ? 'Respon telah diterima dan sedang disemak' : (isOverdue ? `Lewat ${Math.abs(daysRemaining)} hari dari tarikh tamat` : `Tindakan diperlukan dalam ${daysRemaining} hari`)}
             </p>
-            
-            <!-- Query Details Box -->
-            <div class="${hasResponded ? 'bg-purple-100 border-purple-300' : (isOverdue ? 'bg-red-100 border-red-300' : 'bg-yellow-100 border-yellow-300')} border-2 rounded-lg p-4 mb-3">
-              <div class="space-y-3 text-sm">
-                ${officerNote ? `
-                  <div class="flex items-start gap-2">
-                    <span class="font-semibold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')} whitespace-nowrap">📝 Catatan Pegawai:</span>
-                    <span class="${hasResponded ? 'text-purple-800' : (isOverdue ? 'text-red-800' : 'text-yellow-800')} flex-1 whitespace-pre-wrap leading-relaxed">${officerNote}</span>
-                  </div>
-                  <div class="${hasResponded ? 'bg-purple-200' : (isOverdue ? 'bg-red-200' : 'bg-yellow-200')} h-px"></div>
-                ` : ''}
-                
-                <div class="flex items-center gap-2 flex-wrap">
-                  <span class="font-semibold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')}">🔖 No. Query:</span>
-                  <code class="${hasResponded ? 'bg-purple-200 text-purple-900' : (isOverdue ? 'bg-red-200 text-red-900' : 'bg-yellow-200 text-yellow-900')} px-3 py-1 rounded font-mono text-sm font-bold">${app.queryId}</code>
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div class="flex items-center gap-2">
-                    <span class="font-semibold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')}">📅 Tarikh Query:</span>
-                    <span class="${hasResponded ? 'text-purple-800' : (isOverdue ? 'text-red-800' : 'text-yellow-800')} font-medium">${queryDate || 'Tidak diketahui'}</span>
-                  </div>
-                  
-                  ${!hasResponded && deadlineText ? `
-                    <div class="flex items-center gap-2">
-                      <span class="font-semibold ${isOverdue ? 'text-red-900' : 'text-yellow-900'}">⏰ Tarikh Tamat:</span>
-                      <span class="${isOverdue ? 'text-red-900 font-bold' : 'text-yellow-900 font-semibold'}">${deadlineText} ${isOverdue ? '(LEWAT!)' : ''}</span>
-                    </div>
-                  ` : ''}
-                  
-                  ${hasResponded ? `
-                    <div class="flex items-center gap-2">
-                      <span class="font-semibold text-purple-900">✓ Tarikh Respon:</span>
-                      <span class="text-purple-800 font-medium">${fmtDateToDisplay(respondDate)}</span>
-                    </div>
-                  ` : ''}
-                </div>
-              </div>
-            </div>
-            
-            ${!hasResponded ? `
-              <!-- Warning Box -->
-              <div class="${isOverdue ? 'bg-red-50 border-red-400' : 'bg-orange-50 border-orange-400'} border-2 rounded-lg p-3 mb-3">
-                <div class="flex items-start gap-2">
-                  <svg class="h-5 w-5 ${isOverdue ? 'text-red-600' : 'text-orange-600'} mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                  </svg>
-                  <div class="flex-1">
-                    <p class="text-sm ${isOverdue ? 'text-red-900' : 'text-orange-900'} font-semibold mb-1">
-                      ${isOverdue ? '⚠️ AMARAN: Tarikh tamat telah lepas!' : '⏰ PENTING: Tindakan Segera Diperlukan'}
-                    </p>
-                    <ul class="text-xs ${isOverdue ? 'text-red-800' : 'text-orange-800'} space-y-1 ml-1">
-                      ${isOverdue ? 
-                        '<li>• Permohonan anda <strong>mungkin telah terbatal</strong> kerana lewat respond</li><li>• Sila hubungi pegawai untuk pengesahan</li><li>• Jika terbatal, anda perlu <strong>buat permohonan BARU</strong></li>' :
-                        '<li>• Anda mesti hantar respon dalam <strong>7 HARI</strong> dari tarikh query</li><li>• Kegagalan berbuat demikian akan menyebabkan permohonan <strong>TERBATAL</strong></li><li>• Permohonan yang terbatal perlu <strong>MOHON SEMULA</strong></li>'
-                      }
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Email Reminder -->
-              <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-3 mb-3">
-                <div class="flex items-start gap-2">
-                  <svg class="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
-                  </svg>
-                  <div class="flex-1">
-                    <p class="text-xs text-blue-900 font-semibold mb-1">📧 Nota Email:</p>
-                    <p class="text-xs text-blue-800">Email query telah dihantar ke alamat e-mel yang didaftarkan. <strong>Sila semak folder SPAM/JUNK</strong> jika tidak menerima email.</p>
-                  </div>
-                </div>
-              </div>
-              
-              <button 
-                onclick="goToQueryResponse('${app.queryId}')" 
-                class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 ${isOverdue ? 'bg-red-600 hover:bg-red-700' : 'bg-yellow-600 hover:bg-yellow-700'} text-white text-sm font-bold rounded-lg transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                </svg>
-                ${isOverdue ? 'Hantar Respon (LEWAT TARIKH)' : 'Hantar Respon Query Sekarang'}
-              </button>
-            ` : `
-              <div class="bg-purple-100 border-2 border-purple-300 rounded-lg p-3">
-                <div class="flex items-start gap-2">
-                  <svg class="h-5 w-5 text-purple-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                  </svg>
-                  <p class="text-sm text-purple-900 flex-1">
-                    ✓ <strong>Respon telah diterima</strong> dan sedang disemak oleh pegawai. Terima kasih atas kerjasama anda.
-                  </p>
-                </div>
-              </div>
-            `}
           </div>
         </div>
+
+        <!-- Query ID Badge - PROMINENT -->
+        <div class="mb-4 p-4 ${hasResponded ? 'bg-purple-100 border-purple-300' : (isOverdue ? 'bg-red-100 border-red-300' : 'bg-yellow-100 border-yellow-300')} border-2 rounded-xl shadow-sm">
+          <div class="flex items-center gap-3">
+            <svg class="h-6 w-6 ${hasResponded ? 'text-purple-600' : (isOverdue ? 'text-red-600' : 'text-yellow-600')}" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <div class="flex-1">
+              <p class="text-xs ${hasResponded ? 'text-purple-700' : (isOverdue ? 'text-red-700' : 'text-yellow-700')} font-semibold mb-1">🔖 NOMBOR QUERY</p>
+              <code class="text-base font-bold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')} font-mono tracking-wide">${app.queryId}</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Officer Notes - PROMINENT BOX -->
+        ${officerNote ? `
+          <div class="mb-4 p-4 bg-white border-2 ${hasResponded ? 'border-purple-200' : (isOverdue ? 'border-red-200' : 'border-yellow-200')} rounded-xl shadow-sm">
+            <div class="flex items-start gap-3">
+              <div class="flex-shrink-0 w-8 h-8 ${hasResponded ? 'bg-purple-100' : (isOverdue ? 'bg-red-100' : 'bg-yellow-100')} rounded-lg flex items-center justify-center">
+                <svg class="h-5 w-5 ${hasResponded ? 'text-purple-600' : (isOverdue ? 'text-red-600' : 'text-yellow-600')}" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-bold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')} mb-2">📝 CATATAN PEGAWAI</p>
+                <p class="text-sm ${hasResponded ? 'text-purple-800' : (isOverdue ? 'text-red-800' : 'text-yellow-800')} leading-relaxed whitespace-pre-wrap bg-gray-50 p-3 rounded-lg border ${hasResponded ? 'border-purple-100' : (isOverdue ? 'border-red-100' : 'border-yellow-100')}">${officerNote}</p>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Timeline Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+          <!-- Query Date -->
+          <div class="bg-white p-3 rounded-lg border-2 ${hasResponded ? 'border-purple-200' : (isOverdue ? 'border-red-200' : 'border-yellow-200')} shadow-sm">
+            <div class="flex items-center gap-2 mb-1">
+              <svg class="h-4 w-4 ${hasResponded ? 'text-purple-600' : (isOverdue ? 'text-red-600' : 'text-yellow-600')}" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+              </svg>
+              <span class="text-xs font-semibold ${hasResponded ? 'text-purple-700' : (isOverdue ? 'text-red-700' : 'text-yellow-700')} uppercase">Tarikh Query</span>
+            </div>
+            <p class="text-sm font-bold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')}">${queryDate || 'Tidak diketahui'}</p>
+          </div>
+
+          <!-- Deadline -->
+          ${!hasResponded && deadlineText ? `
+            <div class="bg-white p-3 rounded-lg border-2 ${isOverdue ? 'border-red-400' : 'border-yellow-200'} shadow-sm ${isOverdue ? 'ring-2 ring-red-300' : ''}">
+              <div class="flex items-center gap-2 mb-1">
+                <svg class="h-4 w-4 ${isOverdue ? 'text-red-600' : 'text-yellow-600'}" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-xs font-semibold ${isOverdue ? 'text-red-700' : 'text-yellow-700'} uppercase">Tarikh Tamat</span>
+              </div>
+              <p class="text-sm font-bold ${isOverdue ? 'text-red-900' : 'text-yellow-900'}">${deadlineText}</p>
+              ${isOverdue ? '<span class="text-xs text-red-700 font-semibold">⚠️ LEWAT</span>' : `<span class="text-xs text-yellow-700">${daysRemaining} hari lagi</span>`}
+            </div>
+          ` : ''}
+
+          <!-- Response Date -->
+          ${hasResponded ? `
+            <div class="bg-white p-3 rounded-lg border-2 border-purple-200 shadow-sm">
+              <div class="flex items-center gap-2 mb-1">
+                <svg class="h-4 w-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-xs font-semibold text-purple-700 uppercase">Tarikh Respon</span>
+              </div>
+              <p class="text-sm font-bold text-purple-900">${fmtDateToDisplay(respondDate)}</p>
+              <span class="text-xs text-purple-700">✓ Dijawab</span>
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- Overdue Warning -->
+        ${!hasResponded && isOverdue ? `
+          <div class="mb-4 p-4 bg-red-600 border-2 border-red-700 rounded-xl shadow-lg">
+            <div class="flex items-start gap-3">
+              <svg class="h-6 w-6 text-white flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              <div class="flex-1 text-white">
+                <p class="font-bold text-base mb-2">⚠️ AMARAN KRITIKAL: Permohonan Mungkin Terbatal</p>
+                <ul class="text-sm space-y-1 list-disc list-inside">
+                  <li>Tarikh tamat telah <strong>lewat ${Math.abs(daysRemaining)} hari</strong></li>
+                  <li>Permohonan anda berkemungkinan <strong>TELAH DIBATALKAN</strong></li>
+                  <li>Sila hubungi pegawai <strong>SEGERA</strong> untuk pengesahan</li>
+                  <li>Jika terbatal, anda perlu <strong>MOHON SEMULA</strong></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Action Required -->
+        ${!hasResponded && !isOverdue ? `
+          <div class="mb-4 p-4 bg-orange-50 border-2 border-orange-300 rounded-xl">
+            <div class="flex items-start gap-3">
+              <svg class="h-6 w-6 text-orange-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+              </svg>
+              <div class="flex-1">
+                <p class="font-bold text-orange-900 mb-2">⏰ TINDAKAN SEGERA DIPERLUKAN</p>
+                <ul class="text-sm text-orange-800 space-y-1 list-disc list-inside">
+                  <li>Anda mesti hantar respon dalam <strong>${daysRemaining} hari</strong> dari hari ini</li>
+                  <li>Tarikh tamat: <strong>${deadlineText}</strong></li>
+                  <li>Kegagalan akan menyebabkan permohonan <strong>DIBATALKAN</strong></li>
+                  <li>Permohonan yang terbatal perlu <strong>MOHON SEMULA</strong></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Email Reminder Notice -->
+        ${!hasResponded ? `
+          <div class="mb-4 p-3 bg-blue-50 border-2 border-blue-300 rounded-lg">
+            <div class="flex items-start gap-2">
+              <svg class="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+              </svg>
+              <div class="flex-1">
+                <p class="text-xs font-bold text-blue-900 mb-1">📧 EMAIL REMINDER</p>
+                <p class="text-xs text-blue-800">Email query telah dihantar ke alamat e-mel yang didaftarkan. <strong>Sila semak folder SPAM/JUNK</strong> jika tidak menerima email.</p>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Success Message -->
+        ${hasResponded ? `
+          <div class="p-4 bg-purple-100 border-2 border-purple-300 rounded-xl">
+            <div class="flex items-start gap-3">
+              <svg class="h-6 w-6 text-purple-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <div class="flex-1">
+                <p class="font-bold text-purple-900 mb-1">✓ RESPON TELAH DITERIMA</p>
+                <p class="text-sm text-purple-800">Respon query anda telah diterima pada <strong>${fmtDateToDisplay(respondDate)}</strong> dan sedang disemak oleh pegawai. Terima kasih atas kerjasama anda.</p>
+              </div>
+            </div>
+          </div>
+        ` : `
+          <!-- Action Button -->
+          <button 
+            onclick="goToQueryResponse('${app.queryId}')" 
+            class="w-full flex items-center justify-center gap-3 px-6 py-4 ${isOverdue ? 'bg-red-600 hover:bg-red-700' : 'bg-yellow-600 hover:bg-yellow-700'} text-white text-base font-bold rounded-xl transition shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+          >
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+            ${isOverdue ? 'HANTAR RESPON SEKARANG (LEWAT TARIKH)' : 'HANTAR RESPON QUERY SEKARANG'}
+          </button>
+        `}
       </div>
     `;
   }
   
-  // ✨ NEW: Show officer notes even without query (for transparency)
+  // Officer notes for non-query applications
   let notesSection = '';
   if (!app.queryId && officerNote && officerNote.trim()) {
     notesSection = `
-      <div class="mt-4 pt-4 border-t border-blue-200 bg-blue-50 -mx-5 px-5 pb-4 ${!app.letters || app.letters.length === 0 ? '-mb-5 rounded-b-lg' : ''}">
-        <div class="flex items-start gap-2">
-          <svg class="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-          </svg>
+      <div class="mt-4 pt-4 border-t-2 border-blue-200 bg-blue-50 -mx-5 px-5 pb-4 ${!app.letters || app.letters.length === 0 ? '-mb-5 rounded-b-lg' : ''}">
+        <div class="flex items-start gap-3">
+          <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+            <svg class="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+            </svg>
+          </div>
           <div class="flex-1">
-            <p class="text-sm font-semibold text-blue-900 mb-1">💬 Nota Pegawai</p>
-            <p class="text-xs text-blue-800 leading-relaxed whitespace-pre-wrap">${officerNote}</p>
+            <p class="text-sm font-bold text-blue-900 mb-2">💬 NOTA PEGAWAI</p>
+            <p class="text-sm text-blue-800 leading-relaxed whitespace-pre-wrap bg-white p-3 rounded-lg border border-blue-200">${officerNote}</p>
           </div>
         </div>
       </div>
@@ -2190,26 +2265,28 @@ function createStatusCard(app) {
   let letterSection = '';
   if (app.letters && app.letters.length > 0) {
     const links = app.letters.map((url, i) => 
-      `<a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow-md hover:shadow-lg transform hover:-translate-y-0.5 text-sm font-medium">
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      `<a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition shadow-md hover:shadow-lg transform hover:-translate-y-1 text-sm font-bold">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
-        Muat Turun Surat ${app.letters.length > 1 ? (i + 1) : 'Kelulusan'}
+        MUAT TURUN SURAT ${app.letters.length > 1 ? (i + 1) : 'KELULUSAN'}
       </a>`
     ).join(' ');
     
     letterSection = `
-      <div class="mt-4 pt-4 border-t border-green-200 bg-green-50 -mx-5 px-5 -mb-5 pb-5 rounded-b-lg">
-        <div class="flex items-start gap-2 mb-3">
-          <svg class="h-5 w-5 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-          </svg>
+      <div class="mt-4 pt-5 border-t-4 border-green-400 bg-gradient-to-br from-green-50 to-green-100 -mx-5 px-5 -mb-5 pb-5 rounded-b-lg">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="flex-shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+            <svg class="h-7 w-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+          </div>
           <div class="flex-1">
-            <p class="text-sm font-semibold text-green-800 mb-1">✅ Surat Kelulusan Tersedia</p>
-            <p class="text-xs text-green-700 mb-3">Permohonan anda telah diluluskan. Sila muat turun surat kelulusan di bawah.</p>
+            <h3 class="text-lg font-bold text-green-900 leading-tight">✅ Surat Kelulusan Tersedia</h3>
+            <p class="text-xs text-green-700 mt-0.5">Permohonan anda telah diluluskan oleh Timbalan Pengarah</p>
           </div>
         </div>
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap gap-3">
           ${links}
         </div>
       </div>
@@ -2217,60 +2294,73 @@ function createStatusCard(app) {
   }
   
   return `
-    <div class="border-l-4 ${statusConfig.borderColor} bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-5 mb-4">
+    <div class="border-l-4 ${statusConfig.borderColor} bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 p-5 mb-5">
       <!-- Header -->
-      <div class="flex items-start justify-between mb-4">
+      <div class="flex items-start justify-between mb-5 pb-4 border-b-2 border-gray-100">
         <div class="flex-1">
-          <h4 class="font-bold text-gray-800 text-lg mb-1">${schoolName}</h4>
-          <p class="text-sm text-gray-500">
-            <span class="inline-flex items-center gap-1">
-              <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
-              </svg>
-              ID: <code class="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">${requestId}</code>
-            </span>
+          <h4 class="font-bold text-gray-900 text-xl mb-2">${schoolName}</h4>
+          <p class="text-sm text-gray-600 flex items-center gap-2">
+            <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
+            </svg>
+            <span>ID: <code class="bg-gray-100 px-2 py-1 rounded text-xs font-mono font-semibold">${requestId}</code></span>
           </p>
         </div>
-        <span class="${statusConfig.badgeClass} px-3 py-1.5 rounded-full text-xs font-bold shadow-sm">
+        <span class="${statusConfig.badgeClass} px-4 py-2 rounded-full text-xs font-bold shadow-md uppercase tracking-wide">
           ${statusConfig.icon} ${statusConfig.label}
         </span>
       </div>
       
       <!-- Info Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
-        <div class="bg-gray-50 p-3 rounded-lg">
-          <p class="text-gray-600 text-xs font-medium mb-1">📅 Tarikh Hantar Permohonan</p>
-          <p class="font-semibold text-gray-800">${submittedAt}</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+        <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
+          <p class="text-xs font-semibold text-gray-600 mb-1 flex items-center gap-1">
+            <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+            </svg>
+            TARIKH HANTAR
+          </p>
+          <p class="font-bold text-gray-900">${submittedAt}</p>
         </div>
-        <div class="bg-gray-50 p-3 rounded-lg">
-          <p class="text-gray-600 text-xs font-medium mb-1">✈️ Tarikh Lawatan</p>
-          <p class="font-semibold text-gray-800">${travelStart}${travelEnd && travelEnd !== travelStart ? ' - ' + travelEnd : ''}</p>
+        <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
+          <p class="text-xs font-semibold text-gray-600 mb-1 flex items-center gap-1">
+            <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+            </svg>
+            TARIKH LAWATAN
+          </p>
+          <p class="font-bold text-gray-900">${travelStart}${travelEnd && travelEnd !== travelStart ? ' - ' + travelEnd : ''}</p>
         </div>
         ${placeVisit ? `
-          <div class="bg-gray-50 p-3 rounded-lg md:col-span-2">
-            <p class="text-gray-600 text-xs font-medium mb-1">📍 Destinasi</p>
-            <p class="font-semibold text-gray-800">${placeVisit}</p>
+          <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200 md:col-span-2">
+            <p class="text-xs font-semibold text-gray-600 mb-1 flex items-center gap-1">
+              <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+              </svg>
+              DESTINASI
+            </p>
+            <p class="font-bold text-gray-900">${placeVisit}</p>
           </div>
         ` : ''}
         ${participantCount || vehicleCount ? `
-          <div class="bg-gray-50 p-3 rounded-lg">
-            <p class="text-gray-600 text-xs font-medium mb-1">👥 Bilangan Peserta</p>
-            <p class="font-semibold text-gray-800">${participantCount || '-'} orang</p>
+          <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
+            <p class="text-xs font-semibold text-gray-600 mb-1">👥 BILANGAN PESERTA</p>
+            <p class="font-bold text-gray-900">${participantCount || '-'} orang</p>
           </div>
-          <div class="bg-gray-50 p-3 rounded-lg">
-            <p class="text-gray-600 text-xs font-medium mb-1">🚐 Bilangan Kenderaan</p>
-            <p class="font-semibold text-gray-800">${vehicleCount || '-'} buah</p>
+          <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
+            <p class="text-xs font-semibold text-gray-600 mb-1">🚐 BILANGAN KENDERAAN</p>
+            <p class="font-bold text-gray-900">${vehicleCount || '-'} buah</p>
           </div>
         ` : ''}
       </div>
       
       <!-- Status Description -->
-      <div class="bg-gradient-to-r from-gray-50 to-gray-100 -mx-5 px-5 py-3 ${querySection || notesSection || letterSection ? '' : '-mb-5 rounded-b-lg'} border-t border-gray-200">
+      <div class="bg-gradient-to-r from-gray-100 to-gray-50 -mx-5 px-5 py-4 ${querySection || notesSection || letterSection ? '' : '-mb-5 rounded-b-xl'} border-t-2 border-gray-200">
         <div class="flex items-start gap-2">
-          <svg class="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <svg class="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
           </svg>
-          <p class="text-xs text-gray-700 leading-relaxed">${statusConfig.description}</p>
+          <p class="text-sm text-gray-700 leading-relaxed font-medium">${statusConfig.description}</p>
         </div>
       </div>
       
@@ -2395,3 +2485,4 @@ console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </body>
 
 </html>
+
