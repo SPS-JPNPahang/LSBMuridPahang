@@ -1827,7 +1827,15 @@ $('sendQueryResponseBtn').addEventListener('click', async ()=>{
     const filesBase64 = {};
     for (const k in fileMap) if (fileMap[k]) filesBase64[k] = await fileToBase64(fileMap[k]);
 
-    const body = JSON.stringify({ type:'queryResponse', queryId, schoolEmail: email, filesBase64 });
+    const body = JSON.stringify({
+  type: 'queryResponse',
+  payload: {
+    queryId: queryId,
+    schoolEmail: email
+  },
+  filesBase64: filesBase64
+});
+
     const res = await fetch(GAS_URL, { method:'POST', body });
     const j = await res.json();
     hideLoading();
@@ -2485,3 +2493,4 @@ console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </body>
 
 </html>
+
