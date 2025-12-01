@@ -2480,10 +2480,59 @@ function goToQueryResponse(queryId) {
     }, 300);
   }
 }
+// --- START: sendQueryResponse + helper POST (paste this block before the final console.log) ---
+/**
+ * Helper: POST to Apps Script /exec using text/plain to avoid CORS preflight.
+ * Usage: await postToExec({ type:'queryResponse', payload:{...}, filesBase64:{} });
+ */
+async function postToExec(bodyObj, execUrl) {
+  execUrl = execUrl || 'https://script.google.com/macros/s/AKfycbwwZkuxKRwXxz8w2ipD-F0TMqoT0wRuXiGCdS9h--NGiSW9Xw1u1gKV8FjgZKzpedFrRA/exec';
+  try {
+    const res = await fetch(execUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, // avoid OPTIONS preflight
+      mode: 'cors',
+      credentials: 'omit',
+      body: JSON.stringify(bodyObj)
+    });
+    const txt = await res.text().catch(()=>null);
+    try { return { ok: res.ok, status: res.status, statusText: res.statusText, json: txt ? JSON.parse(txt) : null, raw: txt }; }
+    catch(e) { return { ok: res.ok, status: res.status, statusText: res.statusText, json: null, raw: txt }; }
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/**
+ * sendQueryResponse(requestId, schoolEmail, filesBase64Obj)
+ * - requestId: string (required)
+ * - schoolEmail: string (optional)
+ * - filesBase64Obj: object mapping file keys to { name, type, data } (optional)
+ *
+ * Returns: promise resolving to the parsed backend response object (or error object).
+ */
+async function sendQueryResponse(requestId, schoolEmail, filesBase64Obj = {}) {
+  if (!requestId || String(requestId).trim() === '') {
+    return { ok:false, error: 'missing requestId' };
+  }
+  const body = {
+    type: 'queryResponse',
+    payload: { requestId: String(requestId).trim(), schoolEmail: String(schoolEmail || '').trim() },
+    filesBase64: filesBase64Obj || {}
+  };
+  const out = await postToExec(body);
+  // normalize: if backend returned JSON inside out.json, forward it
+  if (out && out.json) return out.json;
+  if (out && out.ok === false && out.error) return { ok:false, message: out.error };
+  return { ok: false, message: out && out.statusText ? out.statusText : 'Unknown error', raw: out && out.raw ? out.raw : null };
+}
+// --- END ---
+
 console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </script>
 </body>
 
 </html>
+
 
 
