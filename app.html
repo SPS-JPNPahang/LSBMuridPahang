@@ -1017,36 +1017,45 @@ async function loadRequests(){
 
 function extractQueries(req){
   if (!req) return [];
+
+  // If there is an explicit QueryHistory array (preferred), use it and return latest entry only
   if (Array.isArray(req['QueryHistory']) && req['QueryHistory'].length) {
-    return req['QueryHistory'].map(q=>({
-      id: q.id || q.QueryID || q.queryId || '',
-      sentDate: q.sentDate || q.QuerySentDate || q.sent_at || q.date || '',
-      respondedDate: q.respondedDate || q.QueryRespondDate || q.responded_at || q.response_date || '',
-      note: q.note || q.note_text || q.message || ''
-    }));
+    // return only the most recent entry (assumes QueryHistory is chronological)
+    const last = req['QueryHistory'][req['QueryHistory'].length - 1];
+    return [{
+      id: last.id || last.QueryID || last.queryId || '',
+      sentDate: last.sentDate || last.QuerySentDate || last.sent_at || last.date || '',
+      respondedDate: last.respondedDate || last.QueryRespondDate || last.responded_at || last.response_date || '',
+      note: last.note || last.note_text || last.message || ''
+    }];
   }
-  const queries = [];
+
+  // If QueryID column exists (current query), prefer that as single current query
+  if (req['QueryID']) {
+    return [{
+      id: String(req['QueryID']),
+      sentDate: req['QuerySentDate'] || req['QueryDate'] || '',
+      respondedDate: req['QueryRespondDate'] || req['QueryRespondedDate'] || '',
+      note: req['OfficerNote'] || ''
+    }];
+  }
+
+  // Fallback: try to parse any QueryID tokens from OfficerNote but only return the latest one
   const txt = String(req['OfficerNote']||req['OfficerNotes']||'');
-  if (txt) {
-    const re = /QueryID[:\s]*([A-Z0-9\-_]+)/ig;
-    let m;
-    while ((m = re.exec(txt)) !== null) {
-      const id = m[1];
-      const slice = txt.slice(Math.max(0,m.index-120), m.index+120);
-      const dateMatch = slice.match(/(\d{4}-\d{2}-\d{2})/);
-      queries.push({ id, sentDate: dateMatch ? dateMatch[0] : '', respondedDate:'', note: slice.trim() });
-    }
+  if (!txt) return [];
+  const re = /QueryID[:\s]*([A-Z0-9\-_]+)/ig;
+  let m, lastMatch = null;
+  while ((m = re.exec(txt)) !== null) lastMatch = m;
+  if (lastMatch) {
+    const id = lastMatch[1];
+    const slice = txt.slice(Math.max(0, lastMatch.index-120), lastMatch.index+120);
+    const dateMatch = slice.match(/(\d{4}-\d{2}-\d{2})/);
+    return [{ id, sentDate: dateMatch ? dateMatch[0] : '', respondedDate:'', note: slice.trim() }];
   }
-  if (req['QueryID'] && !queries.find(q=>q.id===req['QueryID'])) {
-    queries.push({ 
-      id: req['QueryID'], 
-      sentDate: req['QuerySentDate']||req['QueryDate']||'', 
-      respondedDate: req['QueryRespondDate']||req['QueryRespondedDate']||'', 
-      note: req['OfficerNote']||'' 
-    });
-  }
-  return queries;
+
+  return [];
 }
+
 
 function buildHeaderIndex(headers) {
   const map = {};
@@ -1795,7 +1804,7 @@ try {
   }
 }
 
-$('sendQueryResponseBtn').addEventListener('click', async ()=>{
+$('sendQueryResponseBtn').addEventListener('click', async ()=> {
   const queryId = $('respQueryId').value.trim();
   const email = $('respSchoolEmail').value.trim();
 
@@ -1827,19 +1836,19 @@ $('sendQueryResponseBtn').addEventListener('click', async ()=>{
     const filesBase64 = {};
     for (const k in fileMap) if (fileMap[k]) filesBase64[k] = await fileToBase64(fileMap[k]);
 
-    const body = JSON.stringify({
-        type: 'queryResponse',
-        payload: {
-          queryId: queryId,
-          schoolEmail: email
-        },
-        filesBase64: filesBase64
-      });
-      const res = await fetch(GAS_URL, {
-        method: 'POST',
-        body: body
-      });
-    
+    const payload = {
+      type: 'queryResponse',
+      payload: { queryId: queryId, schoolEmail: email },
+      filesBase64: filesBase64
+    };
+
+    // single fetch call (with proper headers)
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
     const j = await res.json();
     hideLoading();
 
@@ -1856,6 +1865,7 @@ $('sendQueryResponseBtn').addEventListener('click', async ()=>{
     Swal.fire({ icon:'error', title:'Ralat', text: err.message || String(err) });
   }
 });
+
 
 (function setupMobileMenu(){
   const sidebar = document.querySelector('.sidebar');
@@ -2496,6 +2506,7 @@ console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </body>
 
 </html>
+
 
 
 
