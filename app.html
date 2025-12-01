@@ -1804,103 +1804,128 @@ try {
   }
 }
 
-// --- REPLACE ENTIRE sendQueryResponseBtn HANDLER WITH THIS ---
+
+// Gantikan seluruh handler sedia ada untuk sendQueryResponseBtn dengan kod ini
 $('sendQueryResponseBtn').addEventListener('click', async () => {
-  const queryId = $('respQueryId').value.trim();
-  const email = $('respSchoolEmail').value.trim();
+  const btn = $('sendQueryResponseBtn');
+  const origText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Menghantar...';
 
-  if (!queryId) return Swal.fire({ icon:'warning', title:'Query ID diperlukan' });
-  if (!email) return Swal.fire({ icon:'warning', title:'Email sekolah diperlukan untuk notifikasi' });
+  const queryId = ($('respQueryId').value || '').trim();
+  const email = ($('respSchoolEmail').value || '').trim();
 
+  if (!queryId) {
+    await Swal.fire({ icon: 'warning', title: 'Query ID diperlukan' });
+    btn.disabled = false;
+    btn.textContent = origText;
+    return;
+  }
+  if (!email) {
+    await Swal.fire({ icon: 'warning', title: 'Email sekolah diperlukan' });
+    btn.disabled = false;
+    btn.textContent = origText;
+    return;
+  }
+
+  // Sediakan files
   const fileMap = {
-    kertasKerja: $('resp_file_kertasKerja').files[0],
-    maklumatAnggota: $('resp_file_maklumatAnggota').files[0],
-    permitBas: $('resp_file_permitBas').files[0],
-    lesenPemandu: $('resp_file_lesenPemandu').files[0],
-    taklimat: $('resp_file_taklimat').files[0]
+    kertasKerja: $('resp_file_kertasKerja') ? $('resp_file_kertasKerja').files[0] : null,
+    maklumatAnggota: $('resp_file_maklumatAnggota') ? $('resp_file_maklumatAnggota').files[0] : null,
+    permitBas: $('resp_file_permitBas') ? $('resp_file_permitBas').files[0] : null,
+    lesenPemandu: $('resp_file_lesenPemandu') ? $('resp_file_lesenPemandu').files[0] : null,
+    taklimat: $('resp_file_taklimat') ? $('resp_file_taklimat').files[0] : null
   };
 
+  // Pastikan ada sekurang-kurangnya satu fail
   let anyFile = false;
   for (const k in fileMap) {
     if (fileMap[k]) {
       anyFile = true;
       const validation = validateFile(fileMap[k]);
       if (!validation.ok) {
-        return Swal.fire({ icon:'error', title:'Fail tidak sah', text: validation.message });
+        await Swal.fire({ icon: 'error', title: 'Fail tidak sah', text: validation.message });
+        btn.disabled = false;
+        btn.textContent = origText;
+        return;
       }
     }
   }
-  if (!anyFile) return Swal.fire({ icon:'warning', title:'Tiada fail', text:'Sila pilih sekurang-kurangnya satu fail PDF untuk muat naik.' });
+  if (!anyFile) {
+    await Swal.fire({ icon: 'warning', title: 'Tiada fail', text: 'Sila pilih sekurang-kurangnya satu fail PDF untuk muat naik.' });
+    btn.disabled = false;
+    btn.textContent = origText;
+    return;
+  }
 
   showLoading();
   try {
+    // Tengok: bina filesBase64 sama cara seperti permohonan baru
     const filesBase64 = {};
-    for (const k in fileMap) if (fileMap[k]) filesBase64[k] = await fileToBase64(fileMap[k]);
+    for (const k in fileMap) {
+      if (fileMap[k]) {
+        // fileToBase64 helper ada dalam skrip anda
+        filesBase64[k] = await fileToBase64(fileMap[k]);
+      }
+    }
 
-    // Build payload correctly using actual variables
+    // Pastikan values yang dihantar memang wujud dan string
     const payloadForGAS = {
       type: 'queryResponse',
       payload: {
-        queryId: queryId,
-        schoolEmail: email
+        queryId: String(queryId),
+        schoolEmail: String(email)
       },
-      filesBase64: filesBase64 || {}
+      filesBase64: filesBase64
     };
 
-    // Do single fetch call (use unique response variable name)
-    let response;
-    try {
-      response = await fetch(GAS_URL, {
-        method: 'POST',
-        mode: 'cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payloadForGAS)
-      });
-    } catch (fetchErr) {
-      console.error('fetch failed:', fetchErr);
-      hideLoading();
-      return Swal.fire({ icon:'error', title:'Gagal sambungan', text: String(fetchErr) });
-    }
+    // Hantar tanpa custom headers supaya request dikira "simple" (elak preflight)
+    const response = await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify(payloadForGAS) // penting: jangan set Content-Type
+    });
 
+    // Cuba parse JSON
     let j;
     try {
       j = await response.json();
     } catch (jsonErr) {
-      console.error('invalid JSON response from GAS:', jsonErr);
-      const txt = await response.text().catch(()=>'<no-text>');
-      hideLoading();
-      return Swal.fire({ icon:'error', title:'Ralat pelayan', text: 'Response bukan JSON: ' + String(txt).slice(0,200) });
+      const txt = await response.text().catch(() => '[no body]');
+      console.error('Invalid JSON response from GAS (queryResponse):', jsonErr, txt);
+      throw new Error('Server returned invalid response: ' + txt);
     }
-
-    hideLoading();
 
     if (j && j.ok) {
-      await Swal.fire({ icon:'success', title:'Respon berjaya dihantar', html: `Query ID: <b>${queryId}</b>`, timer:1800, showConfirmButton:false });
-      // reset form inputs for query response
+      await Swal.fire({ icon: 'success', title: 'Respon query berjaya dihantar', text: j.message || '' });
+
+      // reset borang respon query (kosongkan input dan file inputs)
       $('respQueryId').value = '';
       $('respSchoolEmail').value = '';
+      // clear file inputs if exist
       ['resp_file_kertasKerja','resp_file_maklumatAnggota','resp_file_permitBas','resp_file_lesenPemandu','resp_file_taklimat'].forEach(id=>{
-        const inp = $(id);
-        if (!inp) return;
-        try { inp.value = ''; } catch(e){}
+        const el = $(id);
+        if (el) {
+          try { el.value = ''; } catch(e){ /* ignore in some browsers */ }
+        }
       });
+
       // optionally refresh officer view if logged in
-      if (officerSecret) loadRequests().catch(()=>{});
+      if (officerSecret) {
+        try { await loadRequests(); } catch(e){ /* ignore */ }
+      }
     } else {
-      console.warn('GAS returned not-ok:', j);
-      return Swal.fire({ icon:'error', title:'Gagal', text: j && j.message ? j.message : JSON.stringify(j) });
+      console.warn('GAS returned failure for queryResponse', j);
+      throw new Error((j && j.message) ? j.message : 'Gagal hantar respon query');
     }
   } catch (err) {
-    hideLoading();
-    console.error('sendQueryResponse handler error:', err);
-    Swal.fire({ icon:'error', title:'Ralat', text: String(err) });
+    console.error('queryResponse error:', err);
+    await Swal.fire({ icon: 'error', title: 'Gagal hantar respon', text: String(err.message || err) });
   } finally {
     hideLoading();
+    btn.disabled = false;
+    btn.textContent = origText;
   }
 });
-
-
-
 
 (function setupMobileMenu(){
   const sidebar = document.querySelector('.sidebar');
@@ -2541,6 +2566,7 @@ console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </body>
 
 </html>
+
 
 
 
