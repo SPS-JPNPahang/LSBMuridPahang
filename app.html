@@ -2527,12 +2527,107 @@ async function sendQueryResponse(requestId, schoolEmail, filesBase64Obj = {}) {
   return { ok: false, message: out && out.statusText ? out.statusText : 'Unknown error', raw: out && out.raw ? out.raw : null };
 }
 // --- END ---
+// ====== FIX: sendQueryResponse handler (paste near the end of your JS) ======
+(function(){
+  async function sendQueryResponse(requestId, schoolEmail, filesBase64Obj = {}) {
+    if(!requestId || String(requestId).trim() === '') {
+      // try alternate selectors (some UIs use different names)
+      const alt = (document.getElementById('respQueryId') || document.querySelector('[name="respQueryId"]') || {}).value || '';
+      requestId = requestId || String(alt).trim();
+    }
+    if(!requestId) {
+      // show existing modal or fallback alert
+      try { Swal.fire({icon:'error', title:'Gagal', text:'Missing requestId'}); } catch(e){ alert('Missing requestId'); }
+      return;
+    }
+
+    const EXEC_URL = (typeof EXEC_URL !== 'undefined' && EXEC_URL) ? EXEC_URL :
+      'https://script.google.com/macros/s/AKfycbwwZkuxKRwXxz8w2ipD-F0TMqoT0wRuXiGCdS9h--NGiSW9Xw1u1gKV8FjgZKzpedFrRA/exec';
+
+    const payload = {
+      requestId: String(requestId).trim(),
+      schoolEmail: (schoolEmail || (document.getElementById('respSchoolEmail') || document.querySelector('[name="respSchoolEmail"]') || {}).value || '').trim()
+      // you can add other payload fields if required, e.g. note: '...'
+    };
+
+    const body = {
+      type: 'queryResponse',
+      payload: payload,
+      filesBase64: filesBase64Obj || {}
+    };
+
+    try {
+      // Use text/plain to avoid preflight OPTIONS that Apps Script may redirect
+      const res = await fetch(EXEC_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: JSON.stringify(body),
+        mode: 'cors',
+        credentials: 'omit'
+      });
+
+      const text = await res.text();
+      let json = null;
+      try { json = JSON.parse(text); } catch(e){ json = null; }
+
+      if (res.ok && json && json.ok) {
+        try { Swal.fire({icon:'success', title:'Berjaya', text: json.message || 'Query response diterima'}); } catch(e){ console.log('OK', json); }
+        // optional: refresh UI row / update status element
+      } else {
+        const msg = (json && (json.message || json.error)) || text || ('HTTP ' + res.status);
+        try { Swal.fire({icon:'error', title:'Gagal', text: msg}); } catch(e){ alert('Gagal: ' + msg); }
+      }
+    } catch (err) {
+      console.error('sendQueryResponse fetch failed', err);
+      try { Swal.fire({icon:'error', title:'Gagal', text: err && err.message ? err.message : 'Network error'}); } catch(e){ alert('Network error: ' + err); }
+    }
+  }
+
+  // Attach to the "Hantar Respon Query" button(s) by matching visible text.
+  // This will override existing click behaviour (non-destructively).
+  function attachQueryButton() {
+    const buttons = Array.from(document.querySelectorAll('button, input[type="button"], a'));
+    buttons.forEach(b => {
+      try {
+        const txt = (b.innerText || b.value || '').trim();
+        if (!txt) return;
+        if (/Hantar\s+Respon\s+Query/i.test(txt) || /Hantar\s+Respon/i.test(txt)) {
+          // Remove existing click handlers (common inline 'onclick') by cloning node
+          const clone = b.cloneNode(true);
+          b.parentNode.replaceChild(clone, b);
+          clone.addEventListener('click', async function(ev){
+            ev.preventDefault();
+            // collect requestId and schoolEmail
+            const rid = (document.getElementById('respQueryId') || document.querySelector('[name="respQueryId"]') || {}).value
+                      || (document.getElementById('respQueryIdInput') || {}).value || '';
+            const sem = (document.getElementById('respSchoolEmail') || document.querySelector('[name="respSchoolEmail"]') || {}).value || '';
+            // If files are present in form and you want to upload them, call helper to convert to base64
+            // For minimal fix we send filesBase64 = {}
+            await sendQueryResponse(rid, sem, {});
+          }, {passive:false});
+        }
+      } catch(e){ /* ignore individual button errors */ }
+    });
+  }
+
+  // If UI builds buttons asynchronously, try attach after DOM ready and also after short delay
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(attachQueryButton, 50);
+    setTimeout(attachQueryButton, 800);
+  } else {
+    window.addEventListener('DOMContentLoaded', function(){ setTimeout(attachQueryButton, 50); setTimeout(attachQueryButton, 800); });
+  }
+
+  // Expose for console testing if desired
+  window.sendQueryResponse = sendQueryResponse;
+})();
 
 console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </script>
 </body>
 
 </html>
+
 
 
 
