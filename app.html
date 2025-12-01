@@ -1804,7 +1804,8 @@ try {
   }
 }
 
-$('sendQueryResponseBtn').addEventListener('click', async ()=> {
+// --- REPLACE ENTIRE sendQueryResponseBtn HANDLER WITH THIS ---
+$('sendQueryResponseBtn').addEventListener('click', async () => {
   const queryId = $('respQueryId').value.trim();
   const email = $('respSchoolEmail').value.trim();
 
@@ -1836,35 +1837,69 @@ $('sendQueryResponseBtn').addEventListener('click', async ()=> {
     const filesBase64 = {};
     for (const k in fileMap) if (fileMap[k]) filesBase64[k] = await fileToBase64(fileMap[k]);
 
-    const payload = {
+    // Build payload correctly using actual variables
+    const payloadForGAS = {
       type: 'queryResponse',
-      payload: { queryId: queryId, schoolEmail: email },
-      filesBase64: filesBase64
+      payload: {
+        queryId: queryId,
+        schoolEmail: email
+      },
+      filesBase64: filesBase64 || {}
     };
 
-    // single fetch call (with proper headers)
-    const res = await fetch(GAS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    // Do single fetch call (use unique response variable name)
+    let response;
+    try {
+      response = await fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payloadForGAS)
+      });
+    } catch (fetchErr) {
+      console.error('fetch failed:', fetchErr);
+      hideLoading();
+      return Swal.fire({ icon:'error', title:'Gagal sambungan', text: String(fetchErr) });
+    }
 
-    const j = await res.json();
+    let j;
+    try {
+      j = await response.json();
+    } catch (jsonErr) {
+      console.error('invalid JSON response from GAS:', jsonErr);
+      const txt = await response.text().catch(()=>'<no-text>');
+      hideLoading();
+      return Swal.fire({ icon:'error', title:'Ralat pelayan', text: 'Response bukan JSON: ' + String(txt).slice(0,200) });
+    }
+
     hideLoading();
 
-    if (j.ok) {
-      await Swal.fire({ icon:'success', title:'Respon Query berjaya dihantar!', text:'Fail telah dikemaskini dan pegawai akan diberitahu.' });
+    if (j && j.ok) {
+      await Swal.fire({ icon:'success', title:'Respon berjaya dihantar', html: `Query ID: <b>${queryId}</b>`, timer:1800, showConfirmButton:false });
+      // reset form inputs for query response
       $('respQueryId').value = '';
       $('respSchoolEmail').value = '';
-      ['resp_file_kertasKerja','resp_file_maklumatAnggota','resp_file_permitBas','resp_file_lesenPemandu','resp_file_taklimat'].forEach(id=>{ if ($(id)) $(id).value=''; });
+      ['resp_file_kertasKerja','resp_file_maklumatAnggota','resp_file_permitBas','resp_file_lesenPemandu','resp_file_taklimat'].forEach(id=>{
+        const inp = $(id);
+        if (!inp) return;
+        try { inp.value = ''; } catch(e){}
+      });
+      // optionally refresh officer view if logged in
+      if (officerSecret) loadRequests().catch(()=>{});
     } else {
-      Swal.fire({ icon:'error', title:'Gagal', text: j.message || j.error || 'Ralat tidak diketahui' });
+      console.warn('GAS returned not-ok:', j);
+      return Swal.fire({ icon:'error', title:'Gagal', text: j && j.message ? j.message : JSON.stringify(j) });
     }
   } catch (err) {
     hideLoading();
-    Swal.fire({ icon:'error', title:'Ralat', text: err.message || String(err) });
+    console.error('sendQueryResponse handler error:', err);
+    Swal.fire({ icon:'error', title:'Ralat', text: String(err) });
+  } finally {
+    hideLoading();
   }
 });
+
+
 
 
 (function setupMobileMenu(){
@@ -2506,6 +2541,7 @@ console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </body>
 
 </html>
+
 
 
 
