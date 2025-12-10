@@ -198,11 +198,6 @@ async function setupDPAuth() {
           statusEl.textContent = '(Sistem dalam mod sedia)';
           statusEl.classList.add('text-green-600');
         }
-        const statusEl = $('dpLoggedAs');
-        if (statusEl) {
-          statusEl.textContent = '(Sistem dalam mod sedia)';
-          statusEl.classList.add('text-green-600');
-        }
         
         // Show bulk approve button
         const bulkBtn = $('bulkApproveBtn');
@@ -482,4 +477,5 @@ function initializeAuth() {
   setupDPAuth();
   setupDPLogout();
 }
+
 
