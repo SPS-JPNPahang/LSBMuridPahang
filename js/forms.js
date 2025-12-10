@@ -3,6 +3,105 @@
  * JPN Pahang
  */
 
+// ===== SCHOOL AUTOFILL =====
+function setupSchoolAutofill() {
+  const codeInput = $('schoolCode');
+  const nameInput = $('schoolName');
+  const daerahInput = $('daerah');
+  const peringkatInput = $('peringkat'); // TAMBAH field ni dalam form nanti
+  
+  if (!codeInput) return;
+  
+  codeInput.addEventListener('blur', async function() {
+    const code = this.value.trim().toUpperCase();
+    if (!code) return;
+    
+    // Check cache first
+    if (schoolDataCache[code]) {
+      const data = schoolDataCache[code];
+      if (nameInput) {
+        nameInput.value = data.nama;
+        nameInput.readOnly = true;
+        nameInput.classList.add('bg-gray-100');
+      }
+      if (daerahInput) {
+        daerahInput.value = data.daerah;
+        daerahInput.readOnly = true;
+        daerahInput.classList.add('bg-gray-100');
+      }
+      if (peringkatInput) {
+        peringkatInput.value = data.peringkat;
+        peringkatInput.readOnly = true;
+        peringkatInput.classList.add('bg-gray-100');
+      }
+      return;
+    }
+    
+    // Fetch from backend
+    try {
+      const res = await fetch(CONFIG.GAS_URL + '?action=getSchoolData&schoolCode=' + encodeURIComponent(code));
+      const json = await res.json();
+      
+      if (json.ok && json.data) {
+        schoolDataCache[code] = json.data;
+        
+        if (nameInput) {
+          nameInput.value = json.data.nama;
+          nameInput.readOnly = true;
+          nameInput.classList.add('bg-gray-100');
+        }
+        if (daerahInput) {
+          daerahInput.value = json.data.daerah;
+          daerahInput.readOnly = true;
+          daerahInput.classList.add('bg-gray-100');
+        }
+        if (peringkatInput) {
+          peringkatInput.value = json.data.peringkat;
+          peringkatInput.readOnly = true;
+          peringkatInput.classList.add('bg-gray-100');
+        }
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Kod sekolah tidak dijumpai',
+          text: json.message || 'Sila isi maklumat secara manual'
+        });
+        
+        // Unlock fields for manual entry
+        if (nameInput) {
+          nameInput.readOnly = false;
+          nameInput.classList.remove('bg-gray-100');
+        }
+        if (daerahInput) {
+          daerahInput.readOnly = false;
+          daerahInput.classList.remove('bg-gray-100');
+        }
+        if (peringkatInput) {
+          peringkatInput.readOnly = false;
+          peringkatInput.classList.remove('bg-gray-100');
+        }
+      }
+    } catch (err) {
+      logError('School autofill error', err);
+    }
+  });
+  
+  // Allow manual unlock if user changes code
+  codeInput.addEventListener('input', function() {
+    if (nameInput) {
+      nameInput.readOnly = false;
+      nameInput.classList.remove('bg-gray-100');
+    }
+    if (daerahInput) {
+      daerahInput.readOnly = false;
+      daerahInput.classList.remove('bg-gray-100');
+    }
+    if (peringkatInput) {
+      peringkatInput.readOnly = false;
+      peringkatInput.classList.remove('bg-gray-100');
+    }
+  });
+}
 // ===== FORM SUBMISSION =====
 async function setupFormSubmission() {
   const form = $('permohonanForm');
@@ -135,5 +234,6 @@ async function setupFormSubmission() {
 
 // Initialize form
 function initializeForms() {
+  setupSchoolAutofill();
   setupFormSubmission();
 }
