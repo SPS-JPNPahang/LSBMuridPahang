@@ -601,7 +601,7 @@
 <script src="js/utils.js"></script>
 <script>
 /* CONFIG - KEKALKAN URL ASAL ANDA */
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbwwZkuxKRwXxz8w2ipD-F0TMqoT0wRuXiGCdS9h--NGiSW9Xw1u1gKV8FjgZKzpedFrRA/exec';
+window.GAS_URL = window.GAS_URL || 'https://script.google.com/macros/s/AKfycbwwZkuxKRwXxz8w2ipD-F0TMqoT0wRuXiGCdS9h--NGiSW9Xw1u1gKV8FjgZKzpedFrRA/exec';
 window.$ = window.$ || (id => document.getElementById(id));
 // TAMBAHAN BARU - Helper untuk delay
 function delay(ms) {
@@ -610,7 +610,7 @@ function delay(ms) {
 function showLoading(){ $('loadingModal').classList.remove('hidden'); $('loadingModal').classList.add('flex'); }
 function hideLoading(){ $('loadingModal').classList.add('hidden'); $('loadingModal').classList.remove('flex'); }
 
-let requestsCache = [];
+window.requestsCache = window.requestsCache || [];
 let officerSecret = null;
 let dpSecret = null;
 
@@ -2612,6 +2612,7 @@ console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </body>
 
 </html>
+
 
 
 
