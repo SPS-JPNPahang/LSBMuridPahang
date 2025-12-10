@@ -611,7 +611,7 @@ function showLoading(){ $('loadingModal').classList.remove('hidden'); $('loading
 function hideLoading(){ $('loadingModal').classList.add('hidden'); $('loadingModal').classList.remove('flex'); }
 
 window.requestsCache = window.requestsCache || [];
-let officerSecret = null;
+window.officerSecret = window.officerSecret || null;
 let dpSecret = null;
 
 function fmtDateToDisplay(isoOrRaw){
@@ -2612,6 +2612,7 @@ console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </body>
 
 </html>
+
 
 
 
