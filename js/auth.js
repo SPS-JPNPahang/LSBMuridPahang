@@ -198,6 +198,15 @@ async function setupDPAuth() {
           statusEl.textContent = '(Sistem dalam mod sedia)';
           statusEl.classList.add('text-green-600');
         }
+        const statusEl = $('dpLoggedAs');
+        if (statusEl) {
+          statusEl.textContent = '(Sistem dalam mod sedia)';
+          statusEl.classList.add('text-green-600');
+        }
+        
+        // Show bulk approve button
+        const bulkBtn = $('bulkApproveBtn');
+        if (bulkBtn) bulkBtn.classList.remove('hidden');
         
         await Swal.fire({
           icon: 'success',
@@ -243,6 +252,10 @@ function setupDPLogout() {
     if (!ok.isConfirmed) return;
     
     dpSecret = null;
+    
+    // Hide bulk approve button
+    const bulkBtn = $('bulkApproveBtn');
+    if (bulkBtn) bulkBtn.classList.add('hidden');
     
     const loginBtn = $('loginDP');
     if (loginBtn) {
@@ -469,3 +482,4 @@ function initializeAuth() {
   setupDPAuth();
   setupDPLogout();
 }
+
