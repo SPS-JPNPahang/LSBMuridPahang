@@ -282,7 +282,7 @@ async function fetchDriveFileAsFile(driveUrlOrId) {
 
 // ===== TAB MANAGEMENT =====
 function hideAllSections() {
-  ['introSection', 'formSection', 'officerSection', 'dpSection', 'queryResponseSection', 'downloadsSection']
+  ['introSection', 'formSection', 'officerSection', 'ppdSection', 'dpSection', 'queryResponseSection', 'downloadsSection']
     .forEach(id => {
       const el = $(id);
       if (el) el.classList.add('hidden');
@@ -303,6 +303,7 @@ function setupTabs() {
     tabIntroBtn: 'introSection',
     tabFormBtn: 'formSection',
     tabOfficerBtn: 'officerSection',
+    tabPPDBtn: 'ppdSection',
     tabDPBtn: 'dpSection',
     tabQueryResponseBtn: 'queryResponseSection',
     tabDownloadsBtn: 'downloadsSection'
@@ -722,3 +723,4 @@ async function viewRequestDetails(requestId, secret) {
     });
   }
 }
+
