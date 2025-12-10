@@ -612,7 +612,7 @@ function hideLoading(){ $('loadingModal').classList.add('hidden'); $('loadingMod
 
 window.requestsCache = window.requestsCache || [];
 window.officerSecret = window.officerSecret || null;
-let dpSecret = null;
+window.dpSecret = window.dpSecret || null;
 
 function fmtDateToDisplay(isoOrRaw){
   if (!isoOrRaw) return '';
@@ -2612,6 +2612,7 @@ console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </body>
 
 </html>
+
 
 
 
