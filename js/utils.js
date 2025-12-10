@@ -374,3 +374,351 @@ function setupDownloads() {
     window.open(url, '_blank', 'noopener,noreferrer');
   });
 }
+// ===== PPD FUNCTIONS =====
+async function loadPPDRequests() {
+  if (!ppdSecret || !ppdDistrict) {
+    Swal.fire({ icon: 'warning', title: 'Sila log masuk PPD dahulu' });
+    return;
+  }
+  
+  try {
+    showLoading();
+    const url = CONFIG.GAS_URL + 
+      '?action=listRequests&secret=' + encodeURIComponent(ppdSecret) +
+      '&district=' + encodeURIComponent(ppdDistrict);
+    
+    const res = await fetch(url);
+    const json = await res.json();
+    hideLoading();
+    
+    if (!json.ok) {
+      throw new Error(json.message || 'Failed to load PPD requests');
+    }
+    
+    renderPPDTables(json.requests || []);
+  } catch (err) {
+    hideLoading();
+    logError('loadPPDRequests error', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Ralat',
+      text: err.message || String(err)
+    });
+  }
+}
+
+function renderPPDTables(requests) {
+  const newTable = $('ppdNewTable');
+  const reviewedTable = $('ppdReviewedTable');
+  
+  if (!newTable || !reviewedTable) return;
+  
+  // Filter NEW and PPD_REVIEWED
+  const newReqs = requests.filter(r => {
+    const status = String(r.Status || '').toUpperCase();
+    return status === 'NEW' || (!status.includes('QUERY') && !status.includes('REVIEWED') && !status.includes('APPROVED'));
+  });
+  
+  const reviewedReqs = requests.filter(r => {
+    const status = String(r.Status || '').toUpperCase();
+    return status.includes('PPD_REVIEWED');
+  });
+  
+  // Render NEW table
+  if (newReqs.length === 0) {
+    newTable.innerHTML = '<p class="p-4 text-gray-500 italic">Tiada permohonan baru</p>';
+  } else {
+    const newRows = newReqs.map(r => ({
+      'Request ID': r['Request ID'] || '',
+      'Sekolah': r['School Name'] || '',
+      'Tarikh': fmtDateToDisplay(r['Submission Time']),
+      'Destinasi': r['PlaceVisit'] || '',
+      'Status': r['Status'] || '',
+      'Tindakan': `
+        <button class="ppd-action-btn bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700" 
+                data-id="${r['Request ID']}" data-action="view">
+          👁️ Lihat
+        </button>
+        <button class="ppd-action-btn bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 ml-1" 
+                data-id="${r['Request ID']}" data-action="forward">
+          ✅ Hantar JPN
+        </button>
+        <button class="ppd-action-btn bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 ml-1" 
+                data-id="${r['Request ID']}" data-action="query">
+          ❓ Query
+        </button>
+      `
+    }));
+    
+    const table = makeTable(newRows, ['Request ID', 'Sekolah', 'Tarikh', 'Destinasi', 'Status', 'Tindakan']);
+    newTable.innerHTML = '';
+    newTable.appendChild(table);
+  }
+  
+  // Render REVIEWED table
+  if (reviewedReqs.length === 0) {
+    reviewedTable.innerHTML = '<p class="p-4 text-gray-500 italic">Tiada permohonan yang telah disemak</p>';
+  } else {
+    const reviewedRows = reviewedReqs.map(r => ({
+      'Request ID': r['Request ID'] || '',
+      'Sekolah': r['School Name'] || '',
+      'Tarikh Semak': fmtDateToDisplay(r['ReviewedDate']),
+      'Status': r['Status'] || '',
+      'Tindakan': `
+        <button class="ppd-action-btn bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700" 
+                data-id="${r['Request ID']}" data-action="view">
+          👁️ Lihat
+        </button>
+      `
+    }));
+    
+    const table = makeTable(reviewedRows, ['Request ID', 'Sekolah', 'Tarikh Semak', 'Status', 'Tindakan']);
+    reviewedTable.innerHTML = '';
+    reviewedTable.appendChild(table);
+  }
+  
+  setupPPDActions();
+}
+
+function setupPPDActions() {
+  document.querySelectorAll('.ppd-action-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const id = this.dataset.id;
+      const action = this.dataset.action;
+      
+      if (action === 'view') {
+        await viewRequestDetails(id, ppdSecret);
+      } else if (action === 'forward') {
+        await ppdForwardToJPN(id);
+      } else if (action === 'query') {
+        await ppdSendQuery(id);
+      }
+    });
+  });
+}
+
+async function ppdForwardToJPN(requestId) {
+  const { value: note } = await Swal.fire({
+    title: 'Hantar ke JPN',
+    input: 'textarea',
+    inputLabel: 'Catatan (optional)',
+    inputPlaceholder: 'Tambah catatan jika perlu...',
+    showCancelButton: true,
+    confirmButtonText: 'Hantar ke JPN',
+    cancelButtonText: 'Batal'
+  });
+  
+  if (note === undefined) return; // User cancelled
+  
+  try {
+    showLoading();
+    const url = CONFIG.GAS_URL + 
+      '?action=officerAction&secret=' + encodeURIComponent(ppdSecret) +
+      '&id=' + encodeURIComponent(requestId) +
+      '&type=preapprove' +
+      '&isPPD=true' +
+      '&district=' + encodeURIComponent(ppdDistrict) +
+      '&pic=PPD-' + ppdDistrict +
+      '&note=' + encodeURIComponent(note || 'Disemak oleh PPD');
+    
+    const res = await fetch(url);
+    const json = await res.json();
+    hideLoading();
+    
+    if (json.ok) {
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berjaya',
+        text: 'Permohonan telah dihantar ke JPN'
+      });
+      await loadPPDRequests();
+    } else {
+      throw new Error(json.message || 'Gagal hantar');
+    }
+  } catch (err) {
+    hideLoading();
+    logError('ppdForwardToJPN error', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Ralat',
+      text: err.message || String(err)
+    });
+  }
+}
+
+async function ppdSendQuery(requestId) {
+  const { value: note } = await Swal.fire({
+    title: 'Hantar Query',
+    input: 'textarea',
+    inputLabel: 'Catatan Query',
+    inputPlaceholder: 'Nyatakan maklumat yang diperlukan...',
+    showCancelButton: true,
+    confirmButtonText: 'Hantar Query',
+    cancelButtonText: 'Batal',
+    inputValidator: (value) => {
+      if (!value) return 'Sila masukkan catatan query';
+    }
+  });
+  
+  if (!note) return;
+  
+  try {
+    showLoading();
+    const url = CONFIG.GAS_URL + 
+      '?action=officerAction&secret=' + encodeURIComponent(ppdSecret) +
+      '&id=' + encodeURIComponent(requestId) +
+      '&type=query' +
+      '&isPPD=true' +
+      '&district=' + encodeURIComponent(ppdDistrict) +
+      '&pic=PPD-' + ppdDistrict +
+      '&note=' + encodeURIComponent(note);
+    
+    const res = await fetch(url);
+    const json = await res.json();
+    hideLoading();
+    
+    if (json.ok) {
+      await Swal.fire({
+        icon: 'success',
+        title: 'Query dihantar',
+        html: `Query ID: <b>${json.queryId || ''}</b>`
+      });
+      await loadPPDRequests();
+    } else {
+      throw new Error(json.message || 'Gagal hantar query');
+    }
+  } catch (err) {
+    hideLoading();
+    logError('ppdSendQuery error', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Ralat',
+      text: err.message || String(err)
+    });
+  }
+}
+
+// ===== BULK APPROVE (TP) =====
+async function bulkApproveAll() {
+  if (!dpSecret) {
+    return Swal.fire({
+      icon: 'warning',
+      title: 'Sila log masuk dahulu'
+    });
+  }
+  
+  const confirm = await Swal.fire({
+    title: 'Lulus Semua?',
+    html: 'Adakah anda pasti mahu meluluskan <b>SEMUA</b> permohonan yang telah disemak?<br><br>⚠️ Tindakan ini akan:<br>• Jana surat kelulusan<br>• Hantar email ke semua sekolah<br>• Tidak boleh dibatalkan',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: '✅ Ya, Lulus Semua',
+    cancelButtonText: 'Batal',
+    confirmButtonColor: '#dc2626'
+  });
+  
+  if (!confirm.isConfirmed) return;
+  
+  try {
+    showLoading();
+    const url = CONFIG.GAS_URL + 
+      '?action=bulkApprove&secret=' + encodeURIComponent(dpSecret);
+    
+    const res = await fetch(url);
+    const json = await res.json();
+    hideLoading();
+    
+    if (json.ok) {
+      await Swal.fire({
+        icon: 'success',
+        title: 'Selesai!',
+        html: `
+          <p class="text-lg mb-2">${json.message || ''}</p>
+          <div class="text-left bg-gray-100 p-3 rounded">
+            <p>✅ Diluluskan: <b>${json.approved || 0}</b></p>
+            <p>❌ Gagal: <b>${json.failed || 0}</b></p>
+          </div>
+        `
+      });
+      
+      if (json.failed > 0 && json.results) {
+        const failedList = json.results
+          .filter(r => !r.success)
+          .map(r => `• ${r.requestId}: ${r.error || 'Unknown error'}`)
+          .join('<br>');
+        
+        if (failedList) {
+          await Swal.fire({
+            icon: 'info',
+            title: 'Senarai Gagal',
+            html: failedList,
+            width: 600
+          });
+        }
+      }
+      
+      await loadDpList();
+    } else {
+      throw new Error(json.message || 'Bulk approve gagal');
+    }
+  } catch (err) {
+    hideLoading();
+    logError('bulkApproveAll error', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Ralat',
+      text: err.message || String(err)
+    });
+  }
+}
+
+// ===== VIEW REQUEST DETAILS (Universal) =====
+async function viewRequestDetails(requestId, secret) {
+  if (!requestId || !secret) return;
+  
+  try {
+    showLoading();
+    const url = CONFIG.GAS_URL + 
+      '?action=getRequest&secret=' + encodeURIComponent(secret) +
+      '&id=' + encodeURIComponent(requestId);
+    
+    const res = await fetch(url);
+    const json = await res.json();
+    hideLoading();
+    
+    if (!json.ok || !json.request) {
+      throw new Error(json.message || 'Request not found');
+    }
+    
+    const req = json.request;
+    
+    const html = `
+      <div class="text-left space-y-2 text-sm">
+        <p><b>Request ID:</b> ${req['Request ID'] || ''}</p>
+        <p><b>Sekolah:</b> ${req['School Name'] || ''}</p>
+        <p><b>Daerah:</b> ${req['Daerah'] || ''}</p>
+        <p><b>Email:</b> ${req['School Email'] || ''}</p>
+        <p><b>Destinasi:</b> ${req['PlaceVisit'] || ''}</p>
+        <p><b>Tarikh Mula:</b> ${fmtDateToDisplay(req['Travel Start'])}</p>
+        <p><b>Tarikh Tamat:</b> ${fmtDateToDisplay(req['Travel End'])}</p>
+        <p><b>Bilangan Peserta:</b> ${req['ParticipantCount'] || ''}</p>
+        <p><b>Status:</b> <span class="font-bold">${req['Status'] || ''}</span></p>
+      </div>
+    `;
+    
+    Swal.fire({
+      title: 'Maklumat Permohonan',
+      html: html,
+      width: 600,
+      confirmButtonText: 'Tutup'
+    });
+  } catch (err) {
+    hideLoading();
+    logError('viewRequestDetails error', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Ralat',
+      text: err.message || String(err)
+    });
+  }
+}
