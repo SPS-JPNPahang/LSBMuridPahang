@@ -24,6 +24,9 @@ const CONFIG = {
 let requestsCache = [];
 let officerSecret = null;
 let dpSecret = null;
+let ppdSecret = null;
+let ppdDistrict = '';
+let schoolDataCache = {};
 let leaders = [];
 
 // ===== HELPER FUNCTIONS =====
@@ -137,3 +140,4 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = { CONFIG, $, showLoading, hideLoading, log, logError };
 
 }
+
