@@ -139,8 +139,9 @@
     <nav class="space-y-2">
       <button id="tabIntroBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Pengenalan</button>
       <button id="tabFormBtn" class="w-full text-left px-4 py-2 rounded nav-tab">Borang Permohonan</button>
-      <button id="tabOfficerBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Semakan (Pegawai)</button>
-      <button id="tabDPBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Kelulusan (Timbalan)</button>
+      <button id="tabPPDBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Portal PPD</button>
+      <button id="tabOfficerBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Semakan</button>
+      <button id="tabDPBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Kelulusan</button>
       <button id="tabQueryResponseBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Query</button>
       <button id="tabDownloadsBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Muat Turun</button>
       <button id="tabStatusBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Semakan Status</button>
@@ -166,6 +167,7 @@
           <div><label class="block text-sm">Kod Sekolah</label><input id="schoolCode" name="schoolCode" class="w-full border p-2 rounded" required /></div>
           <div><label class="block text-sm">Nama Sekolah</label><input id="schoolName" name="schoolName" class="w-full border p-2 rounded" required /></div>
           <div><label class="block text-sm">Daerah</label><input id="daerah" name="daerah" class="w-full border p-2 rounded" placeholder="Contoh: Kuantan" /></div>
+          <div><label class="block text-sm">Peringkat</label><input id="peringkat" name="peringkat" class="w-full border p-2 rounded" placeholder="Rendah/Menengah" /></div>
           <div><label class="block text-sm">Poskod</label><input id="poskod" name="poskod" class="w-full border p-2 rounded" placeholder="Contoh: 25000" pattern="\d{5}" /></div>
         </div>
 
@@ -282,14 +284,53 @@
         </div>
       </div>
     </section>
+<!-- ========== PPD SECTION ========== -->
+    <section id="ppdSection" class="hidden bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">🏢 Portal PPD</h2>
+      
+      <!-- PPD Login -->
+      <div class="mb-4 flex items-center gap-3">
+        <button id="loginPPD" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">LOGIN PPD</button>
+        <button id="logoutPPD" class="btn-logout hidden-inline">🚪 LOG OUT</button>
+        <button id="refreshPPD" class="px-3 py-1 bg-green-600 text-white rounded text-sm">🔄 Refresh</button>
+        <span id="ppdLoggedAs" class="ml-3 text-sm text-gray-600"></span>
+      </div>
 
-    <section id="dpSection" class="hidden bg-white p-6 rounded shadow mb-6">
+      <!-- PPD New Requests -->
+      <div class="mb-6">
+        <h3 class="font-semibold mb-2">📋 Permohonan Baru (Daerah Anda)</h3>
+        <div id="ppdNewTable" class="overflow-auto max-h-72 border rounded bg-white p-2">
+          <p class="p-4 text-gray-500 italic">Sila log masuk PPD</p>
+        </div>
+      </div>
+
+      <!-- PPD Reviewed Requests -->
+      <div>
+        <h3 class="font-semibold mb-2">✅ Telah Disemak & Dihantar ke JPN</h3>
+        <div id="ppdReviewedTable" class="overflow-auto max-h-72 border rounded bg-white p-2">
+          <p class="p-4 text-gray-500 italic">Sila log masuk PPD</p>
+        </div>
+      </div>
+    </section>
+    <!-- END PPD SECTION -->
+   <section id="dpSection" class="hidden bg-white p-6 rounded shadow mb-6">
       <h2 class="text-xl font-semibold mb-3">Kelulusan (Timbalan)</h2>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3 mb-4">
         <button id="loginDP" class="px-4 py-2 bg-blue-600 text-white rounded">Log masuk Timbalan</button>
         <button id="logoutDP" class="hidden px-3 py-2 bg-red-600 text-white rounded">🚪 Log Keluar</button>
         <span id="dpLoggedAs" class="ml-2 text-sm text-gray-600"></span>
       </div>
+      
+      <!-- Bulk Approve Button -->
+      <div class="mb-6 p-4 bg-red-50 rounded-lg border-2 border-red-200">
+        <div class="flex items-center gap-3">
+          <button id="bulkApproveBtn" onclick="bulkApproveAll()" class="px-6 py-3 bg-red-600 text-white rounded hover:bg-red-700 font-bold">
+            ⚡ LULUS SEMUA SEKALIGUS
+          </button>
+          <span class="text-sm text-gray-600">Luluskan semua permohonan yang telah disemak oleh pegawai</span>
+        </div>
+      </div>
+      
       <div id="dpRequestsTable" class="mt-4"></div>
     </section>
 
@@ -2566,6 +2607,7 @@ console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </body>
 
 </html>
+
 
 
 
