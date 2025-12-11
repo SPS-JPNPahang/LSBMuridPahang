@@ -855,7 +855,7 @@ $('permohonanForm').addEventListener('submit', async function(ev){
 });
 
 function hideAllSections(){ 
-  ['introSection','formSection','officerSection','dpSection','queryResponseSection','downloadsSection','statusSection'].forEach(id=>$(id).classList.add('hidden')); 
+  ['introSection','formSection','officerSection','ppdSection','dpSection','queryResponseSection','downloadsSection','statusSection'].forEach(id=>$(id).classList.add('hidden')); 
 }
 
 function setActiveTab(btnId){
@@ -868,12 +868,13 @@ function setActiveTab(btnId){
   if (el) el.classList.add('tab-active');
 }
 
-['tabIntroBtn','tabFormBtn','tabOfficerBtn','tabDPBtn','tabQueryResponseBtn','tabDownloadsBtn','tabStatusBtn'].forEach(id=>{
+['tabIntroBtn','tabFormBtn','tabPPDBtn','tabOfficerBtn','tabDPBtn','tabQueryResponseBtn','tabDownloadsBtn','tabStatusBtn'].forEach(id=>{
   $(id).addEventListener('click',()=>{ 
     hideAllSections(); 
     const map={
       tabIntroBtn:'introSection',
       tabFormBtn:'formSection',
+      tabPPDBtn:'ppdSection',
       tabOfficerBtn:'officerSection',
       tabDPBtn:'dpSection',
       tabQueryResponseBtn:'queryResponseSection',
@@ -2607,3 +2608,4 @@ console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </body>
 
 </html>
+
