@@ -729,63 +729,6 @@ function renderLeaders(){
 }
 if ($('addLeader')) $('addLeader').addEventListener('click',()=>{leaders.push({name:'',phone:''}); renderLeaders();});
 renderLeaders();
-
-// ==================== SCHOOL CODE AUTOFILL ====================
-let schoolDataCache = null;
-
-async function loadSchoolData() {
-  if (schoolDataCache) return schoolDataCache;
-  
-  try {
-    const res = await fetch(GAS_URL + '?action=getSchoolData');
-    const j = await res.json();
-    if (j.ok && j.schools) {
-      schoolDataCache = j.schools;
-      return j.schools;
-    }
-  } catch (err) {
-    console.error('Failed to load school data:', err);
-  }
-  return [];
-}
-
-$('schoolCode').addEventListener('input', async function(e) {
-  const code = e.target.value.trim().toUpperCase();
-  
-  if (code.length < 3) {
-    $('schoolName').value = '';
-    $('daerah').value = '';
-    $('peringkat').value = '';
-    return;
-  }
-  
-  const schools = await loadSchoolData();
-  if (!schools || schools.length === 0) return;
-  
-  const match = schools.find(s => String(s.code || '').toUpperCase() === code);
-  
-  if (match) {
-    $('schoolName').value = match.name || '';
-    $('daerah').value = match.daerah || '';
-    $('peringkat').value = match.peringkat || '';
-    
-    // Visual feedback
-    $('schoolCode').classList.add('bg-green-50', 'border-green-500');
-    setTimeout(() => {
-      $('schoolCode').classList.remove('bg-green-50', 'border-green-500');
-    }, 1000);
-  } else {
-    $('schoolName').value = '';
-    $('daerah').value = '';
-    $('peringkat').value = '';
-  }
-});
-
-// Preload school data on page load
-(async function() {
-  await loadSchoolData();
-  console.log('School data loaded:', schoolDataCache ? schoolDataCache.length : 0, 'schools');
-})();
   
 function validateFile(file) {
   const maxSize = 10 * 1024 * 1024;
@@ -3049,6 +2992,7 @@ console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </body>
 
 </html>
+
 
 
 
