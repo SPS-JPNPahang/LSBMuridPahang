@@ -667,6 +667,63 @@ function renderLeaders(){
 if ($('addLeader')) $('addLeader').addEventListener('click',()=>{leaders.push({name:'',phone:''}); renderLeaders();});
 renderLeaders();
 
+// ==================== SCHOOL CODE AUTOFILL ====================
+let schoolDataCache = null;
+
+async function loadSchoolData() {
+  if (schoolDataCache) return schoolDataCache;
+  
+  try {
+    const res = await fetch(GAS_URL + '?action=getSchoolData');
+    const j = await res.json();
+    if (j.ok && j.schools) {
+      schoolDataCache = j.schools;
+      return j.schools;
+    }
+  } catch (err) {
+    console.error('Failed to load school data:', err);
+  }
+  return [];
+}
+
+$('schoolCode').addEventListener('input', async function(e) {
+  const code = e.target.value.trim().toUpperCase();
+  
+  if (code.length < 3) {
+    $('schoolName').value = '';
+    $('daerah').value = '';
+    $('peringkat').value = '';
+    return;
+  }
+  
+  const schools = await loadSchoolData();
+  if (!schools || schools.length === 0) return;
+  
+  const match = schools.find(s => String(s.code || '').toUpperCase() === code);
+  
+  if (match) {
+    $('schoolName').value = match.name || '';
+    $('daerah').value = match.daerah || '';
+    $('peringkat').value = match.peringkat || '';
+    
+    // Visual feedback
+    $('schoolCode').classList.add('bg-green-50', 'border-green-500');
+    setTimeout(() => {
+      $('schoolCode').classList.remove('bg-green-50', 'border-green-500');
+    }, 1000);
+  } else {
+    $('schoolName').value = '';
+    $('daerah').value = '';
+    $('peringkat').value = '';
+  }
+});
+
+// Preload school data on page load
+(async function() {
+  await loadSchoolData();
+  console.log('School data loaded:', schoolDataCache ? schoolDataCache.length : 0, 'schools');
+})();
+  
 function validateFile(file) {
   const maxSize = 10 * 1024 * 1024;
   if (file.size > maxSize) {
@@ -984,6 +1041,327 @@ $('refreshOfficer').addEventListener('click', async () => {
   }
 });
 
+// ==================== PPD LOGIN HANDLER ====================
+let ppdSecret = null;
+let ppdDistrict = null;
+
+$('loginPPD').addEventListener('click', async () => {
+  const { value: formData } = await Swal.fire({
+    title: 'Log Masuk PPD',
+    html: `
+      <div style="text-align:left">
+        <label for="swal_ppdPassword" style="font-weight:600;margin-bottom:4px;display:block">Kata Laluan PPD</label>
+        <input id="swal_ppdPassword" type="password" class="swal2-input" placeholder="Masukkan kata laluan">
+        
+        <label for="swal_ppdDistrict" style="font-weight:600;margin-bottom:4px;display:block;margin-top:12px">Pilih Daerah</label>
+        <select id="swal_ppdDistrict" class="swal2-input">
+          <option value="">Pilih Daerah...</option>
+          <option value="BENTONG">PPD BENTONG</option>
+          <option value="BERA">PPD BERA</option>
+          <option value="CAMERON HIGHLANDS">PPD CAMERON HIGHLANDS</option>
+          <option value="JERANTUT">PPD JERANTUT</option>
+          <option value="KUANTAN">PPD KUANTAN</option>
+          <option value="LIPIS">PPD LIPIS</option>
+          <option value="MARAN">PPD MARAN</option>
+          <option value="PEKAN">PPD PEKAN</option>
+          <option value="RAUB">PPD RAUB</option>
+          <option value="ROMPIN">PPD ROMPIN</option>
+          <option value="TEMERLOH">PPD TEMERLOH</option>
+        </select>
+      </div>
+    `,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: 'LOG IN',
+    cancelButtonText: 'Batal',
+    preConfirm: () => {
+      const pw = document.getElementById('swal_ppdPassword').value.trim();
+      const district = document.getElementById('swal_ppdDistrict').value.trim();
+      
+      if (!pw) {
+        Swal.showValidationMessage('Sila masukkan kata laluan');
+        return false;
+      }
+      if (!district) {
+        Swal.showValidationMessage('Sila pilih daerah');
+        return false;
+      }
+      
+      return { password: pw, district: district };
+    }
+  });
+  
+  if (!formData) return;
+  
+  try {
+    showLoading();
+    const check = await fetch(GAS_URL + '?action=checkSecret&secret=' + encodeURIComponent(formData.password));
+    const cj = await check.json();
+    hideLoading();
+    
+    if (cj.ok) {
+      ppdSecret = formData.password;
+      ppdDistrict = formData.district;
+      
+      const btn = $('loginPPD');
+      btn.textContent = 'Akses Dibenarkan';
+      btn.classList.remove('bg-blue-600');
+      btn.classList.add('btn-access-granted', 'animate-gentle-pulse');
+      btn.disabled = true;
+      
+      $('ppdLoggedAs').textContent = `(${ppdDistrict})`;
+      $('ppdLoggedAs').classList.add('status-pulse');
+      
+      const logoutBtn = $('logoutPPD');
+      logoutBtn.classList.remove('hidden-inline');
+      
+      if (!logoutBtn._hasHandler) {
+        logoutBtn._hasHandler = true;
+        logoutBtn.addEventListener('click', async () => {
+          const ok = await Swal.fire({
+            title: 'Log Out?',
+            text: 'Adakah anda pasti.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Log Out',
+            cancelButtonText: 'Batal'
+          });
+          if (!ok.isConfirmed) return;
+          
+          ppdSecret = null;
+          ppdDistrict = null;
+          
+          const b = $('loginPPD');
+          b.textContent = 'LOGIN PPD';
+          b.classList.remove('btn-access-granted', 'animate-gentle-pulse');
+          b.classList.add('bg-blue-600');
+          b.disabled = false;
+          
+          $('logoutPPD').classList.add('hidden-inline');
+          $('ppdLoggedAs').textContent = '';
+          
+          $('ppdNewTable').innerHTML = '<p class="p-4 text-gray-500 italic">Sila log masuk PPD</p>';
+          $('ppdReviewedTable').innerHTML = '<p class="p-4 text-gray-500 italic">Sila log masuk PPD</p>';
+          
+          Swal.fire({icon:'success', title:'Log Out berjaya', timer:1500, showConfirmButton:false});
+        });
+      }
+      
+      await loadPPDRequests();
+      Swal.fire({ icon:'success', title:'Akses Dibenarkan', text:`Portal ${ppdDistrict}`, timer:1800, showConfirmButton:false });
+    } else {
+      Swal.fire({ icon: 'error', title: 'Kata laluan salah' });
+    }
+  } catch (err) {
+    hideLoading();
+    Swal.fire({ icon: 'error', title: 'Ralat sambungan', text: err.message || '' });
+  }
+});
+
+// ==================== PPD REFRESH HANDLER ====================
+$('refreshPPD').addEventListener('click', async () => {
+  if (!ppdSecret) {
+    return Swal.fire({ icon:'warning', title:'Sila log masuk dahulu' });
+  }
+  
+  const btn = $('refreshPPD');
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '🔄 Refreshing...';
+  
+  showLoading();
+  try {
+    await loadPPDRequests();
+    Swal.fire({ icon:'success', title:'Data dikemaskini', timer:900, showConfirmButton:false });
+  } catch (err) {
+    Swal.fire({ icon:'error', title:'Gagal kemaskini', text: err.message || String(err) });
+  } finally { 
+    hideLoading();
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+});
+
+// ==================== PPD LOAD REQUESTS ====================
+async function loadPPDRequests() {
+  if (!ppdSecret || !ppdDistrict) {
+    $('ppdNewTable').innerHTML = '<p class="p-4 text-gray-500 italic">Sila log masuk PPD</p>';
+    $('ppdReviewedTable').innerHTML = '<p class="p-4 text-gray-500 italic">Sila log masuk PPD</p>';
+    return;
+  }
+  
+  try {
+    showLoading();
+    const res = await fetch(GAS_URL + '?action=listRequests&secret=' + encodeURIComponent(ppdSecret));
+    const j = await res.json();
+    hideLoading();
+    
+    if (!j.ok) {
+      $('ppdNewTable').innerHTML = `<p class="p-4 text-red-500">${j.message||'Gagal'}</p>`;
+      $('ppdReviewedTable').innerHTML = `<p class="p-4 text-red-500">${j.message||'Gagal'}</p>`;
+      return;
+    }
+    
+    const allRequests = j.requests || [];
+    
+    // Filter by district
+    const districtRequests = allRequests.filter(req => {
+      const daerah = String(req['Daerah'] || req['daerah'] || '').toUpperCase();
+      return daerah === ppdDistrict.toUpperCase();
+    });
+    
+    // NEW requests
+    const newRequests = districtRequests.filter(req => {
+      const s = String(req['Status'] || '').toUpperCase();
+      return s === 'NEW' || s === 'QUERY_RESPONDED';
+    });
+    
+    // REVIEWED requests
+    const reviewedRequests = districtRequests.filter(req => {
+      const s = String(req['Status'] || '').toUpperCase();
+      return s.includes('REVIEWED') || s.includes('PREAPPROVED') || s.includes('READY_FOR_DP') || s.includes('FINAL_APPROVED');
+    });
+    
+    renderPPDTable('ppdNewTable', newRequests, true);
+    renderPPDTable('ppdReviewedTable', reviewedRequests, false);
+    
+  } catch (err) {
+    hideLoading();
+    $('ppdNewTable').innerHTML = `<p class="p-4 text-red-500">Ralat: ${err.message||''}</p>`;
+    $('ppdReviewedTable').innerHTML = `<p class="p-4 text-red-500">Ralat: ${err.message||''}</p>`;
+  }
+}
+
+// ==================== PPD RENDER TABLE ====================
+function renderPPDTable(containerId, requests, showActions) {
+  const container = $(containerId);
+  
+  if (requests.length === 0) {
+    container.innerHTML = '<p class="p-4 text-gray-500 italic">Tiada permohonan</p>';
+    return;
+  }
+  
+  const rows = [];
+  requests.forEach(req => {
+    const id = req['Request ID'] || '';
+    const kodSek = req['School Code'] || req['SchoolCode'] || '';
+    const school = req['School Name'] || req['SchoolName'] || '';
+    const travelStart = fmtDateToDisplay(req['Travel Start'] || '');
+    const status = req['Status'] || '';
+    
+    let lnRaw = req['LeaderNames'] || '';
+    let lnArr = [];
+    try {
+      if (typeof lnRaw === 'string' && lnRaw.trim().startsWith('[')) lnArr = JSON.parse(lnRaw);
+      else if (Array.isArray(lnRaw)) lnArr = lnRaw;
+      else if (lnRaw) lnArr = [lnRaw];
+    } catch(e){ lnArr = []; }
+    const namaKetuaDisplay = lnArr.map(x=>String(x).trim()).filter(Boolean).join('<br/>');
+    
+    const actions = showActions ? 
+      `<div class="flex gap-2">
+        <button data-id="${id}" class="ppd-view-files px-2 py-1 bg-pink-400 border rounded text-xs hover:bg-pink-500">PDF Fail</button>
+        <button data-id="${id}" class="ppd-preapprove px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700">Semak & Hantar ke JPN</button>
+      </div>` :
+      `<div class="flex gap-2">
+        <button data-id="${id}" class="ppd-view-files px-2 py-1 border rounded text-xs hover:bg-gray-100">Lihat Fail</button>
+      </div>`;
+    
+    rows.push({
+      'Kod Sekolah': kodSek,
+      'Nama Sekolah': school,
+      'Nama Ketua': namaKetuaDisplay,
+      'Tarikh Lawatan': travelStart,
+      'Status': status,
+      'Tindakan': actions
+    });
+  });
+  
+  const cols = ['Kod Sekolah', 'Nama Sekolah', 'Nama Ketua', 'Tarikh Lawatan', 'Status', 'Tindakan'];
+  container.innerHTML = '';
+  container.appendChild(makeTable(rows, cols));
+  
+  // View files handler
+  document.querySelectorAll('.ppd-view-files').forEach(btn => {
+    btn.addEventListener('click', async ev => {
+      const id = ev.currentTarget.dataset.id;
+      const req = requests.find(r => String(r['Request ID']) === String(id));
+      if (!req) return Swal.fire({ icon:'error', title:'Tidak jumpa rekod' });
+      
+      const filePairs = [
+        {label:'KERTAS KERJA', raw: req['File_KERTAS_KERJA'] || ''},
+        {label:'MAKLUMAT ANGGOTA', raw: req['File_MAKLUMAT_ANGGOTA'] || ''},
+        {label:'PERMIT BAS', raw: req['File_PERMIT_BAS'] || ''},
+        {label:'LESEN PEMANDU', raw: req['File_LESEN_PEMANDU'] || ''},
+        {label:'INTIPATI TAKLIMAT', raw: req['File_TAKLIMAT'] || ''}
+      ];
+      
+      const html = filePairs.map(fp=>{
+        const urls = String(fp.raw||'').split(/\s*;\s*/).filter(Boolean);
+        if (urls.length === 0) return `<p><strong>${fp.label}:</strong> <em>Tiada fail</em></p>`;
+        const links = urls.map((u,i)=>`<div><a href="${u}" target="_blank" class="text-blue-600 hover:underline">Buka ${fp.label} ${urls.length>1?('('+(i+1)+')'):''}</a></div>`).join('');
+        return `<p><strong>${fp.label}:</strong><br/>${links}</p>`;
+      }).join('');
+      
+      await Swal.fire({ title: 'Fail Permohonan', html, width: 800, showCloseButton: true, confirmButtonText: 'Tutup' });
+    });
+  });
+  
+  // Preapprove handler
+  document.querySelectorAll('.ppd-preapprove').forEach(btn => {
+    btn.addEventListener('click', async ev => {
+      const id = ev.currentTarget.dataset.id;
+      const req = requests.find(r => String(r['Request ID']) === String(id));
+      if (!req) return Swal.fire({ icon:'error', title:'Tidak jumpa rekod' });
+      
+      const targetBtn = ev.currentTarget;
+      targetBtn.disabled = true;
+      const origText = targetBtn.textContent;
+      targetBtn.textContent = 'Processing...';
+      
+      try {
+        const { value: note } = await Swal.fire({
+          title: 'Catatan Semakan (pilihan)',
+          input: 'textarea',
+          inputPlaceholder: 'Tulis catatan jika ada...',
+          showCancelButton: true,
+          confirmButtonText: 'Semak & Hantar ke JPN'
+        });
+        
+        if (note === undefined) {
+          targetBtn.disabled = false;
+          targetBtn.textContent = origText;
+          return;
+        }
+        
+        showLoading();
+        const url = GAS_URL + '?action=ppdAction' +
+                    '&id=' + encodeURIComponent(id) +
+                    '&note=' + encodeURIComponent(note || 'Disemak oleh PPD') +
+                    '&district=' + encodeURIComponent(ppdDistrict) +
+                    '&secret=' + encodeURIComponent(ppdSecret);
+        
+        const res = await fetch(url);
+        const j = await res.json();
+        hideLoading();
+        
+        if (j.ok) {
+          await Swal.fire({ icon:'success', title:'Permohonan telah dihantar ke JPN', timer:1500, showConfirmButton:false });
+          await loadPPDRequests();
+        } else {
+          Swal.fire({ icon:'error', title:'Gagal', text: j.message || 'Server error' });
+        }
+      } catch (err) {
+        hideLoading();
+        Swal.fire({ icon:'error', title:'Ralat', text: err.message || String(err) });
+      } finally {
+        targetBtn.disabled = false;
+        targetBtn.textContent = origText;
+      }
+    });
+  });
+}
+  
 $('applyFilters').addEventListener('click', ()=> renderTablesFromCache());
 $('clearFilters').addEventListener('click', ()=>{ 
   $('filterCategory').value=''; 
@@ -2608,4 +2986,5 @@ console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </body>
 
 </html>
+
 
