@@ -668,11 +668,23 @@ async function loadSchoolData() {
 $('schoolCode').addEventListener('input', async function(e) {
   const code = e.target.value.trim().toUpperCase();
   
+// Ensure message element exists
+let msg = document.getElementById('schoolCodeMsg');
+if (!msg) {
+  msg = document.createElement('div');
+  msg.id = 'schoolCodeMsg';
+  msg.className = 'text-sm mt-1';
+  msg.style.color = '#dc2626';  // merah
+  $('schoolCode').insertAdjacentElement('afterend', msg);
+}
+
+
   // Clear fields if code too short
   if (code.length < 3) {
     $('schoolName').value = '';
     $('daerah').value = '';
     $('peringkat').value = '';
+msg.textContent = '';
     return;
   }
   
@@ -683,12 +695,14 @@ $('schoolCode').addEventListener('input', async function(e) {
   // Find matching school
   const match = schools.find(s => String(s.code || '').toUpperCase() === code);
   
+
   if (match) {
     // Autofill fields
     $('schoolName').value = match.name || '';
     $('daerah').value = match.daerah || '';
     $('peringkat').value = match.peringkat || '';
-    
+    msg.textContent = '';
+
     // Visual feedback - green flash
     $('schoolCode').classList.add('bg-green-50', 'border-green-500');
     setTimeout(() => {
@@ -701,6 +715,7 @@ $('schoolCode').addEventListener('input', async function(e) {
     $('schoolName').value = '';
     $('daerah').value = '';
     $('peringkat').value = '';
+ msg.textContent = 'Kod Sekolah tiada dalam sistem. CTH: TCF0840';
   }
 });
 
@@ -2992,6 +3007,7 @@ console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </body>
 
 </html>
+
 
 
 
