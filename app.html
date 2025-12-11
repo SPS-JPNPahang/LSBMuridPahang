@@ -645,7 +645,70 @@ function fmtDateToDisplay(isoOrRaw){
   };
   setMin(); start.addEventListener('change', updateEndBounds); updateEndBounds();
 })();
+// ==================== SCHOOL CODE AUTOFILL ====================
+let schoolDataCache = null;
 
+async function loadSchoolData() {
+  if (schoolDataCache) return schoolDataCache;
+  
+  try {
+    const res = await fetch(GAS_URL + '?action=getSchoolData');
+    const j = await res.json();
+    if (j.ok && j.schools) {
+      schoolDataCache = j.schools;
+      console.log('✅ School data loaded:', j.schools.length, 'schools');
+      return j.schools;
+    }
+  } catch (err) {
+    console.error('❌ Failed to load school data:', err);
+  }
+  return [];
+}
+
+$('schoolCode').addEventListener('input', async function(e) {
+  const code = e.target.value.trim().toUpperCase();
+  
+  // Clear fields if code too short
+  if (code.length < 3) {
+    $('schoolName').value = '';
+    $('daerah').value = '';
+    $('peringkat').value = '';
+    return;
+  }
+  
+  // Load school data
+  const schools = await loadSchoolData();
+  if (!schools || schools.length === 0) return;
+  
+  // Find matching school
+  const match = schools.find(s => String(s.code || '').toUpperCase() === code);
+  
+  if (match) {
+    // Autofill fields
+    $('schoolName').value = match.name || '';
+    $('daerah').value = match.daerah || '';
+    $('peringkat').value = match.peringkat || '';
+    
+    // Visual feedback - green flash
+    $('schoolCode').classList.add('bg-green-50', 'border-green-500');
+    setTimeout(() => {
+      $('schoolCode').classList.remove('bg-green-50', 'border-green-500');
+    }, 1000);
+    
+    console.log('✅ Autofill success:', match.name);
+  } else {
+    // No match - clear fields
+    $('schoolName').value = '';
+    $('daerah').value = '';
+    $('peringkat').value = '';
+  }
+});
+
+// Preload school data on page load
+(async function() {
+  await loadSchoolData();
+})();
+// ==================== END SCHOOL CODE AUTOFILL ====================
 let leaders = [];
 function renderLeaders(){ 
   const c=$('leaderList'); 
@@ -2986,5 +3049,6 @@ console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
 </body>
 
 </html>
+
 
 
