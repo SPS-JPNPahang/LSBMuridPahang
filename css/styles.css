@@ -11,6 +11,29 @@
 
 table { table-layout: auto; width: 100%; }
 td { vertical-align: top; }
+/* ===== Table Action Column (Officer - Tindakan) ===== */
+.action-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;              /* INI punca isu rapat */
+  align-items: center;
+}
+
+.action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  color: #2563eb;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.action-icon:hover {
+  background: #eef2ff;
+}
 
 /* Download Cards */
 .download-card {
@@ -232,4 +255,5 @@ input[type="file"]::file-selector-button {
 
 #downloadsSection .download-actions.column { 
   flex-direction: column; 
+
 }
