@@ -11,6 +11,17 @@
 
 table { table-layout: auto; width: 100%; }
 td { vertical-align: top; }
+/* ===== Action buttons (INFO / QUERY / SAH) ===== */
+td .view-files,
+td .btn-query,
+td .btn-preapprove {
+  display: block;          /* paksa satu baris satu butang */
+  width: 70px;             /* SEMUA sama lebar */
+  margin: 6px auto;        /* jarak menegak + center */
+  text-align: center;
+  font-weight: 600;
+}
+
 /* ===== Table Action Column (Officer - Tindakan) ===== */
 .action-stack {
   display: flex;
@@ -257,3 +268,4 @@ input[type="file"]::file-selector-button {
   flex-direction: column; 
 
 }
+
