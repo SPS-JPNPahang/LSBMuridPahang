@@ -1,288 +1,62 @@
 /**
- * LAWATAN MURID SAMBIL BELAJAR - Authentication Module
+ * LAWATAN MURID SAMBIL BELAJAR - Universal Login Module
  * JPN Pahang
  */
+// ===== GLOBAL STATE =====
+let currentUserRole = null; // Track current logged in role
+let currentDashboard = null; // Track which dashboard to show
 
-// ===== OFFICER LOGIN =====
-async function setupOfficerAuth() {
-  const loginBtn = $('loginOfficer');
+async function setupUniversalLogin() {
+  const loginBtn = $('loginBtn');
   if (!loginBtn) return;
   
   loginBtn.addEventListener('click', async () => {
-    const { value: pw } = await Swal.fire({
-      title: 'Akses Pegawai',
-      input: 'password',
-      inputLabel: 'Masukkan kata laluan Pegawai',
+    // Show role selection first
+    const { value: role } = await Swal.fire({
+      title: 'Pilih Peranan',
+      input: 'select',
+      inputOptions: {
+        'OFFICER': 'Pegawai JPN',
+        'PPD': 'PPD',
+        'TP': 'Timbalan Pengarah'
+      },
+      inputPlaceholder: '— Sila pilih —',
       showCancelButton: true,
-      confirmButtonText: 'LOG IN',
-      inputAttributes: {
-        autocomplete: 'off'
+      confirmButtonText: 'Teruskan',
+      cancelButtonText: 'Batal',
+
+      width: 420,
+      padding: '1.25rem',
+
+      customClass: {
+        popup: 'swal-jpn-popup',
+        title: 'swal-jpn-title',
+        input: 'swal-jpn-input',
+        confirmButton: 'swal-jpn-confirm',
+        cancelButton: 'swal-jpn-cancel'
+      },
+
+      inputValidator: (value) => {
+        if (!value) return 'Sila pilih peranan';
       }
     });
+
+    if (!role) return;
     
-    if (!pw) return;
-    
-    try {
-      showLoading();
-      const check = await fetch(CONFIG.GAS_URL + '?action=checkSecret&secret=' + encodeURIComponent(pw));
-      const cj = await check.json();
-      hideLoading();
-      
-      if (cj.ok) {
-        officerSecret = pw;
-        
-        // Update UI
-        loginBtn.textContent = 'Akses Dibenarkan';
-        loginBtn.classList.remove('bg-blue-600');
-        loginBtn.classList.add('btn-access-granted', 'animate-gentle-pulse');
-        loginBtn.disabled = true;
-        
-        const statusEl = $('officerLoggedAs');
-        if (statusEl) {
-          statusEl.textContent = ' (Sistem Online)';
-          statusEl.classList.add('status-pulse');
-        }
-        
-        const logoutBtn = $('logoutOfficer');
-        if (logoutBtn) logoutBtn.classList.remove('hidden-inline');
-        
-        await loadRequests();
-        
-        Swal.fire({
-          icon: 'success',
-          title: 'Akses Dibenarkan',
-          text: 'Sistem Online.',
-          timer: 1800,
-          showConfirmButton: false
-        });
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Kata laluan salah'
-        });
-      }
-    } catch (err) {
-      hideLoading();
-      logError('Officer login error', err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Ralat sambungan',
-        text: err.message || ''
-      });
+    // Handle based on role
+    if (role === 'PPD') {
+      await handlePPDLogin();
+    } else if (role === 'TP') {
+      await handleTPLogin();
+    } else {
+      await handleOfficerLogin();
     }
   });
 }
 
-// ===== OFFICER LOGOUT =====
-function setupOfficerLogout() {
-  const logoutBtn = $('logoutOfficer');
-  if (!logoutBtn) return;
-  
-  logoutBtn.addEventListener('click', async () => {
-    const ok = await Swal.fire({
-      title: 'Log Out?',
-      text: 'Adakah anda pasti?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Log Out',
-      cancelButtonText: 'Batal'
-    });
-    
-    if (!ok.isConfirmed) return;
-    
-    officerSecret = null;
-    
-    const loginBtn = $('loginOfficer');
-    if (loginBtn) {
-      loginBtn.textContent = 'LOGIN Pegawai';
-      loginBtn.classList.remove('btn-access-granted', 'animate-gentle-pulse');
-      loginBtn.classList.add('bg-blue-600');
-      loginBtn.disabled = false;
-    }
-    
-    logoutBtn.classList.add('hidden-inline');
-    
-    const statusEl = $('officerLoggedAs');
-    if (statusEl) statusEl.textContent = '';
-    
-    requestsCache = [];
-    renderTablesFromCache();
-    
-    Swal.fire({
-      icon: 'success',
-      title: 'Log Out berjaya',
-      timer: 1500,
-      showConfirmButton: false
-    });
-  });
-}
-
-// ===== OFFICER REFRESH =====
-function setupOfficerRefresh() {
-  const refreshBtn = $('refreshOfficer');
-  if (!refreshBtn) return;
-  
-  refreshBtn.addEventListener('click', async () => {
-    if (!officerSecret) {
-      return Swal.fire({
-        icon: 'warning',
-        title: 'Sila log masuk dahulu'
-      });
-    }
-    
-    const originalText = refreshBtn.textContent;
-    refreshBtn.disabled = true;
-    refreshBtn.textContent = 'Refreshing...';
-    
-    showLoading();
-    try {
-      await loadRequests();
-      Swal.fire({
-        icon: 'success',
-        title: 'Data dikemaskini',
-        timer: 900,
-        showConfirmButton: false
-      });
-    } catch (err) {
-      logError('Refresh error', err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Gagal kemaskini',
-        text: err.message || String(err)
-      });
-    } finally {
-      hideLoading();
-      refreshBtn.disabled = false;
-      refreshBtn.textContent = originalText;
-    }
-  });
-}
-
-// ===== DEPUTY DIRECTOR LOGIN =====
-async function setupDPAuth() {
-  const loginBtn = $('loginDP');
-  if (!loginBtn) return;
-  
-  loginBtn.addEventListener('click', async () => {
-    const { value: pw } = await Swal.fire({
-      title: 'Kata Laluan Timbalan Pengarah',
-      input: 'password',
-      showCancelButton: true,
-      confirmButtonText: 'Log Masuk',
-      inputAttributes: {
-        autocomplete: 'off'
-      }
-    });
-    
-    if (!pw) return;
-    
-    try {
-      showLoading();
-      const res = await fetch(CONFIG.GAS_URL + '?action=checkSecret&secret=' + encodeURIComponent(pw));
-      const j = await res.json();
-      hideLoading();
-      
-      if (j.ok) {
-        dpSecret = pw;
-        
-        loginBtn.textContent = 'Akses Dibenarkan';
-        loginBtn.classList.remove('bg-blue-600');
-        loginBtn.classList.add('bg-green-600', 'animate-gentle-pulse');
-        loginBtn.disabled = true;
-        
-        const logoutBtn = $('logoutDP');
-        if (logoutBtn) logoutBtn.classList.remove('hidden');
-        
-        const statusEl = $('dpLoggedAs');
-        if (statusEl) {
-          statusEl.textContent = '(Sistem dalam mod sedia)';
-          statusEl.classList.add('text-green-600');
-        }
-        
-        // Show bulk approve button
-        const bulkBtn = $('bulkApproveBtn');
-        if (bulkBtn) bulkBtn.classList.remove('hidden');
-        
-        await Swal.fire({
-          icon: 'success',
-          title: 'Selamat Datang Tuan Timbalan Pengarah',
-          timer: 1200,
-          showConfirmButton: false
-        });
-        
-        await loadDpList();
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Kata laluan salah'
-        });
-      }
-    } catch (err) {
-      hideLoading();
-      logError('DP login error', err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Ralat sambungan',
-        text: err.message || ''
-      });
-    }
-  });
-}
-
-// ===== DEPUTY DIRECTOR LOGOUT =====
-function setupDPLogout() {
-  const logoutBtn = $('logoutDP');
-  if (!logoutBtn) return;
-  
-  logoutBtn.addEventListener('click', async () => {
-    const ok = await Swal.fire({
-      title: 'Log Keluar?',
-      text: 'Adakah anda pasti mahu log keluar?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Ya, Log Keluar',
-      cancelButtonText: 'Batal'
-    });
-    
-    if (!ok.isConfirmed) return;
-    
-    dpSecret = null;
-    
-    // Hide bulk approve button
-    const bulkBtn = $('bulkApproveBtn');
-    if (bulkBtn) bulkBtn.classList.add('hidden');
-    
-    const loginBtn = $('loginDP');
-    if (loginBtn) {
-      loginBtn.textContent = 'Log masuk Timbalan';
-      loginBtn.classList.remove('bg-green-600', 'animate-gentle-pulse');
-      loginBtn.classList.add('bg-blue-600');
-      loginBtn.disabled = false;
-    }
-    
-    logoutBtn.classList.add('hidden');
-    
-    const statusEl = $('dpLoggedAs');
-    if (statusEl) statusEl.textContent = '';
-    
-    const table = $('dpRequestsTable');
-    if (table) table.innerHTML = `<p class="p-4 text-gray-500 italic">Sila log masuk Timbalan untuk melihat senarai permohonan.</p>`;
-    
-    Swal.fire({
-      icon: 'success',
-      title: 'Terima kasih Tuan Timbalan Pengarah',
-      timer: 1200,
-      showConfirmButton: false
-    });
-  });
-}
 // ===== PPD LOGIN =====
-async function setupPPDAuth() {
-  const loginBtn = $('loginPPD');
-  if (!loginBtn) return;
-  
-  loginBtn.addEventListener('click', async () => {
-    const { value: formValues } = await Swal.fire({
+async function handlePPDLogin() {
+  const { value: formValues } = await Swal.fire({
       title: 'Akses PPD',
       html:
         '<select id="swal-district" class="swal2-input">' +
@@ -294,20 +68,30 @@ async function setupPPDAuth() {
         '<option value="KUANTAN">KUANTAN</option>' +
         '<option value="LIPIS">LIPIS</option>' +
         '<option value="MARAN">MARAN</option>' +
-        '<option value="PAHANG">PAHANG</option>' +
         '<option value="PEKAN">PEKAN</option>' +
         '<option value="RAUB">RAUB</option>' +
         '<option value="ROMPIN">ROMPIN</option>' +
         '<option value="TEMERLOH">TEMERLOH</option>' +
         '</select>' +
         '<input id="swal-password" type="password" class="swal2-input" placeholder="Kata Laluan PPD">',
-      focusConfirm: false,
+
       showCancelButton: true,
       confirmButtonText: 'LOG IN',
+      width: 420,
+      padding: '1.25rem',
+
+      customClass: {
+        popup: 'swal-jpn-popup',
+        title: 'swal-jpn-title',
+        input: 'swal-jpn-input',
+        confirmButton: 'swal-jpn-confirm',
+        cancelButton: 'swal-jpn-cancel'
+      },
+
       preConfirm: () => {
         const district = document.getElementById('swal-district').value;
         const password = document.getElementById('swal-password').value;
-        
+
         if (!district) {
           Swal.showValidationMessage('Sila pilih daerah');
           return false;
@@ -316,166 +100,325 @@ async function setupPPDAuth() {
           Swal.showValidationMessage('Sila masukkan kata laluan');
           return false;
         }
-        
+
         return { district, password };
       }
     });
-    
-    if (!formValues) return;
-    
-    try {
-      showLoading();
-      const res = await fetch(
-        CONFIG.GAS_URL + 
-        '?action=checkPPDSecret&secret=' + encodeURIComponent(formValues.password) +
-        '&district=' + encodeURIComponent(formValues.district)
-      );
-      const json = await res.json();
-      hideLoading();
-      
-      if (json.ok) {
-        ppdSecret = formValues.password;
-        ppdDistrict = formValues.district;
-        
-        loginBtn.textContent = `PPD ${formValues.district}`;
-        loginBtn.classList.remove('bg-blue-600');
-        loginBtn.classList.add('bg-green-600', 'animate-gentle-pulse');
-        loginBtn.disabled = true;
-        
-        const statusEl = $('ppdLoggedAs');
-        if (statusEl) {
-          statusEl.textContent = ` - ${formValues.district}`;
-          statusEl.classList.add('text-green-600');
-        }
-        
-        const logoutBtn = $('logoutPPD');
-        if (logoutBtn) logoutBtn.classList.remove('hidden-inline');
-        
-        await loadPPDRequests();
-        
-        Swal.fire({
-          icon: 'success',
-          title: 'Akses Dibenarkan',
-          text: `PPD ${formValues.district} - Sistem Online`,
-          timer: 1800,
-          showConfirmButton: false
-        });
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Akses Ditolak',
-          text: json.message || 'Password atau daerah salah'
-        });
-      }
-    } catch (err) {
-      hideLoading();
-      logError('PPD login error', err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Ralat sambungan',
-        text: err.message || ''
-      });
-    }
-  });
-}
 
-// ===== PPD LOGOUT =====
-function setupPPDLogout() {
-  const logoutBtn = $('logoutPPD');
-  if (!logoutBtn) return;
   
-  logoutBtn.addEventListener('click', async () => {
-    const ok = await Swal.fire({
-      title: 'Log Out?',
-      text: 'Adakah anda pasti?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Log Out',
-      cancelButtonText: 'Batal'
-    });
-    
-    if (!ok.isConfirmed) return;
-    
-    ppdSecret = null;
-    ppdDistrict = '';
-    
-    const loginBtn = $('loginPPD');
-    if (loginBtn) {
-      loginBtn.textContent = 'LOGIN PPD';
-      loginBtn.classList.remove('bg-green-600', 'animate-gentle-pulse');
-      loginBtn.classList.add('bg-blue-600');
-      loginBtn.disabled = false;
-    }
-    
-    logoutBtn.classList.add('hidden-inline');
-    
-    const statusEl = $('ppdLoggedAs');
-    if (statusEl) statusEl.textContent = '';
-    
-    const newTable = $('ppdNewTable');
-    const reviewedTable = $('ppdReviewedTable');
-    if (newTable) newTable.innerHTML = '<p class="p-4 text-gray-500 italic">Sila log masuk PPD</p>';
-    if (reviewedTable) reviewedTable.innerHTML = '<p class="p-4 text-gray-500 italic">Sila log masuk PPD</p>';
-    
-    Swal.fire({
-      icon: 'success',
-      title: 'Log Out berjaya',
-      timer: 1500,
-      showConfirmButton: false
-    });
-  });
-}
-
-// ===== PPD REFRESH =====
-function setupPPDRefresh() {
-  const refreshBtn = $('refreshPPD');
-  if (!refreshBtn) return;
+  if (!formValues) return;
   
-  refreshBtn.addEventListener('click', async () => {
-    if (!ppdSecret || !ppdDistrict) {
-      return Swal.fire({
-        icon: 'warning',
-        title: 'Sila log masuk dahulu'
-      });
-    }
-    
-    const originalText = refreshBtn.textContent;
-    refreshBtn.disabled = true;
-    refreshBtn.textContent = 'Refreshing...';
-    
+  try {
     showLoading();
-    try {
+    const res = await fetch(
+      CONFIG.GAS_URL + 
+      '?action=checkPPDSecret&secret=' + encodeURIComponent(formValues.password) +
+      '&district=' + encodeURIComponent(formValues.district)
+    );
+    const json = await res.json();
+    hideLoading();
+    
+    if (json.ok) {
+      ppdSecret = formValues.password;
+      ppdDistrict = formValues.district;
+      
+      const loginBtn = $('loginBtn');
+      loginBtn.textContent = `PPD ${formValues.district}`;
+      loginBtn.classList.remove('bg-blue-600');
+      loginBtn.classList.add('bg-green-600');
+      loginBtn.disabled = true;
+      
+      // Save login state
+      currentUserRole = 'PPD';
+      currentDashboard = 'ppdSection';
+      
       await loadPPDRequests();
+      showDashboard('ppdSection');
+      
       Swal.fire({
         icon: 'success',
-        title: 'Data dikemaskini',
-        timer: 900,
+        title: `PPD ${formValues.district}`,
+        text: 'Sistem Online',
+        timer: 1500,
         showConfirmButton: false
       });
-    } catch (err) {
-      logError('PPD refresh error', err);
+    } else {
       Swal.fire({
         icon: 'error',
-        title: 'Gagal kemaskini',
-        text: err.message || String(err)
+        title: 'Akses Ditolak',
+        text: json.message || 'Password atau daerah salah'
       });
-    } finally {
-      hideLoading();
-      refreshBtn.disabled = false;
-      refreshBtn.textContent = originalText;
     }
+  } catch (err) {
+    hideLoading();
+    console.error('PPD login error:', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Ralat sambungan',
+      text: err.message || ''
+    });
+  }
+}
+
+// ===== TP LOGIN =====
+async function handleTPLogin() {
+  const { value: pw } = await Swal.fire({
+      title: 'Kata Laluan Timbalan Pengarah',
+      input: 'password',
+      showCancelButton: true,
+      confirmButtonText: 'Log Masuk',
+      inputAttributes: { autocomplete: 'off' },
+
+      width: 420,
+      padding: '1.25rem',
+
+      customClass: {
+        popup: 'swal-jpn-popup',
+        title: 'swal-jpn-title',
+        input: 'swal-jpn-input',
+        confirmButton: 'swal-jpn-confirm',
+        cancelButton: 'swal-jpn-cancel'
+      }
+    });
+
+  
+  if (!pw) return;
+  
+  try {
+    showLoading();
+    const res = await fetch(CONFIG.GAS_URL + '?action=checkSecret&secret=' + encodeURIComponent(pw));
+    const j = await res.json();
+    hideLoading();
+    
+    if (j.ok) {
+      dpSecret = pw;
+      
+      const loginBtn = $('loginBtn');
+      loginBtn.textContent = 'Timbalan Pengarah';
+      loginBtn.classList.remove('bg-blue-600');
+      loginBtn.classList.add('bg-green-600', 'animate-gentle-pulse');
+      loginBtn.disabled = true;
+      
+      // Save login state
+      currentUserRole = 'TP';
+      currentDashboard = 'deputySection';
+      
+      await loadDpList();
+      showDashboard('deputySection');
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Timbalan Pengarah',
+        timer: 1200,
+        showConfirmButton: false
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Kata laluan salah'
+      });
+    }
+  } catch (err) {
+    hideLoading();
+    console.error('TP login error:', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Ralat sambungan',
+      text: err.message || ''
+    });
+  }
+}
+
+// ===== OFFICER LOGIN =====
+async function handleOfficerLogin() {
+const { value: pw } = await Swal.fire({
+      title: 'Akses Pegawai',
+      input: 'password',
+      inputLabel: 'Kata laluan Pegawai',
+      showCancelButton: true,
+      confirmButtonText: 'LOG IN',
+      inputAttributes: { autocomplete: 'off' },
+
+      width: 420,
+      padding: '1.25rem',
+
+      customClass: {
+        popup: 'swal-jpn-popup',
+        title: 'swal-jpn-title',
+        input: 'swal-jpn-input',
+        confirmButton: 'swal-jpn-confirm',
+        cancelButton: 'swal-jpn-cancel'
+      }
+    });
+
+  
+  if (!pw) return;
+  
+  try {
+    showLoading();
+    const check = await fetch(CONFIG.GAS_URL + '?action=checkSecret&secret=' + encodeURIComponent(pw));
+    const cj = await check.json();
+    hideLoading();
+    
+    if (cj.ok) {
+      officerSecret = pw;
+      
+      const loginBtn = $('loginBtn');
+      loginBtn.textContent = 'Pegawai JPN';
+      loginBtn.classList.remove('bg-blue-600');
+      loginBtn.classList.add('bg-green-600', 'animate-gentle-pulse');
+      loginBtn.disabled = true;
+      
+      // Save login state
+      currentUserRole = 'OFFICER';
+      currentDashboard = 'officerSection';
+      
+      await loadRequests();
+      showDashboard('officerSection');
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Pegawai JPN',
+        text: 'Sistem Online',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Kata laluan salah'
+      });
+    }
+  } catch (err) {
+    hideLoading();
+    console.error('Officer login error:', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Ralat sambungan',
+      text: err.message || ''
+    });
+  }
+}
+
+// ===== SHOW DASHBOARD =====
+function showDashboard(sectionId) {
+  // Hide login section
+  const loginSection = $('loginSection');
+  if (loginSection) loginSection.classList.add('hidden');
+  
+  // Hide all dashboard sections
+  ['officerSection','ppdSection','deputySection'].forEach(id => {
+    const el = $(id);
+    if (el) el.classList.add('hidden');
   });
+  
+  // Show target dashboard
+  const target = $(sectionId);
+  if (target) target.classList.remove('hidden');
+
+  // Setup dashboard buttons
+  setupDashboardButtons(sectionId); 
 }
-// ===== INITIALIZE ALL AUTH =====
+
+// ===== SETUP DASHBOARD BUTTONS =====
+function setupDashboardButtons(section) {
+  if (section === 'officerSection') {
+    // Setup Officer refresh button
+    const refreshBtn = $('refreshOfficer');
+    if (refreshBtn) {
+      refreshBtn.onclick = async () => {
+        const orig = refreshBtn.textContent;
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = 'Refreshing...';
+        showLoading();
+        try {
+          await loadRequests();
+          Swal.fire({icon:'success', title:'Data dikemaskini', timer:900, showConfirmButton:false});
+        } finally {
+          hideLoading();
+          refreshBtn.disabled = false;
+          refreshBtn.textContent = orig;
+        }
+      };
+    }
+    
+    // Hide LOGIN button, SHOW LOGOUT button
+    const loginBtn = $('loginOfficer');
+    const logoutBtn = $('logoutOfficer');
+    if (loginBtn) loginBtn.style.display = 'none';
+    if (logoutBtn) {
+      logoutBtn.classList.remove('hidden-inline');  // ← REMOVE hidden class
+      logoutBtn.style.display = 'inline-flex';      // ← FORCE show
+      logoutBtn.onclick = () => {
+          currentUserRole = null;
+          currentDashboard = null;
+          location.reload();
+        };
+    }
+    
+  } else if (section === 'ppdSection') {
+    // Setup PPD refresh button
+    const refreshBtn = $('refreshPPD');
+    if (refreshBtn) {
+      refreshBtn.onclick = async () => {
+        const orig = refreshBtn.textContent;
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = 'Refreshing...';
+        showLoading();
+        try {
+          await loadPPDRequests();
+          Swal.fire({icon:'success', title:'Data dikemaskini', timer:900, showConfirmButton:false});
+        } finally {
+          hideLoading();
+          refreshBtn.disabled = false;
+          refreshBtn.textContent = orig;
+        }
+      };
+    }
+    
+    // Hide LOGIN button, SHOW LOGOUT button
+    const loginBtn = $('loginPPD');
+    const logoutBtn = $('logoutPPD');
+    if (loginBtn) loginBtn.style.display = 'none';
+    if (logoutBtn) {
+      logoutBtn.classList.remove('hidden-inline');  // ← REMOVE hidden class
+      logoutBtn.style.display = 'inline-flex';      // ← FORCE show
+      logoutBtn.onclick = () => {
+          currentUserRole = null;
+          currentDashboard = null;
+          location.reload();
+        };
+    }
+    
+  } else if (section === 'deputySection') {
+    // Show bulk approve button
+    const bulkBtn = $('bulkApproveBtn');
+    if (bulkBtn) bulkBtn.classList.remove('hidden');
+    
+    // Hide LOGIN button, SHOW LOGOUT button
+    const loginBtn = $('loginDP');
+    const logoutBtn = $('logoutDP');
+    if (loginBtn) loginBtn.style.display = 'none';
+    if (logoutBtn) {
+      logoutBtn.classList.remove('hidden');         // ← REMOVE hidden class
+      logoutBtn.style.display = 'inline-block';     // ← FORCE show
+      logoutBtn.onclick = () => {
+          currentUserRole = null;
+          currentDashboard = null;
+          location.reload();
+        };
+    }
+  }
+}
+
+// ===== RESTORE DASHBOARD IF LOGGED IN =====
+function restoreDashboardIfLoggedIn() {
+  if (currentUserRole && currentDashboard) {
+    showDashboard(currentDashboard);
+  }
+}
+
+// ===== INITIALIZE =====
 function initializeAuth() {
-  setupOfficerAuth();
-  setupOfficerLogout();
-  setupOfficerRefresh();
-  setupPPDAuth();
-  setupPPDLogout();
-  setupPPDRefresh();
-  setupDPAuth();
-  setupDPLogout();
+  setupUniversalLogin();
 }
-
-
