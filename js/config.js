@@ -3,10 +3,10 @@
  * JPN Pahang
  */
 
-// ===== CONFIGURATION - KEKALKAN URL ASAL ANDA =====
+// ===== CONFIGURATION =====
 const CONFIG = {
-  // Google Apps Script URL (JANGAN UBAH)
-  GAS_URL: 'https://script.google.com/macros/s/AKfycbwTu6cppOshXOA1KdmwnMSfunhvolTpenIVHctjxnUIvU7HuB633XkcbiMJiK4cvf4u-w/exec',
+  // Google Apps Script URL (UPDATED from app.html)
+  GAS_URL: 'https://script.google.com/macros/s/AKfycbwwZkuxKRwXxz8w2ipD-F0TMqoT0wRuXiGCdS9h--NGiSW9Xw1u1gKV8FjgZKzpedFrRA/exec',
   
   // File Settings
   MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
@@ -26,7 +26,7 @@ let officerSecret = null;
 let dpSecret = null;
 let ppdSecret = null;
 let ppdDistrict = '';
-let schoolDataCache = {};
+let schoolDataCache = null;
 let leaders = [];
 
 // ===== HELPER FUNCTIONS =====
@@ -134,10 +134,3 @@ function blobToFile(blob, name) {
     return blob;
   }
 }
-
-// ===== EXPORT FOR OTHER MODULES =====
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { CONFIG, $, showLoading, hideLoading, log, logError };
-
-}
-
