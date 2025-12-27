@@ -98,157 +98,493 @@
     .btn-logout {
       display: inline-flex;
       align-items: center;
-      gap: .5rem;
-      padding: .45rem .6rem;
-      border-radius: .375rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      background-color: #dc2626;
+      color: white;
+      border-radius: 0.375rem;
       border: none;
-      background: #dc2626;
-      color: #fff;
-      font-weight: 600;
       cursor: pointer;
+      transition: background-color 0.2s ease;
     }
 
-    .hidden-inline { display: none !important; }
+    .btn-logout:hover {
+      background-color: #b91c1c;
+    }
+
+    .hidden-inline {
+      display: none !important;
+    }
+
+    @keyframes statusPulseGreen {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.7;
+        transform: scale(1.02);
+      }
+    }
 
     .status-pulse {
-      transition: opacity .35s ease;
-      opacity: 1;
+      animation: statusPulseGreen 2.5s ease-in-out infinite;
+      color: #16a34a;
+      font-weight: 600;
+      text-shadow: 0 0 8px rgba(22, 163, 74, 0.3);
     }
 
-    .status-new { background-color: #dbeafe !important; }
-    .status-query { background-color: #fef3c7 !important; }
-    .status-reviewed { background-color: #d1fae5 !important; }
-    .status-approved { background-color: #dcfce7 !important; }
+    .nav-tab {
+      display: block;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.25rem;
+      border-radius: 0.375rem;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: #cbd5e1;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .nav-tab:hover {
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+    }
+
+    .nav-tab.active-tab {
+      background: #2563eb;
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .nav-tab {
+        padding: 0.65rem 0.9rem;
+        font-size: 0.85rem;
+      }
+    }
+
+    .status-new {
+      background-color: #dbeafe;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-weight: 600;
+      font-size: 0.75rem;
+      color: #1e40af;
+    }
+
+    .status-query {
+      background-color: #fef3c7;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-weight: 600;
+      font-size: 0.75rem;
+      color: #92400e;
+    }
+
+    .status-reviewed {
+      background-color: #e0e7ff;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-weight: 600;
+      font-size: 0.75rem;
+      color: #3730a3;
+    }
+
+    .status-approved {
+      background-color: #d1fae5;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-weight: 600;
+      font-size: 0.75rem;
+      color: #065f46;
+    }
+
+    .tooltip-icon {
+      display: inline-block;
+      margin-left: 4px;
+      cursor: help;
+      color: #2563eb;
+      font-size: 0.9em;
+    }
+    
+    td .view-files,
+    td .btn-query,
+    td .btn-preapprove {
+      display: block;          /* satu baris satu butang */
+      width: 90px;             /* SEMUA sama lebar */
+      margin: 6px auto;        /* jarak menegak + center */
+      text-align: center;
+      font-weight: 600;
+    }
+      /* ===== SWEETALERT LOGIN SKIN (JPN STYLE) ===== */
+      .swal-jpn-popup {
+        border-radius: 14px;
+        border: 2px solid #1e3a8a;      /* Biru gelap */
+        padding: 1.25rem 1.25rem 1.4rem;
+      }
+
+      .swal-jpn-title {
+        text-align: center;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: .5rem;
+      }
+
+      .swal-jpn-input {
+        border-radius: 10px !important;
+        border: 1.5px solid #c7d2fe !important;
+        padding: .6rem .7rem !important;
+        text-align: center;              /* Center input/select */
+      }
+
+      .swal-jpn-input:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 2px rgba(37,99,235,.15) !important;
+      }
+
+      .swal-jpn-confirm {
+        border-radius: 10px !important;
+        background: #1e3a8a !important;  /* Biru gelap */
+        font-weight: 600 !important;
+      }
+
+      .swal-jpn-cancel {
+        border-radius: 10px !important;
+        font-weight: 600 !important;
+      }
+
   </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
 
-<button id="menuToggle" class="md:hidden fixed top-3 left-3 bg-blue-600 text-white px-3 py-2 rounded-lg z-50 shadow-lg">☰ Menu</button>
-<button id="closeSidebar" class="hidden fixed top-3 right-3 bg-red-600 text-white text-2xl font-bold px-3 py-1 rounded z-50">×</button>
+  <body class="bg-gray-100 text-gray-800">
 
-<div class="flex">
-  <aside class="sidebar w-64 p-6">
-    <div class="flex flex-col items-center gap-4 mb-6">
-      <img id="logoImg" src="images/IMAGE2.png" alt="Logo JPN" class="w-36 h-36 object-contain">
-      <div class="text-center">
-        <div class="text-xl font-bold">LAWATAN MURID SAMBIL BELAJAR</div>
-        <div class="text-xs text-gray-300">Jabatan Pendidikan Negeri Pahang</div>
+  <div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 items-center justify-center">
+    <div class="bg-white p-6 rounded-lg shadow-xl flex flex-col items-center gap-4">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600"></div>
+      <p class="text-lg font-semibold text-gray-700">Sila tunggu...</p>
+    </div>
+  </div>
+
+  <div class="flex flex-col md:flex-row min-h-screen">
+    <!-- SIDEBAR -->
+    <aside class="sidebar w-full md:w-64 p-4 space-y-1">
+      <div class="mb-6 flex items-center justify-between md:justify-start">
+        <h2 class="text-xl font-bold">LSBM Portal</h2>
+        <button id="mobileMenuBtn" class="md:hidden text-white">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
       </div>
-    </div>
 
-    <nav class="space-y-2">
-      <button id="tabIntroBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Pengenalan</button>
-      <button id="tabFormBtn" class="w-full text-left px-4 py-2 rounded nav-tab">Borang Permohonan</button>
-      <button id="tabPPDBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Portal PPD</button>
-      <button id="tabOfficerBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Semakan</button>
-      <button id="tabDPBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Kelulusan</button>
-      <button id="tabQueryResponseBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Query</button>
-      <button id="tabDownloadsBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Muat Turun</button>
-      <button id="tabStatusBtn" class="w-full text-left px-4 py-2 rounded hover:bg-gray-800 nav-tab">Semakan Status</button>
-    </nav>
+      <nav id="desktopMenu" class="hidden md:block space-y-1">
+        <a href="#" id="tabInt" class="nav-tab active-tab">🏠 Utama</a>
+        <a href="#" id="tabPermohonan" class="nav-tab">📝 Permohonan</a>
+        <a href="#" id="tabStatus" class="nav-tab">🔍 Semak Status</a>
+        <a href="#" id="tabDownloads" class="nav-tab">📥 Muat Turun</a>
+        <a href="#" id="tabQueryRespond" class="nav-tab">💬 Query</a>
+        <a href="#" id="tabLogin" class="nav-tab">🔐 Login</a>
+      </nav>
 
-    <div class="mt-8 text-xs text-gray-400">Versi: 1.1 • Dibangunkan oleh Sektor Pengurusan Sekolah, JPN Pahang</div>
-  </aside>
 
-  <main class="flex-1 p-8">
-    <div class="mb-6">
-      <img id="headerImg" src="images/IMAGE1.png" alt="Header" class="w-full rounded-lg shadow-sm">
-    </div>
+      <div id="mobileMenu" class="hidden md:hidden mt-4 space-y-1">
+        <button id="closeMobileMenu" class="w-full text-right text-white mb-2">✕ Tutup</button>
 
-    <section id="introSection" class="bg-white p-6 rounded shadow mb-6 hidden">
-      <h2 class="text-2xl font-semibold mb-2">Selamat Datang ke Portal LAWATAN MURID</h2>
-      <p class="text-gray-700">Portal ini membolehkan sekolah menghantar permohonan lawatan murid, pegawai menyemak, dan Timbalan membuat kelulusan. Gunakan tab di sebelah kiri untuk navigasi.</p>
-    </section>
+        <a href="#" id="tabInt" class="nav-tab">🏠 Utama</a>
+        <a href="#" id="tabPermohonan" class="nav-tab">📝 Permohonan</a>
+        <a href="#" id="tabStatus" class="nav-tab">🔍 Semak Status</a>
+        <a href="#" id="tabDownloads" class="nav-tab">📥 Muat Turun</a>
+        <a href="#" id="tabQueryRespond" class="nav-tab">💬 Query</a>
+        <a href="#" id="tabLogin" class="nav-tab">🔐 Login</a>
+      </div>
 
-    <section id="formSection" class="bg-white p-6 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold mb-4">Borang Permohonan</h2>
-      <form id="permohonanForm" class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <div><label class="block text-sm">Kod Sekolah</label><input id="schoolCode" name="schoolCode" class="w-full border p-2 rounded" required /></div>
-          <div><label class="block text-sm">Nama Sekolah</label><input id="schoolName" name="schoolName" class="w-full border p-2 rounded" required /></div>
-          <div><label class="block text-sm">Daerah</label><input id="daerah" name="daerah" class="w-full border p-2 rounded" placeholder="Contoh: Kuantan" /></div>
-          <div><label class="block text-sm">Peringkat</label><input id="peringkat" name="peringkat" class="w-full border p-2 rounded" placeholder="Rendah/Menengah" /></div>
-          <div><label class="block text-sm">Poskod</label><input id="poskod" name="poskod" class="w-full border p-2 rounded" placeholder="Contoh: 25000" pattern="\d{5}" /></div>
-        </div>
+    </aside>
 
-        <div class="grid grid-cols-2 gap-4">
-          <div><label class="block text-sm">Email Sekolah</label><input id="schoolEmail" name="schoolEmail" type="email" class="w-full border p-2 rounded" required /></div>
-          <div><label class="block text-sm">Kategori</label><select id="category" name="category" class="w-full border p-2 rounded"><option>Menengah</option><option>Rendah</option></select></div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div><label class="block text-sm">Tarikh Mula</label><input id="travelStart" name="travelStart" type="date" class="w-full border p-2 rounded" required /><p class="text-xs text-gray-500 mt-1">Tarikh mesti sekurang-kurangnya 30 hari dari hari ini.</p></div>
-          <div><label class="block text-sm">Tarikh Tamat</label><input id="travelEnd" name="travelEnd" type="date" class="w-full border p-2 rounded" required /><p class="text-xs text-gray-500 mt-1">Maksimum 4 hari selepas tarikh mula.</p></div>
-        </div>
-
-        <div>
-          <label class="block text-sm">Nama Ketua Rombongan</label>
-          <div id="leaderList" class="space-y-2 mt-2"></div>
-          <button type="button" id="addLeader" class="mt-2 px-3 py-1 bg-blue-600 text-white rounded">Tambah Ketua</button>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div><label class="block text-sm">Bilangan Kenderaan</label><input id="vehicleCount" name="vehicleCount" type="number" min="1" class="w-full border p-2 rounded" value="1" required /></div>
-          <div><label class="block text-sm">Jumlah Ahli</label><input id="participantCount" name="participantCount" type="number" min="1" class="w-full border p-2 rounded" required /></div>
-          <div><label class="block text-sm">Bilangan Pengiring Murid</label><input id="bp" name="bp" type="number" min="0" class="w-full border p-2 rounded" placeholder="Contoh: 5" /></div>
-          <div><label class="block text-sm">Bilangan Murid</label><input id="bm" name="bm" type="number" min="0" class="w-full border p-2 rounded" placeholder="Contoh: 40" /></div>
-        </div>
-            
-        <div><label class="block text-sm">Tempat Pelancongan</label><input id="placeVisit" name="placeVisit" class="w-full border p-2 rounded" required /></div>
-        <div><label class="block text-sm">Alamat Penginapan</label><input id="accommodation" name="accommodation" class="w-full border p-2 rounded" /></div>
-
-        <div>
-          <label class="block text-sm font-semibold mb-2 text-gray-700">Muat Naik Fail (PDF) — ikut kategori (5 fail, maks 10MB setiap)</label>
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card">
-              <label for="file_kertasKerja" class="block text-sm font-medium mb-1 text-gray-700">KERTAS KERJA</label>
-              <input type="file" id="file_kertasKerja" name="kertasKerja" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
-            </div>
-            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card">
-              <label for="file_maklumatAnggota" class="block text-sm font-medium mb-1 text-gray-700">MAKLUMAT ANGGOTA</label>
-              <input type="file" id="file_maklumatAnggota" name="maklumatAnggota" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
-            </div>
-            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card">
-              <label for="file_permitBas" class="block text-sm font-medium mb-1 text-gray-700">PERMIT BAS/KENDERAAN</label>
-              <input type="file" id="file_permitBas" name="permitBas" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
-            </div>
-            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card">
-              <label for="file_lesenPemandu" class="block text-sm font-medium mb-1 text-gray-700">LESEN PEMANDU</label>
-              <input type="file" id="file_lesenPemandu" name="lesenPemandu" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
-            </div>
-            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card col-span-2 md:col-span-3">
-              <label for="file_taklimat" class="block text-sm font-medium mb-1 text-gray-700">INTIPATI TAKLIMAT KESELAMATAN</label>
-              <input type="file" id="file_taklimat" name="taklimat" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
-            </div>
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 p-4 md:p-6">
+  <!-- INTRO SECTION -->
+      <section id="introSection" class="bg-white p-6 rounded shadow">
+        <h1 class="section-title">Selamat Datang ke Portal LAWATAN MURID SAMBIL BELAJAR</h1>
+        <p class="mb-4">Sistem permohonan lawatan murid sambil belajar untuk sekolah-sekolah di bawah JPN Pahang.</p>
+        
+        <div class="grid md:grid-cols-2 gap-4 mt-6">
+          <div class="border-l-4 border-blue-500 pl-4">
+            <h3 class="font-bold text-lg mb-2">📝 Untuk Sekolah</h3>
+            <p class="text-sm text-gray-600">Gunakan borang permohonan untuk menghantar permohonan lawatan. Pastikan semua dokumen diperlukan dilampirkan.</p>
+          </div>
+          
+          <div class="border-l-4 border-green-500 pl-4">
+            <h3 class="font-bold text-lg mb-2">👔 Untuk Pegawai</h3>
+            <p class="text-sm text-gray-600">Login untuk menyemak permohonan, menghantar query, atau meluluskan permohonan.</p>
+          </div>
+          
+          <div class="border-l-4 border-purple-500 pl-4">
+            <h3 class="font-bold text-lg mb-2">🏢 Untuk PPD</h3>
+            <p class="text-sm text-gray-600">Login PPD untuk melihat permohonan dari sekolah-sekolah di daerah anda.</p>
+          </div>
+          
+          <div class="border-l-4 border-yellow-500 pl-4">
+            <h3 class="font-bold text-lg mb-2">🔍 Semak Status</h3>
+            <p class="text-sm text-gray-600">Gunakan nombor rujukan dan email sekolah untuk menyemak status permohonan anda.</p>
           </div>
         </div>
 
-        <div class="flex gap-3">
-          <button id="submitBtn" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Hantar Permohonan</button>
-          <div id="submitStatus" class="self-center text-sm text-gray-600"></div>
+        <div class="mt-8 p-4 bg-blue-50 rounded border border-blue-200">
+          <h3 class="font-bold text-blue-900 mb-2">ℹ️ Maklumat Penting</h3>
+          <ul class="list-disc list-inside text-sm text-blue-800 space-y-1">
+            <li>Permohonan mesti dibuat sekurang-kurangnya 30 hari sebelum tarikh lawatan</li>
+            <li>Lawatan maksimum 4 hari</li>
+            <li>Semua fail mesti dalam format PDF (maksimum 10MB)</li>
+            <li>Pastikan maklumat yang diisi adalah tepat dan lengkap</li>
+          </ul>
         </div>
-      </form>
-    </section>
+      </section>
 
-    <section id="officerSection" class="hidden bg-white p-6 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold mb-3">Semakan (Pegawai)</h2>
+      <!-- PERMOHONAN SECTION -->
+      <section id="permohonanSection" class="hidden bg-white p-6 rounded shadow">
+        <h2 class="section-title">Borang Permohonan Lawatan Murid</h2>
+        
+        <form id="permohonanForm" class="space-y-6">
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-semibold mb-1">Kod Sekolah <span class="text-red-500">*</span></label>
+              <input id="schoolCode" type="text" required class="w-full border p-2 rounded" placeholder="Contoh: TCF0840">
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Nama Sekolah <span class="text-red-500">*</span></label>
+              <input id="schoolName" type="text" required class="w-full border p-2 rounded bg-gray-50 opacity-50 cursor-not-allowed" readonly>
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Daerah <span class="text-red-500">*</span></label>
+              <input id="daerah" type="text" required class="w-full border p-2 rounded bg-gray-50 opacity-50 cursor-not-allowed" readonly>
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Peringkat Sekolah</label>
+              <input id="peringkat" type="text" class="w-full border p-2 rounded bg-gray-50 opacity-50 cursor-not-allowed" readonly>
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Poskod Sekolah</label>
+              <input id="poskod" type="text" class="w-full border p-2 rounded" placeholder="Contoh: 27000">
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Email Sekolah <span class="text-red-500">*</span></label>
+              <input id="schoolEmail" type="email" required class="w-full border p-2 rounded" placeholder="sekolah@example.com">
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Tarikh Mula Lawatan <span class="text-red-500">*</span></label>
+              <input id="travelStart" type="date" required class="w-full border p-2 rounded">
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Tarikh Tamat Lawatan <span class="text-red-500">*</span></label>
+              <input id="travelEnd" type="date" required class="w-full border p-2 rounded">
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Bilangan Kenderaan</label>
+              <input id="vehicleCount" type="number" min="0" class="w-full border p-2 rounded" placeholder="0">
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Bilangan Peserta</label>
+              <input id="participantCount" type="number" min="0" class="w-full border p-2 rounded" placeholder="0">
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Bilangan Pelajar</label>
+              <input id="bp" type="number" min="0" class="w-full border p-2 rounded" placeholder="0">
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Bilangan Guru/Pengiring</label>
+              <input id="bm" type="number" min="0" class="w-full border p-2 rounded" placeholder="0">
+            </div>
+          </div>
+          
+          <div>
+            <label class="block font-semibold mb-1">Tempat yang Dilawati</label>
+            <textarea id="placeVisit" rows="2" class="w-full border p-2 rounded" placeholder="Nyatakan tempat yang akan dilawati"></textarea>
+          </div>
+                    
+            <div class="border-t pt-4">
+            <h3 class="font-bold text-lg mb-3">Maklumat Ketua Rombongan</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-semibold mb-1">Nama Ketua <span class="text-red-500">*</span></label>
+                <input id="leaderName" type="text" required class="w-full border p-2 rounded" placeholder="Nama penuh ketua">
+              </div>
+              <div>
+                <label class="block font-semibold mb-1">No. Telefon Ketua <span class="text-red-500">*</span></label>
+                <input id="leaderPhone" type="tel" required class="w-full border p-2 rounded" placeholder="0123456789">
+              </div>
+            </div>
+          </div>
+          
+          <div class="border-t pt-4">
+            <h3 class="font-bold text-lg mb-3">Muat Naik Dokumen (PDF sahaja, max 10MB setiap fail)</h3>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-semibold mb-1">
+                  Kertas Kerja/Cadangan <span class="text-red-500">*</span>
+                  <span class="tooltip-icon" onclick="showTooltip('INFO AKAN DIUPDATE')">ℹ️</span>
+                </label>
+                <input id="file_kertasKerja" type="file" accept="application/pdf" required class="w-full border p-2 rounded">
+              </div>
+              
+              <div>
+                <label class="block font-semibold mb-1">Lampiran A <span class="text-red-500">*</span></label>
+                <input id="file_maklumatAnggota" type="file" accept="application/pdf" required class="w-full border p-2 rounded">
+              </div>
+              
+              <div>
+                <label class="block font-semibold mb-1">
+                  Permit/Lesen Kenderaan <span class="text-red-500">*</span>
+                  <span class="tooltip-icon" onclick="showTooltip('INFO AKAN DIUPDATE')">ℹ️</span>
+                </label>
+                <input id="file_permitBas" type="file" accept="application/pdf" required class="w-full border p-2 rounded">
+              </div>
+              
+              <div>
+                <label class="block font-semibold mb-1">
+                  Lesen Memandu & Vokasional <span class="text-red-500">*</span>
+                  <span class="tooltip-icon" onclick="showTooltip('INFO AKAN DIUPDATE')">ℹ️</span>
+                </label>
+                <input id="file_lesenPemandu" type="file" accept="application/pdf" required class="w-full border p-2 rounded">
+              </div>
+              
+              <div>
+                <label class="block font-semibold mb-1">Intipati Taklimat Keselamatan <span class="text-red-500">*</span></label>
+                <input id="file_taklimat" type="file" accept="application/pdf" required class="w-full border p-2 rounded">
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex justify-end gap-3 pt-4">
+            <button type="reset" class="px-6 py-2 border rounded hover:bg-gray-100">Reset</button>
+            <button id="submitBtn" type="submit" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Hantar Permohonan</button>
+          </div>
+        </form>
+      </section>
 
-      <div class="mb-4 flex items-center gap-3">
-        <div id="officerAuthWrap" class="flex items-center gap-3">
-          <button id="loginOfficer" class="px-4 py-2 bg-blue-600 text-white rounded">LOGIN Pegawai</button>
-          <button id="logoutOfficer" class="btn-logout hidden-inline" title="Log Keluar Pegawai">🚪LOGOUT</button>
-          <button id="refreshOfficer" class="px-3 py-1 bg-indigo-600 text-white rounded text-sm">Refresh</button>
-          <span id="officerLoggedAs" class="ml-3 text-sm text-gray-600"></span>
+      <!-- QUERY RESPOND SECTION -->
+      <section id="queryRespondSection" class="hidden bg-white p-6 rounded shadow">
+        <h2 class="section-title">Respon Kepada Query Pegawai</h2>
+        
+        <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
+          <p class="text-sm text-yellow-800">
+            <strong>ℹ️ Arahan:</strong> Jika pegawai menghantar query kepada permohonan anda, anda akan menerima email dengan Query ID. 
+            Gunakan borang ini untuk menghantar fail yang dikemaskini.
+          </p>
         </div>
+        
+        <div class="space-y-4 mb-6">
+          <div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+            <p class="text-sm text-yellow-800">Masukkan <strong>salah satu</strong> sahaja - Query ID ATAU Kod Sekolah</p>
+          </div>
+          
+          <div>
+            <label class="block font-semibold mb-1">Query ID</label>
+            <input id="respQueryId" type="text" class="w-full border p-2 rounded" placeholder="Contoh: Q-2025-001">
+          </div>
+          
+          <div id="queryOfficerNoteBox"
+              class="hidden mt-4 p-4 bg-yellow-50 border border-yellow-300 rounded">
+            <h4 class="font-bold text-yellow-900 mb-2">📌 Catatan Pegawai</h4>
+            <p id="queryOfficerNoteText"
+              class="text-sm text-yellow-800 whitespace-pre-line"></p>
+          </div>
 
-        <div class="ml-auto flex items-center gap-2">
-          <input id="searchBox" class="border p-2 rounded text-sm" placeholder="Cari kod sekolah atau nama sekolah..." />
-          <button id="searchBtn" class="px-3 py-1 bg-blue-600 text-white rounded text-sm">Cari</button>
-          <button id="clearSearchBtn" class="px-3 py-1 bg-gray-200 rounded text-sm">Kosong</button>
         </div>
-      </div>
+        
+        <div class="border-t pt-4">
+          <h3 class="font-bold text-lg mb-3">Muat Naik Fail Kemaskini (PDF sahaja, max 10MB)</h3>
+          <p class="text-sm text-gray-600 mb-4">Pilih fail yang ingin dikemaskini. Anda tidak perlu muat naik semua fail, hanya yang diperlukan sahaja.</p>
+          
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-semibold mb-1">Kertas Kerja/Cadangan</label>
+              <input id="resp_file_kertasKerja" type="file" accept="application/pdf" class="w-full border p-2 rounded">
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Lampiran A</label>
+              <input id="resp_file_maklumatAnggota" type="file" accept="application/pdf" class="w-full border p-2 rounded">
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Permit/Lesen Kenderaan</label>
+              <input id="resp_file_permitBas" type="file" accept="application/pdf" class="w-full border p-2 rounded">
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Lesen Memandu & Vokasional</label>
+              <input id="resp_file_lesenPemandu" type="file" accept="application/pdf" class="w-full border p-2 rounded">
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Intipati Taklimat Keselamatan</label>
+              <input id="resp_file_taklimat" type="file" accept="application/pdf" class="w-full border p-2 rounded">
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-end mt-6">
+          <button id="sendQueryResponseBtn" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Hantar Respon</button>
+        </div>
+      </section>
 
-      <div class="flex gap-3 mb-4 items-center">
+      <!-- LOGIN SECTION -->
+      <section id="loginSection" class="hidden bg-white p-6 rounded shadow">
+        <h2 class="section-title">Login Sistem</h2>
+        
+        <div class="max-w-md mx-auto">
+          <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded">
+            <p class="text-sm text-blue-800">
+              <strong>ℹ️ Maklumat:</strong> Gunakan kata laluan yang diberikan untuk akses sistem.
+            </p>
+          </div>
+          
+          <button id="loginBtn" class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">
+            🔐 KLIK UNTUK LOGIN
+          </button>
+          
+          <div class="mt-6 text-center text-sm text-gray-600">
+            <p>Pegawai / PPD / Timbalan Pengarah</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- OFFICER SECTION -->
+      <section id="officerSection" class="hidden bg-white p-6 rounded shadow">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="section-title mb-0">Panel Pegawai <span id="officerLoggedAs" class="text-sm"></span></h2>
+          <div class="flex gap-2">
+            <button id="logoutOfficer" class="btn-logout hidden-inline">🚪 Log Out</button>
+            <button id="refreshOfficer" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">🔄 Refresh</button>
+            <button id="loginOfficer" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">LOGIN Pegawai</button>
+          </div>
+        </div>
+        
+      <div class="mb-4 flex flex-wrap gap-3 items-center">
         <select id="filterCategory" class="border p-2 rounded">
           <option value="">Semua Kategori</option>
           <option value="Menengah">Menengah</option>
@@ -257,2758 +593,248 @@
 
         <select id="filterStatus" class="border p-2 rounded">
           <option value="">Semua Status</option>
-          <option value="NEW">NEW</option>
-          <option value="QUERY">QUERY</option>
-          <option value="QUERY_RESPONDED">QUERY_RESPONDED</option>
-          <option value="PREAPPROVED">PREAPPROVED</option>
-          <option value="READY_FOR_DP">READY_FOR_DP</option>
-          <option value="FINAL_APPROVED">FINAL_APPROVED</option>
+          <option value="NEW">Baru</option>
+          <option value="QUERY">Query</option>
+          <option value="REVIEWED">Disemak</option>
+          <option value="FINAL_APPROVED">Diluluskan</option>
         </select>
 
-        <button id="applyFilters" class="px-3 py-1 bg-gray-200 rounded">Tapis</button>
-        <button id="clearFilters" class="px-3 py-1 bg-gray-100 rounded">Bersihkan</button>
-      </div>
-
-      <div class="grid grid-cols-1 gap-4">
-        <div>
-          <h3 class="font-semibold mb-2">Permohonan Baru</h3>
-          <div id="tableNew" class="overflow-auto max-h-72 border rounded bg-white p-2"></div>
-        </div>
-        <div>
-          <h3 class="font-semibold mb-2">Query</h3>
-          <div id="tableQuery" class="overflow-auto max-h-72 border rounded bg-white p-2"></div>
-        </div>
-        <div>
-          <h3 class="font-semibold mb-2">Surat Diluluskan</h3>
-          <div id="tableApproved" class="overflow-auto max-h-72 border rounded bg-white p-2"></div>
-        </div>
-      </div>
-    </section>
-<!-- ========== PPD SECTION ========== -->
-    <section id="ppdSection" class="hidden bg-white p-6 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold mb-4">🏢 Portal PPD</h2>
-      
-      <!-- PPD Login -->
-      <div class="mb-4 flex items-center gap-3">
-        <button id="loginPPD" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">LOGIN PPD</button>
-        <button id="logoutPPD" class="btn-logout hidden-inline">🚪 LOG OUT</button>
-        <button id="refreshPPD" class="px-3 py-1 bg-green-600 text-white rounded text-sm">🔄 Refresh</button>
-        <span id="ppdLoggedAs" class="ml-3 text-sm text-gray-600"></span>
-      </div>
-
-      <!-- PPD New Requests -->
-      <div class="mb-6">
-        <h3 class="font-semibold mb-2">📋 Permohonan Baru (Daerah Anda)</h3>
-        <div id="ppdNewTable" class="overflow-auto max-h-72 border rounded bg-white p-2">
-          <p class="p-4 text-gray-500 italic">Sila log masuk PPD</p>
-        </div>
-      </div>
-
-      <!-- PPD Reviewed Requests -->
-      <div>
-        <h3 class="font-semibold mb-2">✅ Telah Disemak & Dihantar ke JPN</h3>
-        <div id="ppdReviewedTable" class="overflow-auto max-h-72 border rounded bg-white p-2">
-          <p class="p-4 text-gray-500 italic">Sila log masuk PPD</p>
-        </div>
-      </div>
-    </section>
-    <!-- END PPD SECTION -->
-   <section id="dpSection" class="hidden bg-white p-6 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold mb-3">Kelulusan (Timbalan)</h2>
-      <div class="flex items-center gap-3 mb-4">
-        <button id="loginDP" class="px-4 py-2 bg-blue-600 text-white rounded">Log masuk Timbalan</button>
-        <button id="logoutDP" class="hidden px-3 py-2 bg-red-600 text-white rounded">🚪 Log Keluar</button>
-        <span id="dpLoggedAs" class="ml-2 text-sm text-gray-600"></span>
-      </div>
-      
-      <!-- Bulk Approve Button -->
-      <div class="mb-6 p-4 bg-red-50 rounded-lg border-2 border-red-200">
-        <div class="flex items-center gap-3">
-         <button id="bulkApproveBtn" onclick="bulkApproveAll()" class="hidden px-6 py-3 bg-red-600 text-white rounded hover:bg-red-700 font-bold">
-            ⚡ LULUS SEMUA SEKALIGUS
-          </button>
-          <span class="text-sm text-gray-600">Luluskan semua permohonan yang telah disemak oleh pegawai</span>
-        </div>
-      </div>
-      
-      <div id="dpRequestsTable" class="mt-4"></div>
-    </section>
-
-    <section id="queryResponseSection" class="hidden bg-white p-6 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold mb-3">Balas Query (Sekolah)</h2>
-      <p class="text-gray-700 mb-3">Jika sekolah terima email Query (mengandungi Query ID), gunakan borang di bawah untuk muat naik fail baru.</p>
-      <div class="space-y-3">
-        <div><label class="block text-sm">Query ID</label><input id="respQueryId" class="w-full border p-2 rounded" placeholder="Contoh: QRY-1762..." /></div>
-        <div><label class="block text-sm">Email Sekolah (untuk notifikasi)</label><input id="respSchoolEmail" class="w-full border p-2 rounded" placeholder="sekolah@example.com" /></div>
-        <div>
-          <label class="block text-sm font-semibold mb-2 text-gray-700">Muat Naik Fail (Query)</label>
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card">
-              <label for="resp_file_kertasKerja" class="block text-sm font-medium mb-1 text-gray-700">KERTAS KERJA</label>
-              <input type="file" id="resp_file_kertasKerja" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
-            </div>
-            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card">
-              <label for="resp_file_maklumatAnggota" class="block text-sm font-medium mb-1 text-gray-700">MAKLUMAT ANGGOTA</label>
-              <input type="file" id="resp_file_maklumatAnggota" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
-            </div>
-            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card">
-              <label for="resp_file_permitBas" class="block text-sm font-medium mb-1 text-gray-700">PERMIT BAS/KENDERAAN</label>
-              <input type="file" id="resp_file_permitBas" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
-            </div>
-            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card">
-              <label for="resp_file_lesenPemandu" class="block text-sm font-medium mb-1 text-gray-700">LESEN PEMANDU</label>
-              <input type="file" id="resp_file_lesenPemandu" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
-            </div>
-            <div class="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition download-card col-span-2 md:col-span-3">
-              <label for="resp_file_taklimat" class="block text-sm font-medium mb-1 text-gray-700">INTIPATI TAKLIMAT KESELAMATAN</label>
-              <input type="file" id="resp_file_taklimat" accept="application/pdf" class="block w-full text-sm text-gray-700"/>
-            </div>
-          </div>
-        </div>
-        <div><button id="sendQueryResponseBtn" class="px-4 py-2 bg-green-600 text-white rounded">Hantar Respon Query</button></div>
-      </div>
-    </section>
-
-    <section id="downloadsSection" class="hidden bg-white p-6 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold mb-4">Muat Turun</h2>
-
-      <style>
-        #downloadsSection .downloads-grid {
-          display: grid;
-          grid-template-columns: repeat(1, 1fr);
-          gap: 1rem;
-        }
-        @media (min-width: 640px){ #downloadsSection .downloads-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (min-width: 768px){ #downloadsSection .downloads-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (min-width: 1024px){ #downloadsSection .downloads-grid { grid-template-columns: repeat(4, 1fr); } }
-        @media (min-width: 1280px){ #downloadsSection .downloads-grid { grid-template-columns: repeat(5, 1fr); } }
-
-        #downloadsSection .download-card {
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          min-height: 140px;
-          padding: 14px;
-          border-radius: 10px;
-          border: 1px solid rgba(15,23,42,0.05);
-          background: linear-gradient(180deg, #ffffff, #fbfbfd);
-          transition: transform .16s ease, box-shadow .16s ease;
-          box-shadow: 0 2px 8px rgba(16,24,40,0.04);
-        }
-        #downloadsSection .download-card:hover {
-          transform: translateY(-6px);
-          box-shadow: 0 12px 30px rgba(16,24,40,0.12);
-        }
-
-        #downloadsSection .download-title {
-          font-weight: 600;
-          color: #0f172a;
-          margin-bottom: 6px;
-          font-size: 1rem;
-        }
-        #downloadsSection .download-desc {
-          margin: 0;
-          color: #6b7280;
-          font-size: 0.92rem;
-          line-height: 1.25;
-        }
-
-        #downloadsSection .accent {
-          width: 6px;
-          border-radius: 6px;
-          margin-right: 12px;
-          flex-shrink: 0;
-        }
-        .accent--red { background: linear-gradient(180deg,#F97373,#DC2626); }
-        .accent--blue { background: linear-gradient(180deg,#60A5FA,#2563EB); }
-        .accent--teal { background: linear-gradient(180deg,#34D399,#059669); }
-        .accent--orange { background: linear-gradient(180deg,#FDBA74,#F97316); }
-        .accent--purple { background: linear-gradient(180deg,#C4B5FD,#7C3AED); }
-
-        #downloadsSection .card-head { display:flex; align-items:flex-start; gap:12px; }
-
-        #downloadsSection .download-actions { margin-top: 12px; display: flex; gap:8px; }
-        #downloadsSection .download-btn {
-          flex: 1;
-          padding: 10px 12px;
-          border-radius: 8px;
-          font-weight: 600;
-          cursor: pointer;
-          border: 0;
-          transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
-        }
-        #downloadsSection .download-btn-primary {
-          background: linear-gradient(180deg,#2563EB,#1D4ED8);
-          color: #fff;
-          box-shadow: 0 6px 16px rgba(37,99,235,0.12);
-        }
-        #downloadsSection .download-btn-primary:hover { transform: translateY(-3px); opacity: 0.98; }
-        #downloadsSection .download-btn-secondary {
-          background: #F3F4F6;
-          color: #0f172a;
-          border: 1px solid rgba(15,23,42,0.06);
-        }
-        #downloadsSection .download-btn-secondary:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(15,23,42,0.06); }
-
-        #downloadsSection .download-actions.column { flex-direction: column; }
-      </style>
-
-      <div class="downloads-grid">
-        <div class="download-card">
-          <div class="card-head">
-            <div class="accent accent--red" aria-hidden="true"></div>
-            <div>
-              <div class="download-title">SENARAI SEMAK</div>
-              <p class="download-desc">Senarai Semak Permohonan Lawatan Terkini 2025 — panduan rujukan.</p>
-            </div>
-          </div>
-          <div class="download-actions">
-            <button data-link="https://drive.google.com/file/d/1rNUmrYzOBM-96OkpjDGBmUsgCQx1jcGZ/view?usp=sharing" class="download-btn download-btn-primary" title="Buka Senarai Semak">Muat Turun</button>
-          </div>
-        </div>
-
-        <div class="download-card">
-          <div class="card-head">
-            <div class="accent accent--blue" aria-hidden="true"></div>
-            <div>
-              <div class="download-title">Kertas Kerja</div>
-              <p class="download-desc">SPK Bil 1 — Lampiran & contoh kertas kerja.</p>
-            </div>
-          </div>
-          <div class="download-actions">
-            <button data-link="https://drive.google.com/file/d/1dxj1uCowSiFcAp80MGVHD10En-UMQrvw/view?usp=sharing" class="download-btn download-btn-primary" title="Buka Kertas Kerja">Muat Turun</button>
-          </div>
-        </div>
-
-        <div class="download-card">
-          <div class="card-head">
-            <div class="accent accent--teal" aria-hidden="true"></div>
-            <div>
-              <div class="download-title">Lampiran A</div>
-              <p class="download-desc">Borang Lawatan Murid — Lampiran A (borang rasmi).</p>
-            </div>
-          </div>
-          <div class="download-actions">
-            <button data-link="https://drive.google.com/file/d/1RhUVrDDSTsFACgd4QHgzzqqkbNefuRxE/view?usp=drive_link" class="download-btn download-btn-primary" title="Buka Lampiran A">Muat Turun</button>
-          </div>
-        </div>
-
-        <div class="download-card">
-          <div class="card-head">
-            <div class="accent accent--orange" aria-hidden="true"></div>
-            <div>
-              <div class="download-title">SPI</div>
-              <p class="download-desc">Surat Pekeliling Ikhtisas KPM — pilih pekeliling yang dikehendaki.</p>
-            </div>
-          </div>
-          <div class="download-actions column">
-            <button data-link="https://drive.google.com/file/d/1OouJG3DcWHQhc4fLvo_dDqVA6zx_A6ay/view?usp=sharing" class="download-btn download-btn-primary" title="SPI KPM Bil 3 2019">SPI KPM Bil 3 / 2019</button>
-            <button data-link="https://drive.google.com/file/d/1VBd0YKVbYZ8KW-eFPizVh26KlifSfqRS/view?usp=sharing" class="download-btn download-btn-secondary" title="SPI KPM Bil 9 2023">SPI KPM Bil 9 / 2023</button>
-          </div>
-        </div>
-
-        <div class="download-card">
-          <div class="card-head">
-            <div class="accent accent--purple" aria-hidden="true"></div>
-            <div>
-              <div class="download-title">Permohonan Kelulusan</div>
-              <p class="download-desc">Surat Permohonan Kelulusan — format standard untuk muat turun.</p>
-            </div>
-          </div>
-          <div class="download-actions">
-            <button data-link="https://drive.google.com/file/d/1IbmtO2sCAvnPcjzqU0EaQKLPa5KGjrzT/view?usp=sharing" class="download-btn download-btn-primary" title="Muat Turun Permohonan Kelulusan">Muat Turun</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-4 text-xs text-gray-500">Tekan butang untuk membuka fail dalam tab baru.</div>
-    </section>
-<section id="statusSection" class="hidden bg-white p-6 rounded shadow mb-6">
-  <h2 class="text-xl font-semibold mb-4">🔍 Semak Status Permohonan</h2>
-  
-  <div class="max-w-3xl mx-auto">
-    <!-- Info Banner -->
-    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 rounded-r-lg">
-      <div class="flex items-start">
-        <svg class="h-5 w-5 text-blue-400 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-        </svg>
-        <div class="flex-1">
-          <h3 class="text-sm font-semibold text-blue-900 mb-1">Maklumat Penting</h3>
-          <ul class="text-xs text-blue-800 space-y-1">
-            <li>• Tab ini hanya untuk <strong>melihat status</strong> permohonan anda</li>
-            <li>• Jika ada <strong>query</strong>, klik butang untuk ke tab "Tindak Balas Query"</li>
-            <li>• Surat kelulusan boleh dimuat turun terus dari sini jika permohonan diluluskan</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Search Box -->
-    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg shadow-sm border border-blue-100 mb-6">
-      <p class="text-gray-700 mb-4">
-        Masukkan <strong>Kod Sekolah</strong> anda untuk melihat semua permohonan lawatan yang telah dihantar.
-      </p>
-      
-      <div class="flex gap-3">
-        <input 
-          id="statusSchoolCode" 
-          type="text" 
-          class="flex-1 border-2 border-blue-200 p-3 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition uppercase"
-          placeholder="Contoh: PEA1234"
-          maxlength="10"
-        />
-        <button 
-          id="checkStatusBtn" 
-          class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5"
-        >
-          🔍 Semak Status
-        </button>
-      </div>
-      
-      <p class="text-xs text-gray-500 mt-2">
-        💡 <strong>Tip:</strong> Gunakan kod sekolah yang sama seperti semasa menghantar permohonan.
-      </p>
-    </div>
-    
-    <!-- Results Container -->
-    <div id="statusResults" class="space-y-4"></div>
-  </div>
-</section>
-  </main>
-</div>
-
-<div id="filesModal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-40">
-  <div class="bg-white rounded shadow-lg w-11/12 md:w-2/3 lg:w-1/2 p-6">
-    <div class="flex justify-between items-center mb-4">
-      <h3 id="filesModalTitle" class="text-lg font-semibold">Fail Permohonan</h3>
-      <button id="filesModalClose" class="text-gray-500 hover:text-gray-800">Tutup ✕</button>
-    </div>
-    <div id="filesList" class="space-y-3 text-sm max-h-72 overflow-auto"></div>
-    <div class="mt-4 text-right"><button id="filesModalClose2" class="px-4 py-2 bg-gray-200 rounded">Tutup</button></div>
-  </div>
-</div>
-
-<div id="loadingModal" class="hidden fixed inset-0 items-center justify-center bg-black bg-opacity-30 z-50">
-  <div class="bg-white p-6 rounded shadow text-center"><div class="mb-2">Sila tunggu — proses sedang dijalankan...</div></div>
-</div>
-
-<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-<script>
-/* CONFIG - KEKALKAN URL ASAL ANDA */
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbwwZkuxKRwXxz8w2ipD-F0TMqoT0wRuXiGCdS9h--NGiSW9Xw1u1gKV8FjgZKzpedFrRA/exec';
-const $ = id => document.getElementById(id);
-// TAMBAHAN BARU - Helper untuk delay
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-function showLoading(){ $('loadingModal').classList.remove('hidden'); $('loadingModal').classList.add('flex'); }
-function hideLoading(){ $('loadingModal').classList.add('hidden'); $('loadingModal').classList.remove('flex'); }
-
-let requestsCache = [];
-let officerSecret = null;
-let dpSecret = null;
-
-function fmtDateToDisplay(isoOrRaw){
-  if (!isoOrRaw) return '';
-  const d = new Date(isoOrRaw);
-  if (isNaN(d.getTime())) {
-    const m = String(isoOrRaw).match(/(\d{4})-(\d{2})-(\d{2})/);
-    if (!m) return String(isoOrRaw);
-    return `${m[3]}-${m[2]}-${m[1]}`;
-  }
-  const dd = String(d.getDate()).padStart(2,'0');
-  const mm = String(d.getMonth()+1).padStart(2,'0');
-  const yyyy = d.getFullYear();
-  return `${dd}-${mm}-${yyyy}`;
-}
-
-(function(){
-  const start = $('travelStart'), end = $('travelEnd');
-  if (!start||!end) return;
-  const setMin = () => {
-    const today = new Date(); today.setHours(0,0,0,0);
-    const min = new Date(today.getTime() + 30*24*60*60*1000);
-    start.min = `${min.getFullYear()}-${String(min.getMonth()+1).padStart(2,'0')}-${String(min.getDate()).padStart(2,'0')}`;
-  };
-  const updateEndBounds = () => {
-    if (!start.value) { end.removeAttribute('max'); return; }
-    const s = new Date(start.value);
-    const max = new Date(s.getTime() + 4*24*60*60*1000);
-    end.min = start.value;
-    end.max = `${max.getFullYear()}-${String(max.getMonth()+1).padStart(2,'0')}-${String(max.getDate()).padStart(2,'0')}`;
-    if (end.value) {
-      const cur = new Date(end.value);
-      if (cur < s) end.value = start.value;
-      if (cur > max) end.value = end.max;
-    }
-  };
-  setMin(); start.addEventListener('change', updateEndBounds); updateEndBounds();
-})();
-// ==================== SCHOOL CODE AUTOFILL ====================
-let schoolDataCache = null;
-
-async function loadSchoolData() {
-  if (schoolDataCache) return schoolDataCache;
-  
-  try {
-    const res = await fetch(GAS_URL + '?action=getSchoolData');
-    const j = await res.json();
-    if (j.ok && j.schools) {
-      schoolDataCache = j.schools;
-      console.log('✅ School data loaded:', j.schools.length, 'schools');
-      return j.schools;
-    }
-  } catch (err) {
-    console.error('❌ Failed to load school data:', err);
-  }
-  return [];
-}
-
-$('schoolCode').addEventListener('input', async function(e) {
-  const code = e.target.value.trim().toUpperCase();
-  
-// Ensure message element exists
-let msg = document.getElementById('schoolCodeMsg');
-if (!msg) {
-  msg = document.createElement('div');
-  msg.id = 'schoolCodeMsg';
-  msg.className = 'text-sm mt-1';
-  msg.style.color = '#dc2626';  // merah
-  $('schoolCode').insertAdjacentElement('afterend', msg);
-}
-
-
-  // Clear fields if code too short
-  if (code.length < 3) {
-    $('schoolName').value = '';
-    $('daerah').value = '';
-    $('peringkat').value = '';
-msg.textContent = '';
-    return;
-  }
-  
-  // Load school data
-  const schools = await loadSchoolData();
-  if (!schools || schools.length === 0) return;
-  
-  // Find matching school
-  const match = schools.find(s => String(s.code || '').toUpperCase() === code);
-  
-
-  if (match) {
-    // Autofill fields
-    $('schoolName').value = match.name || '';
-    $('daerah').value = match.daerah || '';
-    $('peringkat').value = match.peringkat || '';
-    msg.textContent = '';
-
-    // Visual feedback - green flash
-    $('schoolCode').classList.add('bg-green-50', 'border-green-500');
-    setTimeout(() => {
-      $('schoolCode').classList.remove('bg-green-50', 'border-green-500');
-    }, 1000);
-    
-    console.log('✅ Autofill success:', match.name);
-  } else {
-    // No match - clear fields
-    $('schoolName').value = '';
-    $('daerah').value = '';
-    $('peringkat').value = '';
- msg.textContent = 'Kod Sekolah tiada dalam sistem. CTH: TCF0840';
-  }
-});
-
-// Preload school data on page load
-(async function() {
-  await loadSchoolData();
-})();
-// ==================== END SCHOOL CODE AUTOFILL ====================
-let leaders = [];
-function renderLeaders(){ 
-  const c=$('leaderList'); 
-  if(!c) return; 
-  c.innerHTML=''; 
-  if (leaders.length===0) leaders.push({name:'',phone:''});
-  leaders.forEach((l,i)=>{ 
-    const div=document.createElement('div'); 
-    div.className='flex gap-2 items-center';
-    div.innerHTML = `<input class="flex-1 border p-2 rounded leaderName" placeholder="Nama Ketua ${i+1}" data-index="${i}" value="${l.name||''}" />
-                     <input class="w-40 border p-2 rounded leaderPhone" placeholder="No. Tel" data-index="${i}" value="${l.phone||''}" />
-                     <button type="button" data-index="${i}" class="removeLead bg-red-500 text-white px-2 rounded hover:bg-red-600">X</button>`; 
-    c.appendChild(div);
-  });
-  c.querySelectorAll('.removeLead').forEach(b=>b.addEventListener('click',e=>{leaders.splice(+e.target.dataset.index,1); renderLeaders();}));
-  c.querySelectorAll('.leaderName').forEach(i=>i.addEventListener('input',e=>leaders[+e.target.dataset.index].name=e.target.value));
-  c.querySelectorAll('.leaderPhone').forEach(i=>i.addEventListener('input',e=>leaders[+e.target.dataset.index].phone=e.target.value));
-}
-if ($('addLeader')) $('addLeader').addEventListener('click',()=>{leaders.push({name:'',phone:''}); renderLeaders();});
-renderLeaders();
-  
-function validateFile(file) {
-  const maxSize = 10 * 1024 * 1024;
-  if (file.size > maxSize) {
-    return { ok: false, message: `${file.name} terlalu besar (max 10MB). Saiz: ${(file.size/1024/1024).toFixed(2)}MB` };
-  }
-  if (file.type !== 'application/pdf') {
-    return { ok: false, message: `${file.name} bukan fail PDF` };
-  }
-  return { ok: true };
-}
-
-async function fileToBase64(file){ 
-  return new Promise((res,rej)=>{ 
-    const r=new FileReader(); 
-    r.onload=()=>res({name:file.name,type:file.type||'application/pdf',data:r.result.split(',')[1]}); 
-    r.onerror=rej; 
-    r.readAsDataURL(file); 
-  }); 
-}
-
-function base64ToUint8Array(base64) {
-  const binary = atob(base64);
-  const len = binary.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
-  return bytes;
-}
-
-function uint8ArrayToBlob(u8, mime='application/pdf') {
-  return new Blob([u8], { type: mime });
-}
-
-function blobToFile(blob, name) {
-  try { return new File([blob], name, { type: blob.type }); }
-  catch(e) { blob.name = name; return blob; }
-}
-
-async function annotatePdfAndUpload({requestId, fileBlobOrFile, stampText='Disemak', stampImageFile=null, sourceLabel='ANNOTATED'}) {
-  if (!fileBlobOrFile) throw new Error('missing file');
-  const ab = await (fileBlobOrFile.arrayBuffer ? fileBlobOrFile.arrayBuffer() : fileBlobOrFile);
-  const pdfDoc = await PDFLib.PDFDocument.load(ab);
-  const helv = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
-  let imgEmbed = null;
-  if (stampImageFile) {
-    const imgAB = await stampImageFile.arrayBuffer();
-    const mime = stampImageFile.type || 'image/png';
-    imgEmbed = (mime==='image/png') ? await pdfDoc.embedPng(imgAB) : await pdfDoc.embedJpg(imgAB);
-  }
-
-  const pages = pdfDoc.getPages();
-  for (let i = 0; i < pages.length; i++) {
-    const p = pages[i];
-    const { width, height } = p.getSize();
-    const fontSize = Math.max(10, Math.min(36, Math.floor(Math.min(width, height) / 18)));
-    const text = stampText || `Disemak ${new Date().toLocaleDateString()}`;
-    const textWidth = helv.widthOfTextAtSize(text, fontSize);
-    const margin = 18;
-    p.drawText(text, {
-      x: width - textWidth - margin,
-      y: margin + (imgEmbed ? 40 : 0),
-      size: fontSize,
-      font: helv,
-      color: PDFLib.rgb(0.85, 0.1, 0.1),
-      opacity: 0.95
-    });
-    if (imgEmbed) {
-      const scaled = imgEmbed.scale( Math.min(120 / imgEmbed.width, 60 / imgEmbed.height) );
-      p.drawImage(imgEmbed, {
-        x: margin,
-        y: margin,
-        width: scaled.width,
-        height: scaled.height,
-        opacity: 0.95
-      });
-    }
-  }
-
-  const modifiedBytes = await pdfDoc.save();
-  let binary = '';
-  const u8 = new Uint8Array(modifiedBytes);
-  for (let i = 0; i < u8.length; i++) binary += String.fromCharCode(u8[i]);
-  const b64 = btoa(binary);
-
-  const fileName = 'ANNOTATED_' + (fileBlobOrFile.name || ('file_' + Date.now() + '.pdf'));
-  const payload = { requestId: requestId || '', fileName: fileName, dataBase64: b64, sourceLabel: sourceLabel };
-  const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ type:'uploadAnnotatedPdf', payload }) });
-  return await res.json();
-}
-
-async function fetchDriveFileAsFile(driveUrlOrId) {
-  let id = '';
-  const m = String(driveUrlOrId||'').match(/\/d\/([a-zA-Z0-9_-]{10,})/);
-  if (m) id = m[1];
-  else id = driveUrlOrId;
-  if (!id) throw new Error('Invalid Drive URL/ID');
-  const r = await fetch(GAS_URL + '?action=fetchFileBase64&fileId=' + encodeURIComponent(id));
-  const j = await r.json();
-  if (!j.ok || !j.dataBase64) throw new Error('fetchFileBase64 failed');
-  const u8 = base64ToUint8Array(j.dataBase64);
-  const blob = uint8ArrayToBlob(u8, j.mimeType || 'application/pdf');
-  return blobToFile(blob, j.name || ('file_' + id + '.pdf'));
-}
-
-$('permohonanForm').addEventListener('submit', async function(ev){
-  ev.preventDefault(); 
-  $('submitBtn').disabled=true;
-  
-  const payload = {
-    schoolCode: $('schoolCode').value.trim(),
-    schoolName: $('schoolName').value.trim(),
-    daerah: $('daerah').value.trim(),
-    poskod: $('poskod').value.trim(),
-    schoolEmail: $('schoolEmail').value.trim(),
-    category: $('category').value,
-    travelStartDate: $('travelStart').value,
-    travelEndDate: $('travelEnd').value,
-    leaderNames: leaders.map(l=>l.name).filter(Boolean),
-    leaderPhones: leaders.map(l=>l.phone).filter(Boolean),
-    vehicleCount: $('vehicleCount').value,
-    participantCount: $('participantCount').value,
-    bp: $('bp').value,
-    bm: $('bm').value,
-    placeVisit: $('placeVisit').value,
-    accommodation: $('accommodation').value
-  };
-
-  const start=new Date(payload.travelStartDate), end=new Date(payload.travelEndDate);
-  const today=new Date(); today.setHours(0,0,0,0); 
-  const min=new Date(today.getTime()+30*24*60*60*1000);
-  
-  if (isNaN(start.getTime())||start<min){ 
-    await Swal.fire({icon:'error',title:'Tarikh tidak sah',text:'Tarikh mula mesti sekurang-kurangnya 30 hari.'}); 
-    $('submitBtn').disabled=false; 
-    return; 
-  }
-  
-  const maxEnd = new Date(start.getTime()+4*24*60*60*1000);
-  if (isNaN(end.getTime())||end<start||end>maxEnd){ 
-    await Swal.fire({icon:'error',title:'Tarikh tamat tidak sah',text:`Tarikh tamat mesti antara ${start.toISOString().slice(0,10)} dan ${maxEnd.toISOString().slice(0,10)}.`}); 
-    $('submitBtn').disabled=false; 
-    return; 
-  }
-
-  showLoading();
-  try {
-    const fileMap = {
-      kertasKerja:$('file_kertasKerja').files[0], 
-      maklumatAnggota:$('file_maklumatAnggota').files[0],
-      permitBas:$('file_permitBas').files[0], 
-      lesenPemandu:$('file_lesenPemandu').files[0], 
-      taklimat:$('file_taklimat').files[0]
-    };
-    
-    for (const key in fileMap) {
-      if (fileMap[key]) {
-        const validation = validateFile(fileMap[key]);
-        if (!validation.ok) {
-          hideLoading();
-          await Swal.fire({icon:'error',title:'Fail tidak sah',text:validation.message});
-          $('submitBtn').disabled=false;
-          return;
-        }
-      }
-    }
-    
-    const filesBase64 = {};
-    for (const k in fileMap) if (fileMap[k]) filesBase64[k]=await fileToBase64(fileMap[k]);
-    
-    const body = JSON.stringify({type:'new', payload, filesBase64});
-    const res = await fetch(GAS_URL, {method:'POST', body});
-    const j = await res.json(); 
-    hideLoading();
-    
-    if (j.ok){ 
-      await Swal.fire({icon:'success',title:'Permohonan berjaya dihantar',html:`Nombor rujukan: <b>${j.requestId||''}</b>`}); 
-      this.reset(); 
-      leaders=[]; 
-      renderLeaders(); 
-    }
-    else await Swal.fire({icon:'error',title:'Gagal',text:j.message||j.error||JSON.stringify(j)});
-  } catch (err){ 
-    hideLoading(); 
-    await Swal.fire({icon:'error',title:'Ralat sambungan',text:err.message||''}); 
-  }
-  finally{ $('submitBtn').disabled=false; }
-});
-
-function hideAllSections(){ 
-  ['introSection','formSection','officerSection','ppdSection','dpSection','queryResponseSection','downloadsSection','statusSection'].forEach(id=>$(id).classList.add('hidden')); 
-}
-
-function setActiveTab(btnId){
-  document.querySelectorAll('.nav-tab').forEach(b=>{ 
-    b.classList.remove('tab-active'); 
-    b.classList.remove('bg-blue-600'); 
-    b.classList.remove('text-white'); 
-  });
-  const el = $(btnId); 
-  if (el) el.classList.add('tab-active');
-}
-
-['tabIntroBtn','tabFormBtn','tabPPDBtn','tabOfficerBtn','tabDPBtn','tabQueryResponseBtn','tabDownloadsBtn','tabStatusBtn'].forEach(id=>{
-  $(id).addEventListener('click',()=>{ 
-    hideAllSections(); 
-    const map={
-      tabIntroBtn:'introSection',
-      tabFormBtn:'formSection',
-      tabPPDBtn:'ppdSection',
-      tabOfficerBtn:'officerSection',
-      tabDPBtn:'dpSection',
-      tabQueryResponseBtn:'queryResponseSection',
-      tabDownloadsBtn:'downloadsSection',
-      tabStatusBtn:'statusSection'
-    }; 
-    $(map[id]).classList.remove('hidden'); 
-    setActiveTab(id); 
-  });
-});
-
-hideAllSections();
-setActiveTab('tabIntroBtn');
-$('introSection').classList.remove('hidden');
-
-$('loginOfficer').addEventListener('click', async ()=>{
-  const { value: pw } = await Swal.fire({
-    title: 'Akses Pegawai',
-    input: 'password',
-    inputLabel: 'Masukkan kata laluan Pegawai',
-    showCancelButton: true,
-    confirmButtonText: 'LOG IN'
-  });
-  
-  if (!pw) return;
-
-  try {
-    showLoading();
-    const check = await fetch(GAS_URL + '?action=checkSecret&secret=' + encodeURIComponent(pw));
-    const cj = await check.json();
-    hideLoading();
-
-    if (cj.ok) {
-      officerSecret = pw;
-      const btn = $('loginOfficer');
-      btn.textContent = 'Akses Dibenarkan';
-      btn.classList.remove('bg-blue-600');
-      btn.classList.add('btn-access-granted', 'animate-gentle-pulse');
-      btn.disabled = true;
-
-      const statusEl = $('officerLoggedAs');
-      statusEl.textContent = ' (Sistem Online)';
-      statusEl.classList.add('status-pulse');
-
-      const logoutBtn = $('logoutOfficer');
-      logoutBtn.classList.remove('hidden-inline');
-
-      if (!logoutBtn._hasHandler) {
-        logoutBtn._hasHandler = true;
-        logoutBtn.addEventListener('click', async () => {
-          const ok = await Swal.fire({
-            title: 'Log Out?',
-            text: 'Adakah anda pasti.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Log Out',
-            cancelButtonText: 'Batal'
-          });
-          if (!ok.isConfirmed) return;
-
-          officerSecret = null;
-          const b = $('loginOfficer');
-          b.textContent = 'LOGIN Pegawai';
-          b.classList.remove('btn-access-granted', 'animate-gentle-pulse');
-          b.classList.add('bg-blue-600');
-          b.disabled = false;
-
-          $('logoutOfficer').classList.add('hidden-inline');
-          $('officerLoggedAs').textContent = '';
-          requestsCache = [];
-          renderTablesFromCache();
-          Swal.fire({icon:'success', title:'Log Out berjaya', timer:1500, showConfirmButton:false});
-        });
-      }
-
-      await loadRequests();
-      Swal.fire({ icon:'success', title:'Akses Dibenarkan', text:'Sistem Online.', timer:1800, showConfirmButton:false });
-    } else {
-      Swal.fire({ icon: 'error', title: 'Kata laluan salah' });
-    }
-  } catch (err) {
-    hideLoading();
-    Swal.fire({ icon: 'error', title: 'Ralat sambungan', text: err.message || '' });
-  }
-});
-
-$('refreshOfficer').addEventListener('click', async () => {
-  if (!officerSecret) {
-    return Swal.fire({ icon:'warning', title:'Sila log masuk dahulu' });
-  }
-  
-  const btn = $('refreshOfficer');
-  const originalText = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = 'Refreshing...';
-  
-  showLoading();
-  try {
-    await loadRequests();
-    Swal.fire({ icon:'success', title:'Data dikemaskini', timer:900, showConfirmButton:false });
-  } catch (err) {
-    Swal.fire({ icon:'error', title:'Gagal kemaskini', text: err.message || String(err) });
-  } finally { 
-    hideLoading();
-    btn.disabled = false;
-    btn.textContent = originalText;
-  }
-});
-
-// ==================== PPD LOGIN HANDLER ====================
-let ppdSecret = null;
-let ppdDistrict = null;
-
-$('loginPPD').addEventListener('click', async () => {
-  const { value: formData } = await Swal.fire({
-    title: 'Log Masuk PPD',
-    html: `
-      <div style="text-align:left">
-        <label for="swal_ppdPassword" style="font-weight:600;margin-bottom:4px;display:block">Kata Laluan PPD</label>
-        <input id="swal_ppdPassword" type="password" class="swal2-input" placeholder="Masukkan kata laluan">
-        
-        <label for="swal_ppdDistrict" style="font-weight:600;margin-bottom:4px;display:block;margin-top:12px">Pilih Daerah</label>
-        <select id="swal_ppdDistrict" class="swal2-input">
-          <option value="">Pilih Daerah...</option>
-          <option value="BENTONG">PPD BENTONG</option>
-          <option value="BERA">PPD BERA</option>
-          <option value="CAMERON HIGHLANDS">PPD CAMERON HIGHLANDS</option>
-          <option value="JERANTUT">PPD JERANTUT</option>
-          <option value="KUANTAN">PPD KUANTAN</option>
-          <option value="LIPIS">PPD LIPIS</option>
-          <option value="MARAN">PPD MARAN</option>
-          <option value="PEKAN">PPD PEKAN</option>
-          <option value="RAUB">PPD RAUB</option>
-          <option value="ROMPIN">PPD ROMPIN</option>
-          <option value="TEMERLOH">PPD TEMERLOH</option>
+        <select id="filterYear" class="border p-2 rounded">
+          <option value="">Semua Tahun</option>
         </select>
+
+        <div class="flex-1"></div>
+
+        <input id="searchBox"
+              type="text"
+              placeholder="Cari Kod / Nama Sekolah…"
+              class="border p-2 rounded w-72">
       </div>
-    `,
-    focusConfirm: false,
-    showCancelButton: true,
-    confirmButtonText: 'LOG IN',
-    cancelButtonText: 'Batal',
-    preConfirm: () => {
-      const pw = document.getElementById('swal_ppdPassword').value.trim();
-      const district = document.getElementById('swal_ppdDistrict').value.trim();
-      
-      if (!pw) {
-        Swal.showValidationMessage('Sila masukkan kata laluan');
-        return false;
-      }
-      if (!district) {
-        Swal.showValidationMessage('Sila pilih daerah');
-        return false;
-      }
-      
-      return { password: pw, district: district };
-    }
-  });
-  
-  if (!formData) return;
-  
-  try {
-    showLoading();
-    const check = await fetch(GAS_URL + '?action=checkSecret&secret=' + encodeURIComponent(formData.password));
-    const cj = await check.json();
-    hideLoading();
-    
-    if (cj.ok) {
-      ppdSecret = formData.password;
-      ppdDistrict = formData.district;
-      
-      const btn = $('loginPPD');
-      btn.textContent = 'Akses Dibenarkan';
-      btn.classList.remove('bg-blue-600');
-      btn.classList.add('btn-access-granted', 'animate-gentle-pulse');
-      btn.disabled = true;
-      
-      $('ppdLoggedAs').textContent = `(${ppdDistrict})`;
-      $('ppdLoggedAs').classList.add('status-pulse');
-      
-      const logoutBtn = $('logoutPPD');
-      logoutBtn.classList.remove('hidden-inline');
-      
-      if (!logoutBtn._hasHandler) {
-        logoutBtn._hasHandler = true;
-        logoutBtn.addEventListener('click', async () => {
-          const ok = await Swal.fire({
-            title: 'Log Out?',
-            text: 'Adakah anda pasti.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Log Out',
-            cancelButtonText: 'Batal'
-          });
-          if (!ok.isConfirmed) return;
-          
-          ppdSecret = null;
-          ppdDistrict = null;
-          
-          const b = $('loginPPD');
-          b.textContent = 'LOGIN PPD';
-          b.classList.remove('btn-access-granted', 'animate-gentle-pulse');
-          b.classList.add('bg-blue-600');
-          b.disabled = false;
-          
-          $('logoutPPD').classList.add('hidden-inline');
-          $('ppdLoggedAs').textContent = '';
-          
-          $('ppdNewTable').innerHTML = '<p class="p-4 text-gray-500 italic">Sila log masuk PPD</p>';
-          $('ppdReviewedTable').innerHTML = '<p class="p-4 text-gray-500 italic">Sila log masuk PPD</p>';
-          
-          Swal.fire({icon:'success', title:'Log Out berjaya', timer:1500, showConfirmButton:false});
-        });
-      }
-      
-      await loadPPDRequests();
-      Swal.fire({ icon:'success', title:'Akses Dibenarkan', text:`Portal ${ppdDistrict}`, timer:1800, showConfirmButton:false });
-    } else {
-      Swal.fire({ icon: 'error', title: 'Kata laluan salah' });
-    }
-  } catch (err) {
-    hideLoading();
-    Swal.fire({ icon: 'error', title: 'Ralat sambungan', text: err.message || '' });
-  }
-});
 
-// ==================== PPD REFRESH HANDLER ====================
-$('refreshPPD').addEventListener('click', async () => {
-  if (!ppdSecret) {
-    return Swal.fire({ icon:'warning', title:'Sila log masuk dahulu' });
-  }
-  
-  const btn = $('refreshPPD');
-  const originalText = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = '🔄 Refreshing...';
-  
-  showLoading();
-  try {
-    await loadPPDRequests();
-    Swal.fire({ icon:'success', title:'Data dikemaskini', timer:900, showConfirmButton:false });
-  } catch (err) {
-    Swal.fire({ icon:'error', title:'Gagal kemaskini', text: err.message || String(err) });
-  } finally { 
-    hideLoading();
-    btn.disabled = false;
-    btn.textContent = originalText;
-  }
-});
-
-// ==================== PPD LOAD REQUESTS ====================
-async function loadPPDRequests() {
-  if (!ppdSecret || !ppdDistrict) {
-    $('ppdNewTable').innerHTML = '<p class="p-4 text-gray-500 italic">Sila log masuk PPD</p>';
-    $('ppdReviewedTable').innerHTML = '<p class="p-4 text-gray-500 italic">Sila log masuk PPD</p>';
-    return;
-  }
-  
-  try {
-    showLoading();
-    const res = await fetch(GAS_URL + '?action=listRequests&secret=' + encodeURIComponent(ppdSecret));
-    const j = await res.json();
-    hideLoading();
-    
-    if (!j.ok) {
-      $('ppdNewTable').innerHTML = `<p class="p-4 text-red-500">${j.message||'Gagal'}</p>`;
-      $('ppdReviewedTable').innerHTML = `<p class="p-4 text-red-500">${j.message||'Gagal'}</p>`;
-      return;
-    }
-    
-    const allRequests = j.requests || [];
-    
-    // Filter by district
-    const districtRequests = allRequests.filter(req => {
-      const daerah = String(req['Daerah'] || req['daerah'] || '').toUpperCase();
-      return daerah === ppdDistrict.toUpperCase();
-    });
-    
-    // NEW requests
-    const newRequests = districtRequests.filter(req => {
-      const s = String(req['Status'] || '').toUpperCase();
-      return s === 'NEW' || s === 'QUERY_RESPONDED';
-    });
-    
-    // REVIEWED requests
-    const reviewedRequests = districtRequests.filter(req => {
-      const s = String(req['Status'] || '').toUpperCase();
-      return s.includes('REVIEWED') || s.includes('PREAPPROVED') || s.includes('READY_FOR_DP') || s.includes('FINAL_APPROVED');
-    });
-    
-    renderPPDTable('ppdNewTable', newRequests, true);
-    renderPPDTable('ppdReviewedTable', reviewedRequests, false);
-    
-  } catch (err) {
-    hideLoading();
-    $('ppdNewTable').innerHTML = `<p class="p-4 text-red-500">Ralat: ${err.message||''}</p>`;
-    $('ppdReviewedTable').innerHTML = `<p class="p-4 text-red-500">Ralat: ${err.message||''}</p>`;
-  }
-}
-
-// ==================== PPD RENDER TABLE ====================
-function renderPPDTable(containerId, requests, showActions) {
-  const container = $(containerId);
-  
-  if (requests.length === 0) {
-    container.innerHTML = '<p class="p-4 text-gray-500 italic">Tiada permohonan</p>';
-    return;
-  }
-  
-  const rows = [];
-  requests.forEach(req => {
-    const id = req['Request ID'] || '';
-    const kodSek = req['School Code'] || req['SchoolCode'] || '';
-    const school = req['School Name'] || req['SchoolName'] || '';
-    const travelStart = fmtDateToDisplay(req['Travel Start'] || '');
-    const status = req['Status'] || '';
-    
-    let lnRaw = req['LeaderNames'] || '';
-    let lnArr = [];
-    try {
-      if (typeof lnRaw === 'string' && lnRaw.trim().startsWith('[')) lnArr = JSON.parse(lnRaw);
-      else if (Array.isArray(lnRaw)) lnArr = lnRaw;
-      else if (lnRaw) lnArr = [lnRaw];
-    } catch(e){ lnArr = []; }
-    const namaKetuaDisplay = lnArr.map(x=>String(x).trim()).filter(Boolean).join('<br/>');
-    
-    const actions = showActions ? 
-      `<div class="flex gap-2">
-        <button data-id="${id}" class="ppd-view-files px-2 py-1 bg-pink-400 border rounded text-xs hover:bg-pink-500">PDF Fail</button>
-        <button data-id="${id}" class="ppd-preapprove px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700">Semak & Hantar ke JPN</button>
-      </div>` :
-      `<div class="flex gap-2">
-        <button data-id="${id}" class="ppd-view-files px-2 py-1 border rounded text-xs hover:bg-gray-100">Lihat Fail</button>
-      </div>`;
-    
-    rows.push({
-      'Kod Sekolah': kodSek,
-      'Nama Sekolah': school,
-      'Nama Ketua': namaKetuaDisplay,
-      'Tarikh Lawatan': travelStart,
-      'Status': status,
-      'Tindakan': actions
-    });
-  });
-  
-  const cols = ['Kod Sekolah', 'Nama Sekolah', 'Nama Ketua', 'Tarikh Lawatan', 'Status', 'Tindakan'];
-  container.innerHTML = '';
-  container.appendChild(makeTable(rows, cols));
-  
-  // View files handler
-  document.querySelectorAll('.ppd-view-files').forEach(btn => {
-    btn.addEventListener('click', async ev => {
-      const id = ev.currentTarget.dataset.id;
-      const req = requests.find(r => String(r['Request ID']) === String(id));
-      if (!req) return Swal.fire({ icon:'error', title:'Tidak jumpa rekod' });
-      
-      const filePairs = [
-        {label:'KERTAS KERJA', raw: req['File_KERTAS_KERJA'] || ''},
-        {label:'MAKLUMAT ANGGOTA', raw: req['File_MAKLUMAT_ANGGOTA'] || ''},
-        {label:'PERMIT BAS', raw: req['File_PERMIT_BAS'] || ''},
-        {label:'LESEN PEMANDU', raw: req['File_LESEN_PEMANDU'] || ''},
-        {label:'INTIPATI TAKLIMAT', raw: req['File_TAKLIMAT'] || ''}
-      ];
-      
-      const html = filePairs.map(fp=>{
-        const urls = String(fp.raw||'').split(/\s*;\s*/).filter(Boolean);
-        if (urls.length === 0) return `<p><strong>${fp.label}:</strong> <em>Tiada fail</em></p>`;
-        const links = urls.map((u,i)=>`<div><a href="${u}" target="_blank" class="text-blue-600 hover:underline">Buka ${fp.label} ${urls.length>1?('('+(i+1)+')'):''}</a></div>`).join('');
-        return `<p><strong>${fp.label}:</strong><br/>${links}</p>`;
-      }).join('');
-      
-      await Swal.fire({ title: 'Fail Permohonan', html, width: 800, showCloseButton: true, confirmButtonText: 'Tutup' });
-    });
-  });
-  
-  // Preapprove handler
-  document.querySelectorAll('.ppd-preapprove').forEach(btn => {
-    btn.addEventListener('click', async ev => {
-      const id = ev.currentTarget.dataset.id;
-      const req = requests.find(r => String(r['Request ID']) === String(id));
-      if (!req) return Swal.fire({ icon:'error', title:'Tidak jumpa rekod' });
-      
-      const targetBtn = ev.currentTarget;
-      targetBtn.disabled = true;
-      const origText = targetBtn.textContent;
-      targetBtn.textContent = 'Processing...';
-      
-      try {
-        const { value: note } = await Swal.fire({
-          title: 'Catatan Semakan (pilihan)',
-          input: 'textarea',
-          inputPlaceholder: 'Tulis catatan jika ada...',
-          showCancelButton: true,
-          confirmButtonText: 'Semak & Hantar ke JPN'
-        });
-        
-        if (note === undefined) {
-          targetBtn.disabled = false;
-          targetBtn.textContent = origText;
-          return;
-        }
-        
-        showLoading();
-        const url = GAS_URL + '?action=ppdAction' +
-                    '&id=' + encodeURIComponent(id) +
-                    '&note=' + encodeURIComponent(note || 'Disemak oleh PPD') +
-                    '&district=' + encodeURIComponent(ppdDistrict) +
-                    '&secret=' + encodeURIComponent(ppdSecret);
-        
-        const res = await fetch(url);
-        const j = await res.json();
-        hideLoading();
-        
-        if (j.ok) {
-          await Swal.fire({ icon:'success', title:'Permohonan telah dihantar ke JPN', timer:1500, showConfirmButton:false });
-          await loadPPDRequests();
-        } else {
-          Swal.fire({ icon:'error', title:'Gagal', text: j.message || 'Server error' });
-        }
-      } catch (err) {
-        hideLoading();
-        Swal.fire({ icon:'error', title:'Ralat', text: err.message || String(err) });
-      } finally {
-        targetBtn.disabled = false;
-        targetBtn.textContent = origText;
-      }
-    });
-  });
-}
-  
-$('applyFilters').addEventListener('click', ()=> renderTablesFromCache());
-$('clearFilters').addEventListener('click', ()=>{ 
-  $('filterCategory').value=''; 
-  $('filterStatus').value=''; 
-  $('searchBox').value=''; 
-  renderTablesFromCache(); 
-});
-
-$('searchBtn').addEventListener('click', ()=> renderTablesFromCache());
-$('clearSearchBtn').addEventListener('click', ()=>{ 
-  $('searchBox').value=''; 
-  renderTablesFromCache(); 
-});
-function makeTable(rows, cols){
-  const t = document.createElement('table'); 
-  t.className='w-full text-sm';
-  const thead = document.createElement('thead'); 
-  const trh = document.createElement('tr'); 
-  trh.className='bg-gray-100';
-  cols.forEach(c=>{ 
-    const th=document.createElement('th'); 
-    th.className='p-2 text-left'; 
-    th.textContent=c; 
-    trh.appendChild(th); 
-  }); 
-  thead.appendChild(trh); 
-  t.appendChild(thead);
-  
-  const tb=document.createElement('tbody');
-  rows.forEach(r=>{ 
-    const tr=document.createElement('tr'); 
-    tr.className='border-b align-top';
-    cols.forEach(c=>{ 
-      const td=document.createElement('td'); 
-      td.className='p-2 align-top'; 
-      td.innerHTML = r[c]||''; 
-      
-      if (c === 'Status' && r[c]) {
-        const status = String(r[c]).toUpperCase();
-        if (status.includes('NEW')) td.classList.add('status-new');
-        else if (status.includes('QUERY')) td.classList.add('status-query');
-        else if (status.includes('REVIEWED') || status.includes('PREAPPROVED')) td.classList.add('status-reviewed');
-        else if (status.includes('FINAL_APPROVED')) td.classList.add('status-approved');
-      }
-      
-      tr.appendChild(td); 
-    });
-    tb.appendChild(tr);
-  });
-  t.appendChild(tb); 
-  return t;
-}
-
-async function loadRequests(){
-  if (!officerSecret) {
-    if (requestsCache && requestsCache.length) { renderTablesFromCache(); return; }
-    return Swal.fire({icon:'warning',title:'Sila log masuk dahulu.'});
-  }
-  try {
-    showLoading();
-    const res = await fetch(GAS_URL + '?action=listRequests&secret=' + encodeURIComponent(officerSecret));
-    const j = await res.json();
-    hideLoading();
-    if (!j.ok) return Swal.fire({icon:'error',title:'Gagal',text:j.message||''});
-    const requests = j.requests || [];
-    requestsCache = requests;
-    renderTablesFromCache();
-  } catch (err) { 
-    hideLoading(); 
-    Swal.fire({icon:'error',title:'Ralat',text:err.message||''}); 
-  }
-}
-
-function extractQueries(req){
-  if (!req) return [];
-
-  // If there is an explicit QueryHistory array (preferred), use it and return latest entry only
-  if (Array.isArray(req['QueryHistory']) && req['QueryHistory'].length) {
-    // return only the most recent entry (assumes QueryHistory is chronological)
-    const last = req['QueryHistory'][req['QueryHistory'].length - 1];
-    return [{
-      id: last.id || last.QueryID || last.queryId || '',
-      sentDate: last.sentDate || last.QuerySentDate || last.sent_at || last.date || '',
-      respondedDate: last.respondedDate || last.QueryRespondDate || last.responded_at || last.response_date || '',
-      note: last.note || last.note_text || last.message || ''
-    }];
-  }
-
-  // If QueryID column exists (current query), prefer that as single current query
-  if (req['QueryID']) {
-    return [{
-      id: String(req['QueryID']),
-      sentDate: req['QuerySentDate'] || req['QueryDate'] || '',
-      respondedDate: req['QueryRespondDate'] || req['QueryRespondedDate'] || '',
-      note: req['OfficerNote'] || ''
-    }];
-  }
-
-  // Fallback: try to parse any QueryID tokens from OfficerNote but only return the latest one
-  const txt = String(req['OfficerNote']||req['OfficerNotes']||'');
-  if (!txt) return [];
-  const re = /QueryID[:\s]*([A-Z0-9\-_]+)/ig;
-  let m, lastMatch = null;
-  while ((m = re.exec(txt)) !== null) lastMatch = m;
-  if (lastMatch) {
-    const id = lastMatch[1];
-    const slice = txt.slice(Math.max(0, lastMatch.index-120), lastMatch.index+120);
-    const dateMatch = slice.match(/(\d{4}-\d{2}-\d{2})/);
-    return [{ id, sentDate: dateMatch ? dateMatch[0] : '', respondedDate:'', note: slice.trim() }];
-  }
-
-  return [];
-}
-
-
-function buildHeaderIndex(headers) {
-  const map = {};
-  (headers || []).forEach((h, i) => {
-    const key = (h || '').toString().trim();
-    if (key) map[key] = i;
-  });
-  return map;
-}
-
-function renderTablesFromCache(){
-  const requests = requestsCache || [];
-  const selCategory = $('filterCategory').value.trim();
-  const selStatus = $('filterStatus').value.trim();
-  const search = ($('searchBox').value || '').trim().toLowerCase();
-
-  if (!officerSecret) {
-    $('tableNew').innerHTML = `<p class="p-4 text-gray-500 italic">Sila log masuk sebagai Pegawai untuk melihat senarai permohonan.</p>`;
-    $('tableQuery').innerHTML = `<p class="p-4 text-gray-500 italic">Sila log masuk sebagai Pegawai untuk melihat senarai permohonan.</p>`;
-    $('tableApproved').innerHTML = `<p class="p-4 text-gray-500 italic">Sila log masuk sebagai Pegawai untuk melihat senarai permohonan.</p>`;
-    return;
-  }
-
-  const newRows = [], queryRows = [], approvedRows = [];
-
-  function matchesSearch(req){
-    if (!search) return true;
-    const code = String(req['School Code'] || req['SchoolCode'] || req['schoolCode'] || '').toLowerCase();
-    const name = String(req['School Name'] || req['SchoolName'] || req['schoolName'] || '').toLowerCase();
-    return code.includes(search) || name.includes(search);
-  }
-
-  requests.forEach(req => {
-    const reqCategory = req['Category'] || req['category'] || req['Kategori'] || req['kategori'] || req['OfficerPIC'] || '';
-
-    if (selCategory && String(reqCategory) !== selCategory) return;
-    if (selStatus && String(req['Status']||'') !== selStatus) return;
-    if (!matchesSearch(req)) return;
-
-    const id = req['Request ID'] || '';
-    const kodSek = req['School Code'] || req['SchoolCode'] || req['schoolCode'] || '';
-    const school = req['School Name'] || req['SchoolName'] || req['schoolName'] || '';
-
-    let lnRaw = req['LeaderNames'] || req['LeaderName'] || req['leaderNames'] || '';
-    let lpRaw = req['LeaderPhones'] || req['LeaderPhone'] || req['leaderPhones'] || '';
-    let lnArr = [], lpArr = [];
-    try {
-      if (typeof lnRaw === 'string' && lnRaw.trim().startsWith('[')) lnArr = JSON.parse(lnRaw);
-      else if (Array.isArray(lnRaw)) lnArr = lnRaw;
-      else if (lnRaw) lnArr = [lnRaw];
-    } catch(e){ lnArr = Array.isArray(lnRaw)? lnRaw: (lnRaw? [lnRaw]:[]); }
-    try {
-      if (typeof lpRaw === 'string' && lpRaw.trim().startsWith('[')) lpArr = JSON.parse(lpRaw);
-      else if (Array.isArray(lpRaw)) lpArr = lpRaw;
-      else if (lpRaw) lpArr = [lpRaw];
-    } catch(e){ lpArr = Array.isArray(lpRaw)? lpRaw: (lpRaw? [lpRaw]:[]); }
-
-    const namaKetuaDisplay = lnArr.map(x=>String(x).trim()).filter(Boolean).join('<br/>');
-    const noTelDisplay = lpArr.map(x=>String(x).trim()).filter(Boolean).join('<br/>');
-
-    const travelStart = req['Travel Start'] || req['TravelStart'] || req['travelStart'] || '';
-    const status = req['Status'] || '';
-    const S = String(status || '').toUpperCase().trim();
-
-    const noSurat = req['NoSuratFull'] || (req['Letters'] ? `Surat dijana (${String(req['Letters']).split(/\s*;\s*/).filter(Boolean).length})` : (req['OfficerNote'] && (String(req['OfficerNote']).match(/QueryID:([A-Z0-9\-\_]+)/i) || [])[1] ? `Query: ${(String(req['OfficerNote']).match(/QueryID:([A-Z0-9\-\_]+)/i)||[])[1]}` : '-'));
-
-    const actionsGeneric = `<div class="flex gap-2"><button data-id="${id}" class="view-files px-2 py-1 border rounded text-xs hover:bg-gray-100">Lihat Fail</button></div>`;
-    const actionsWithOfficerBtns = `<div class="flex gap-2">
-        <button data-id="${id}" class="view-files px-2 py-1 bg-pink-400 border rounded text-xs hover:bg-pink-500">PDF Fail</button>
-        <button data-id="${id}" class="btn-query px-2 py-1 bg-yellow-400 rounded text-xs hover:bg-yellow-500">Query</button>
-        <button data-id="${id}" class="btn-preapprove px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700">Disemak (TP)</button>
-      </div>`;
-
-    if (S.indexOf('QUERY') > -1) {
-      const queries = extractQueries(req);
-      if (queries.length === 0) {
-        const qRow = {
-          'Kod Sekolah': kodSek,
-          'Nama Sekolah': school,
-          'Kategori': reqCategory || '',
-          'Tarikh Query': fmtDateToDisplay(req['QuerySentDate'] || req['QueryDate'] || req['Query Sent'] || req['QuerySent'] || ''),
-          'Tarikh Respon': fmtDateToDisplay(req['QueryRespondDate'] || req['QueryRespondedDate'] || req['QueryResponseDate'] || req['QueryRespondDate'] || ''),
-          'Catatan Query': (req['OfficerNote']||req['OfficerNotes']||''),
-          'Kod Query': req['QueryID'] || '',
-          'Status': status,
-          'Surat': noSurat,
-          'Tindakan': actionsWithOfficerBtns
-        };
-        queryRows.push(qRow);
-      } else {
-        queries.forEach(q=>{
-          queryRows.push({
-            'Kod Sekolah': kodSek,
-            'Nama Sekolah': school,
-            'Kategori': reqCategory || '',
-            'Tarikh Query': fmtDateToDisplay(q.sentDate || req['QuerySentDate'] || ''),
-            'Tarikh Respon': fmtDateToDisplay(q.respondedDate || req['QueryRespondDate'] || ''),
-            'Catatan Query': q.note || '',
-            'Kod Query': q.id || '',
-            'Status': status,
-            'Surat': noSurat,
-            'Tindakan': actionsWithOfficerBtns
-          });
-        });
-      }
-    } else if (S.indexOf('FINAL_APPROVED') > -1 || S.indexOf('READY_FOR_DP') > -1 || S.indexOf('PREAPPROVED') > -1 || S.indexOf('REVIEWED_FOR_TP')> -1) {
-      const letterDate = req['LetterDate'] || req['TarikhSurat'] || req['DateApproved'] || req['ApprovedDate'] || '';
-
-      const letterUrls = String(req['Letters']||'')
-        .split(/\s*;\s*/)
-        .map(u => u && u.trim())
-        .filter(Boolean);
-
-      let letterLink = '';
-      if (letterUrls.length === 1) {
-        letterLink = `<a href="${letterUrls[0]}" target="_blank" class="text-blue-600 underline hover:text-blue-800">Muat Turun</a>`;
-      } else if (letterUrls.length > 1) {
-        letterLink = letterUrls
-          .map((u,i) => `<a href="${u}" target="_blank" class="text-blue-600 underline hover:text-blue-800">Muat Turun ${i+1}</a>`)
-          .join(' &nbsp;|&nbsp; ');
-      }
-
-      approvedRows.push({
-        'Kod Sekolah': kodSek,
-        'Nama Sekolah': school,
-        'Kategori': req['Category'] || req['category'] || '',
-        'Tarikh Surat Lulus': fmtDateToDisplay(letterDate || req['GeneratedDate'] || req['NoSuratDate'] || ''),
-        'Link Surat': letterLink,
-        'Status': status,
-        'Surat': noSurat,
-        'Tindakan': actionsGeneric
-      });
-    } else {
-      newRows.push({
-        'Kod Sekolah': kodSek,
-        'Nama Sekolah': school,
-        'Nama Ketua': namaKetuaDisplay || '',
-        'No Tel Ketua': noTelDisplay || '',
-        'Kategori': reqCategory || '',
-        'Tarikh': fmtDateToDisplay(travelStart),
-        'Status': status,
-        'Surat': noSurat,
-        'Tindakan': actionsWithOfficerBtns
-      });
-    }
-  });
-
-  approvedRows.sort((a,b)=>{
-    const pa = a['Tarikh Surat Lulus'] ? a['Tarikh Surat Lulus'].split('-').reverse().join('-') : '';
-    const pb = b['Tarikh Surat Lulus'] ? b['Tarikh Surat Lulus'].split('-').reverse().join('-') : '';
-    return pb.localeCompare(pa);
-  });
-
-  $('tableNew').innerHTML = '';
-  $('tableQuery').innerHTML = '';
-  $('tableApproved').innerHTML = '';
-
-  if (newRows.length === 0) {
-    $('tableNew').innerHTML = `<p class="p-4 text-gray-500 italic">Tiada permohonan baru sepadan.</p>`;
-  } else {
-    const colsNew = ['Kod Sekolah','Nama Sekolah','Nama Ketua','No Tel Ketua','Kategori','Tarikh','Status','Surat','Tindakan'];
-    $('tableNew').appendChild(makeTable(newRows, colsNew));
-  }
-
-  if (queryRows.length === 0) {
-    $('tableQuery').innerHTML = `<p class="p-4 text-gray-500 italic">Tiada permohonan dalam status query.</p>`;
-  } else {
-    const colsQuery = ['Kod Sekolah','Nama Sekolah','Kategori','Tarikh Query','Tarikh Respon','Kod Query','Catatan Query','Status','Surat','Tindakan'];
-    $('tableQuery').appendChild(makeTable(queryRows, colsQuery));
-  }
-
-  if (approvedRows.length === 0) {
-    $('tableApproved').innerHTML = `<p class="p-4 text-gray-500 italic">Tiada permohonan yang telah diluluskan.</p>`;
-  } else {
-    const colsApp = ['Kod Sekolah','Nama Sekolah','Kategori','Tarikh Surat Lulus','Link Surat','Status','Surat','Tindakan'];
-    $('tableApproved').appendChild(makeTable(approvedRows, colsApp));
-  }
-
-  document.querySelectorAll('.view-files').forEach(btn=>{
-    btn.addEventListener('click', async (ev)=>{
-      const id = ev.currentTarget.dataset.id;
-      const req = (requestsCache || []).find(r => String(r['Request ID']) === String(id));
-      if (!req) return Swal.fire({ icon:'error', title:'Tidak jumpa rekod' });
-
-      const filePairs = [
-        {label:'KERTAS KERJA', raw: req['File_KERTAS_KERJA'] || req['kertasKerjaUrl'] || ''},
-        {label:'MAKLUMAT ANGGOTA', raw: req['File_MAKLUMAT_ANGGOTA'] || req['maklumatAnggotaUrl'] || ''},
-        {label:'PERMIT BAS', raw: req['File_PERMIT_BAS'] || req['permitBasUrl'] || ''},
-        {label:'LESEN PEMANDU', raw: req['File_LESEN_PEMANDU'] || req['lesenPemanduUrl'] || ''},
-        {label:'INTIPATI TAKLIMAT', raw: req['File_TAKLIMAT'] || req['taklimatUrl'] || ''}
-      ];
-
-      const html = filePairs.map(fp=>{
-        const urls = String(fp.raw||'').split(/\s*;\s*/).filter(Boolean);
-        if (urls.length === 0) return `<p><strong>${fp.label}:</strong> <em>Tiada fail</em></p>`;
-        const links = urls.map((u,i)=>`<div><a href="${u}" target="_blank" class="text-blue-600 hover:underline">Buka ${fp.label} ${urls.length>1?('('+ (i+1) +')'):''}</a></div>`).join('');
-        return `<p><strong>${fp.label}:</strong><br/>${links}</p>`;
-      }).join('');
-
-      await Swal.fire({
-        title: 'Fail Permohonan',
-        html: html,
-        width: 800,
-        showCloseButton: true,
-        showCancelButton: true,
-        confirmButtonText: 'Tutup',
-      });
-    });
-  });
-
-  document.querySelectorAll('.btn-query').forEach(btn=>{
-    btn.addEventListener('click', async ev=>{
-      const id = ev.currentTarget.dataset.id;
-      const targetBtn = ev.currentTarget;
-      targetBtn.disabled = true;
-      const origText = targetBtn.textContent;
-      targetBtn.textContent = 'Processing...';
-      
-      try {
-        const { value: note } = await Swal.fire({ 
-          title:'Catatan (kenapa query):', 
-          input:'textarea', 
-          inputPlaceholder:'Tulis sebab...', 
-          showCancelButton:true, 
-          confirmButtonText:'Hantar Query' 
-        });
-        if (!note) return;
-        const ok = await sendOfficerAction(id,'query', note, 'Menengah');
-        if (ok && officerSecret) await loadRequests();
-      } finally {
-        targetBtn.disabled = false;
-        targetBtn.textContent = origText;
-      }
-    });
-  });
-
-  document.querySelectorAll('.btn-preapprove').forEach(btn=>{
-    btn.addEventListener('click', async ev=>{
-      const id = ev.currentTarget.dataset.id;
-      const req = (requestsCache || []).find(r => String(r['Request ID']) === String(id));
-      if (!req) return Swal.fire({ icon:'error', title:'Tidak jumpa rekod' });
-      
-      const targetBtn = ev.currentTarget;
-      targetBtn.disabled = true;
-      const origText = targetBtn.textContent;
-      targetBtn.textContent = 'Processing...';
-      
-      try {
-        // Step 1: Get jilid/bil/tarikh
-        const { value: formValues } = await Swal.fire({
-          title: 'Semak & Hantar kepada Timbalan',
-          html: `
-            <div style="text-align:left">
-              <label for="swal_noJilid" style="font-weight:600;margin-bottom:4px;display:block">No Jilid (contoh: 24)</label>
-              <input id="swal_noJilid" class="swal2-input" placeholder="No Jilid (contoh: 24)">
-
-              <label for="swal_bilSurat" style="font-weight:600;margin-bottom:4px;display:block">Bil Surat (contoh: 25)</label>
-              <input id="swal_bilSurat" class="swal2-input" placeholder="Bil Surat (contoh: 25)">
-
-              <label for="swal_tarikhSurat" style="font-weight:600;margin-bottom:4px;display:block">Tarikh Surat</label>
-              <input id="swal_tarikhSurat" type="date" class="swal2-input" value="${new Date().toISOString().slice(0,10)}">
-
-              <label for="swal_pic" style="font-weight:600;margin-bottom:4px;display:block">PIC</label>
-              <select id="swal_pic" class="swal2-input">
-                <option value="Menengah" selected>Menengah</option>
-                <option value="Rendah">Rendah</option>
-              </select>
-
-              <label for="swal_note" style="font-weight:600;margin-bottom:4px;display:block;margin-top:8px">Catatan pendek untuk Timbalan (pilihan)</label>
-              <textarea id="swal_note" class="swal2-textarea" placeholder="Catatan pendek untuk Timbalan (pilihan)..."></textarea>
-            </div>
-          `,
-          focusConfirm: false,
-          showCancelButton: true,
-          confirmButtonText: 'Seterusnya →',
-          cancelButtonText: 'Batal',
-          preConfirm: () => {
-            const noJ = (document.getElementById('swal_noJilid')||{}).value.trim();
-            const bil = (document.getElementById('swal_bilSurat')||{}).value.trim();
-            const tar = (document.getElementById('swal_tarikhSurat')||{}).value;
-            const pic = (document.getElementById('swal_pic')||{}).value;
-            const note = (document.getElementById('swal_note')||{}).value.trim();
-
-            if (!noJ || !bil) {
-              Swal.showValidationMessage('Sila isi sekurang-kurangnya No Jilid dan Bil Surat');
-              return false;
-            }
-            return { noJilid: noJ, bilSurat: bil, tarikhSurat: tar, pic, note };
-          }
-        });
-
-        if (!formValues) {
-          targetBtn.disabled = false;
-          targetBtn.textContent = origText;
-          return;
-        }
-
-        // Step 2: Tanya nak cop atau tidak
-        const { value: wantStamp } = await Swal.fire({
-          title: 'Tambah Cop Pada PDF?',
-          html: `
-            <p>Adakah anda mahu menambah cop rasmi pada PDF sebelum hantar ke Timbalan?</p>
-            <p style="font-size:0.9em;color:#666;margin-top:8px">
-              <strong>Cop akan ditambah pada:</strong><br/>
-              • KERTAS KERJA<br/>
-              • MAKLUMAT ANGGOTA<br/>
-              • Semua mukasurat dalam setiap PDF
-            </p>
-          `,
-          icon: 'question',
-          showCancelButton: true,
-          showDenyButton: true,
-          confirmButtonText: 'Ya, Tambah Cop',
-          denyButtonText: 'Tidak, Terus Hantar',
-          cancelButtonText: 'Batal'
-        });
-
-        if (wantStamp === undefined) {
-          targetBtn.disabled = false;
-          targetBtn.textContent = origText;
-          return;
-        }
-
-        const composedNote = `No Jilid: ${formValues.noJilid}, Bil: ${formValues.bilSurat}, Tarikh: ${formValues.tarikhSurat || '-'}, PIC: ${formValues.pic || '-'}${formValues.note ? ' | Catatan: ' + formValues.note : ''}`;
-
-        function toIsoDateIfNeeded(s) {
-          if (!s) return '';
-          if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-          const cleaned = s.replace(/\//g, '-');
-          const parts = cleaned.split('-');
-          if (parts.length === 3) {
-            const dd = parts[0].padStart(2,'0'), mm = parts[1].padStart(2,'0'), yyyy = parts[2];
-            return `${yyyy}-${mm}-${dd}`;
-          }
-          return s;
-        }
-
-        const backendOptions = {
-          letterJilid: formValues.noJilid || '',
-          letterNo: formValues.bilSurat || '',
-          letterDate: toIsoDateIfNeeded(formValues.tarikhSurat || '')
-        };
-
-        // Step 3: If want stamp, do stamping
-        if (wantStamp === true) {
-          showLoading();
-          
-          try {
-            const filesToStamp = [
-              { label: 'KERTAS KERJA', url: req['File_KERTAS_KERJA'] || req['kertasKerjaUrl'] || '' },
-              { label: 'MAKLUMAT ANGGOTA', url: req['File_MAKLUMAT_ANGGOTA'] || req['maklumatAnggotaUrl'] || '' }
-            ].filter(f => f.url);
-
-            if (filesToStamp.length === 0) {
-              hideLoading();
-              await Swal.fire({
-                icon: 'warning',
-                title: 'Tiada PDF',
-                text: 'Tiada PDF untuk dicop. Sistem akan teruskan tanpa cop.'
-              });
-            } else {
-              // Load stamp image
-              let stampImageFile = null;
-              try {
-                const stampUrl = 'https://sps-jpnpahang.github.io/LSBMuridPahang/images/cop_jpnpahang.png';
-                const stampResp = await fetch(stampUrl);
-                const stampBlob = await stampResp.blob();
-                stampImageFile = new File([stampBlob], 'cop_jpnpahang.png', { type: 'image/png' });
-              } catch (e) {
-                console.log('Failed to load stamp, using text only:', e);
-              }
-
-              // Stamp each PDF
-              for (const fileInfo of filesToStamp) {
-                try {
-                  const urls = fileInfo.url.split(/\s*;\s*/).filter(Boolean);
-                  if (urls.length === 0) continue;
-                  const firstUrl = urls[0];
-
-                  const driveFile = await fetchDriveFileAsFile(firstUrl);
-                  
-                  const res = await annotatePdfAndUpload({
-                    requestId: id,
-                    fileBlobOrFile: driveFile,
-                    stampText: 'TELAH DISEMAK',
-                    stampImageFile: stampImageFile,
-                    sourceLabel: fileInfo.label
-                  });
-
-                  if (!res || !res.ok) {
-                    console.error('Failed to stamp:', fileInfo.label, res);
-                  }
-                } catch (err) {
-                  console.error('Error stamping:', fileInfo.label, err);
-                }
-              }
-
-              hideLoading();
-              await Swal.fire({
-                icon: 'success',
-                title: 'Cop Berjaya Ditambah',
-                text: `${filesToStamp.length} PDF telah dicop dan disimpan.`,
-                timer: 1500,
-                showConfirmButton: false
-              });
-            }
-          } catch (err) {
-            hideLoading();
-            console.error('Stamping error:', err);
-            await Swal.fire({
-              icon: 'error',
-              title: 'Ralat Cop',
-              text: 'Gagal tambah cop. Sistem akan teruskan tanpa cop.'
-            });
-          }
-        }
-
-        // Step 4: Send to backend
-        showLoading();
-        const ok = await sendOfficerAction(id, 'preapprove', composedNote, formValues.pic || 'Menengah', backendOptions);
-        hideLoading();
-
-        if (!ok) {
-          targetBtn.disabled = false;
-          targetBtn.textContent = origText;
-          return;
-        }
-
-        await Swal.fire({
-          icon: 'success',
-          title: 'Maklumat disimpan',
-          text: 'Permohonan telah dihantar ke Timbalan untuk tindakan.',
-          timer: 1400,
-          showConfirmButton: false
-        });
-
-        if (officerSecret) await loadRequests();
-        else renderTablesFromCache();
-
-      } catch (err) {
-        hideLoading();
-        console.error('Preapprove error:', err);
-        await Swal.fire({
-          icon: 'error',
-          title: 'Ralat',
-          text: err.message || String(err)
-        });
-      } finally {
-        targetBtn.disabled = false;
-        targetBtn.textContent = origText;
-      }
-    });
-  });
-}
-
-async function sendOfficerAction(id, type, note = '', pic = 'Menengah', options = {}) {
-  if (!officerSecret) {
-    return Swal.fire({ icon: 'warning', title: 'Sila log masuk sebagai Pegawai untuk tindakan ini.' });
-  }
-  showLoading();
-
-  let url = GAS_URL + '?action=officerAction' +
-            '&id=' + encodeURIComponent(id) +
-            '&type=' + encodeURIComponent(type) +
-            '&note=' + encodeURIComponent(note) +
-            '&pic=' + encodeURIComponent(pic) +
-            '&secret=' + encodeURIComponent(officerSecret);
-
-  if (options.letterJilid !== undefined && options.letterJilid !== null && String(options.letterJilid).length) {
-    url += '&letterJilid=' + encodeURIComponent(options.letterJilid);
-  }
-  if (options.letterNo !== undefined && options.letterNo !== null && String(options.letterNo).length) {
-    url += '&letterNo=' + encodeURIComponent(options.letterNo);
-  }
-  if (options.letterDate !== undefined && options.letterDate !== null && String(options.letterDate).length) {
-    url += '&letterDate=' + encodeURIComponent(options.letterDate);
-  }
-
-  try {
-    const r = await fetch(url);
-    const j = await r.json();
-    hideLoading();
-    if (!j || !j.ok) {
-      console.error('sendOfficerAction failed', j);
-      Swal.fire({ icon: 'error', title: 'Tindakan gagal', text: (j && j.message) ? j.message : 'Server returned error' });
-      return false;
-    }
-    return true;
-  } catch (err) {
-    hideLoading();
-    console.error('sendOfficerAction catch', err);
-    Swal.fire({ icon: 'error', title: 'Ralat Sambungan', text: String(err) });
-    return false;
-  }
-}
-
-$('loginDP').addEventListener('click', async ()=>{
-  const { value: pw } = await Swal.fire({
-    title: 'Kata Laluan Timbalan Pengarah',
-    input: 'password',
-    showCancelButton: true,
-    confirmButtonText: 'Log Masuk'
-  });
-  if (!pw) return;
-
-  try {
-    showLoading();
-    const res = await fetch(GAS_URL + '?action=checkSecret&secret=' + encodeURIComponent(pw));
-    const j = await res.json();
-    hideLoading();
-
-    if (j.ok) {
-      dpSecret = pw;
-
-      const btn = $('loginDP');
-      btn.textContent = 'Akses Dibenarkan';
-      btn.classList.remove('bg-blue-600');
-      btn.classList.add('bg-green-600','animate-gentle-pulse');
-      btn.disabled = true;
-
-      $('logoutDP').classList.remove('hidden');
-      $('dpLoggedAs').textContent = '(Sistem dalam mod sedia)';
-      $('dpLoggedAs').classList.add('text-green-600');
-
-      await Swal.fire({ icon:'success', title:'Selamat Datang Tuan Timbalan Pengarah', timer:1200, showConfirmButton:false });
-await loadDpList();
-    } else {
-      Swal.fire({ icon: 'error', title: 'Kata laluan salah' });
-    }
-  } catch (err) {
-    hideLoading();
-    Swal.fire({ icon: 'error', title: 'Ralat sambungan', text: err.message || '' });
-  }
-});
-
-$('logoutDP').addEventListener('click', async () => {
-  const ok = await Swal.fire({
-    title: 'Log Keluar?',
-    text: 'Adakah anda pasti mahu log keluar?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Ya, Log Keluar',
-    cancelButtonText: 'Batal'
-  });
-  if (!ok.isConfirmed) return;
-
-  dpSecret = null;
-
-  const btn = $('loginDP');
-  btn.textContent = 'Log masuk Timbalan';
-  btn.classList.remove('bg-green-600','animate-gentle-pulse');
-  btn.classList.add('bg-blue-600');
-  btn.disabled = false;
-
-  $('logoutDP').classList.add('hidden');
-  $('dpLoggedAs').textContent = '';
-
-  $('dpRequestsTable').innerHTML = `<p class="p-4 text-gray-500 italic">Sila log masuk Timbalan untuk melihat senarai permohonan.</p>`;
-
-  Swal.fire({ icon:'success', title:'Terima kasih Tuan Timbalan Pengarah', timer:1200, showConfirmButton:false });
-});
-
-async function loadDpList(){
-  if (!dpSecret) {
-    $('dpRequestsTable').innerHTML = `<p class="p-4 text-gray-500 italic">Sila log masuk Timbalan untuk melihat senarai permohonan.</p>`;
-    return;
-  }
-  try {
-    showLoading();
-    const res = await fetch(GAS_URL + '?action=listRequests&secret=' + encodeURIComponent(dpSecret));
-    const j = await res.json();
-    hideLoading();
-
-    if (!j.ok) {
-      $('dpRequestsTable').innerHTML = `<p class="p-4 text-red-500">${j.message||'Gagal'}</p>`;
-      return;
-    }
-
-    const requests = (j.requests || []).filter(req => {
-      const s = String(req['Status'] || '').toUpperCase();
-      return s.indexOf('PREAPPROVED') > -1 || s.indexOf('READY_FOR_DP') > -1 || s.indexOf('REVIEWED_FOR_TP') > -1;
-    });
-
-    if (requests.length === 0) {
-      $('dpRequestsTable').innerHTML = `<p class="p-4 text-gray-500 italic">Tiada permohonan menunggu kelulusan Timbalan.</p>`;
-      return;
-    }
-
-    const rows = [];
-    requests.forEach(req => {
-      const id = req['Request ID'] || '';
-      const kodSek = req['School Code'] || req['SchoolCode'] || req['schoolCode'] || '';
-      const school = req['School Name'] || req['SchoolName'] || req['schoolName'] || '';
-      const category = req['Category'] || req['category'] || '';
-
-      let lnRaw = req['LeaderNames'] || req['LeaderName'] || req['leaderNames'] || '';
-      let lpRaw = req['LeaderPhones'] || req['LeaderPhone'] || req['leaderPhones'] || '';
-      let lnArr = [], lpArr = [];
-      try {
-        if (typeof lnRaw === 'string' && lnRaw.trim().startsWith('[')) lnArr = JSON.parse(lnRaw);
-        else if (Array.isArray(lnRaw)) lnArr = lnRaw;
-        else if (lnRaw) lnArr = [lnRaw];
-      } catch(e){ lnArr = Array.isArray(lnRaw)? lnRaw: (lnRaw? [lnRaw]:[]); }
-      try {
-        if (typeof lpRaw === 'string' && lpRaw.trim().startsWith('[')) lpArr = JSON.parse(lpRaw);
-        else if (Array.isArray(lpRaw)) lpArr = lpArr;
-        else if (lpRaw) lpArr = [lpRaw];
-      } catch(e){ lpArr = Array.isArray(lpRaw)? lpRaw: (lpRaw? [lpRaw]:[]); }
-
-      const namaKetuaDisplay = lnArr.map(x=>String(x).trim()).filter(Boolean).join('<br/>');
-      const noTelDisplay = lpArr.map(x=>String(x).trim()).filter(Boolean).join('<br/>');
-
-      const travelStart = req['Travel Start'] || req['TravelStart'] || req['travelStart'] || '';
-      const status = req['Status'] || '';
-
-      const filePairs = [
-        {label:'KERTAS KERJA', raw: req['File_KERTAS_KERJA'] || req['kertasKerjaUrl'] || ''},
-        {label:'MAKLUMAT ANGGOTA', raw: req['File_MAKLUMAT_ANGGOTA'] || req['maklumatAnggotaUrl'] || ''},
-        {label:'PERMIT BAS', raw: req['File_PERMIT_BAS'] || req['permitBasUrl'] || ''},
-        {label:'LESEN PEMANDU', raw: req['File_LESEN_PEMANDU'] || req['lesenPemanduUrl'] || ''},
-        {label:'INTIPATI TAKLIMAT', raw: req['File_TAKLIMAT'] || req['taklimatUrl'] || ''}
-      ];
-
-      const filesHtml = filePairs.map(fp=>{
-        const urls = String(fp.raw||'').split(/\s*;\s*/).filter(Boolean);
-        if (urls.length === 0) return `<p><strong>${fp.label}:</strong> <em>Tiada fail</em></p>`;
-        const links = urls.map((u,i)=>`<div><a href="${u}" target="_blank" class="text-blue-600 hover:underline">Buka ${fp.label} ${urls.length>1?('('+(i+1)+')'):''}</a></div>`).join('');
-        return `<p><strong>${fp.label}:</strong><br/>${links}</p>`;
-      }).join('');
-
-      const actions = `<div class="flex gap-2">
-        <button data-id="${id}" class="dp-view-files px-2 py-1 border rounded text-xs hover:bg-gray-100">Lihat Fail</button>
-        <button data-id="${id}" class="dp-approve px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700">Lulus & Hantar Surat</button>
-      </div>`;
-
-      rows.push({
-        'Kod Sekolah': kodSek,
-        'Nama Sekolah': school,
-        'Nama Ketua': namaKetuaDisplay,
-        'No Tel Ketua': noTelDisplay,
-        'Kategori': category,
-        'Tarikh': fmtDateToDisplay(travelStart),
-        'Status': status,
-        'Tindakan': actions
-      });
-    });
-
-    const cols = ['Kod Sekolah','Nama Sekolah','Nama Ketua','No Tel Ketua','Kategori','Tarikh','Status','Tindakan'];
-    $('dpRequestsTable').innerHTML = '';
-    $('dpRequestsTable').appendChild(makeTable(rows, cols));
-
-    document.querySelectorAll('.dp-view-files').forEach(btn=>{
-      btn.addEventListener('click', async ev=>{
-        const id = ev.currentTarget.dataset.id;
-        const req = requests.find(r => String(r['Request ID']) === String(id));
-        if (!req) return Swal.fire({ icon:'error', title:'Tidak jumpa rekod' });
-
-        const filePairs = [
-          {label:'KERTAS KERJA', raw: req['File_KERTAS_KERJA'] || req['kertasKerjaUrl'] || ''},
-          {label:'MAKLUMAT ANGGOTA', raw: req['File_MAKLUMAT_ANGGOTA'] || req['maklumatAnggotaUrl'] || ''},
-          {label:'PERMIT BAS', raw: req['File_PERMIT_BAS'] || req['permitBasUrl'] || ''},
-          {label:'LESEN PEMANDU', raw: req['File_LESEN_PEMANDU'] || req['lesenPemanduUrl'] || ''},
-          {label:'INTIPATI TAKLIMAT', raw: req['File_TAKLIMAT'] || req['taklimatUrl'] || ''}
-        ];
-
-        const html = filePairs.map(fp=>{
-          const urls = String(fp.raw||'').split(/\s*;\s*/).filter(Boolean);
-          if (urls.length === 0) return `<p><strong>${fp.label}:</strong> <em>Tiada fail</em></p>`;
-          const links = urls.map((u,i)=>`<div><a href="${u}" target="_blank" class="text-blue-600 hover:underline">Buka ${fp.label} ${urls.length>1?('('+(i+1)+')'):''}</a></div>`).join('');
-          return `<p><strong>${fp.label}:</strong><br/>${links}</p>`;
-        }).join('');
-
-        await Swal.fire({ title: 'Fail Permohonan', html, width: 800, showCloseButton: true, confirmButtonText: 'Tutup' });
-      });
-    });
-
-    document.querySelectorAll('.dp-approve').forEach(btn=>{
-  btn.addEventListener('click', async ev=>{
-    const id = ev.currentTarget.dataset.id;
-    const req = requests.find(r => String(r['Request ID']) === String(id));
-    if (!req) return Swal.fire({ icon:'error', title:'Tidak jumpa rekod' });
-
-    // TAMBAHAN BARU - Disable button
-    const targetBtn = ev.currentTarget;
-    targetBtn.disabled = true;
-    const originalText = targetBtn.textContent;
-    targetBtn.textContent = 'Memproses...';
-
-    const confirm = await Swal.fire({
-      title: 'Luluskan permohonan ini?',
-          text: `${req['School Name']||''} — Tarikh ${fmtDateToDisplay(req['Travel Start']||'')}`,
-          icon: 'question',
-          showCancelButton: true,
-          confirmButtonText: 'Ya, Luluskan & Jana Surat',
-          cancelButtonText: 'Batal'
-        });
-        if (!confirm.isConfirmed) return;
-
-        showLoading();
-try {
-  // TAMBAHAN BARU - Retry logic
-  let res, j;
-  let retryCount = 0;
-  
-  while (retryCount < 3) {
-    res = await fetch(GAS_URL + '?action=dpApprove&id=' + encodeURIComponent(id) + '&secret=' + encodeURIComponent(dpSecret));
-    
-    if (res.status === 429) {
-      retryCount++;
-      if (retryCount >= 3) {
-        throw new Error('Terlalu banyak permintaan. Sila tunggu 1 minit dan cuba lagi.');
-      }
-      hideLoading();
-      await Swal.fire({icon:'warning', title:'Sila tunggu...', text:'Cuba semula dalam ' + (retryCount * 2) + ' saat', timer:2000, showConfirmButton:false});
-      await delay(retryCount * 2000);
-      showLoading();
-      continue;
-    }
-    
-    break;
-  }
-  
-  j = await res.json();
-  hideLoading();
-
-          if (j.ok) {
-            await Swal.fire({ icon:'success', title:'Permohonan diluluskan!', text:'Surat telah dijana dan dihantar kepada sekolah.', timer:2000 });
-            await loadDpList();
-          } else {
-            Swal.fire({ icon:'error', title:'Gagal', text: j.message || j.error || 'Ralat tidak diketahui' });
-          }
-        } catch (err) {
-      hideLoading();
-      Swal.fire({ icon:'error', title:'Ralat', text: err.message || String(err) });
-    } finally {
-      // TAMBAHAN BARU - Enable balik button
-      targetBtn.disabled = false;
-      targetBtn.textContent = originalText;
-    }
-  });
-});
-
-  } catch (err) {
-    hideLoading();
-    $('dpRequestsTable').innerHTML = `<p class="p-4 text-red-500">Ralat: ${err.message||''}</p>`;
-  }
-}
-
-
-// Gantikan seluruh handler sedia ada untuk sendQueryResponseBtn dengan kod ini
-$('sendQueryResponseBtn').addEventListener('click', async () => {
-  const btn = $('sendQueryResponseBtn');
-  const origText = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = 'Menghantar...';
-
-  const queryId = ($('respQueryId').value || '').trim();
-  const email = ($('respSchoolEmail').value || '').trim();
-
-  if (!queryId) {
-    await Swal.fire({ icon: 'warning', title: 'Query ID diperlukan' });
-    btn.disabled = false;
-    btn.textContent = origText;
-    return;
-  }
-  if (!email) {
-    await Swal.fire({ icon: 'warning', title: 'Email sekolah diperlukan' });
-    btn.disabled = false;
-    btn.textContent = origText;
-    return;
-  }
-
-  // Sediakan files
-  const fileMap = {
-    kertasKerja: $('resp_file_kertasKerja') ? $('resp_file_kertasKerja').files[0] : null,
-    maklumatAnggota: $('resp_file_maklumatAnggota') ? $('resp_file_maklumatAnggota').files[0] : null,
-    permitBas: $('resp_file_permitBas') ? $('resp_file_permitBas').files[0] : null,
-    lesenPemandu: $('resp_file_lesenPemandu') ? $('resp_file_lesenPemandu').files[0] : null,
-    taklimat: $('resp_file_taklimat') ? $('resp_file_taklimat').files[0] : null
-  };
-
-  // Pastikan ada sekurang-kurangnya satu fail
-  let anyFile = false;
-  for (const k in fileMap) {
-    if (fileMap[k]) {
-      anyFile = true;
-      const validation = validateFile(fileMap[k]);
-      if (!validation.ok) {
-        await Swal.fire({ icon: 'error', title: 'Fail tidak sah', text: validation.message });
-        btn.disabled = false;
-        btn.textContent = origText;
-        return;
-      }
-    }
-  }
-  if (!anyFile) {
-    await Swal.fire({ icon: 'warning', title: 'Tiada fail', text: 'Sila pilih sekurang-kurangnya satu fail PDF untuk muat naik.' });
-    btn.disabled = false;
-    btn.textContent = origText;
-    return;
-  }
-
-  showLoading();
-  try {
-    // Tengok: bina filesBase64 sama cara seperti permohonan baru
-    const filesBase64 = {};
-    for (const k in fileMap) {
-      if (fileMap[k]) {
-        // fileToBase64 helper ada dalam skrip anda
-        filesBase64[k] = await fileToBase64(fileMap[k]);
-      }
-    }
-
-    // Pastikan values yang dihantar memang wujud dan string
-    const payloadForGAS = {
-      type: 'queryResponse',
-      payload: {
-        queryId: String(queryId),
-        schoolEmail: String(email)
-      },
-      filesBase64: filesBase64
-    };
-
-    // Hantar tanpa custom headers supaya request dikira "simple" (elak preflight)
-    const response = await fetch(GAS_URL, {
-      method: 'POST',
-      body: JSON.stringify(payloadForGAS) // penting: jangan set Content-Type
-    });
-
-    // Cuba parse JSON
-    let j;
-    try {
-      j = await response.json();
-    } catch (jsonErr) {
-      const txt = await response.text().catch(() => '[no body]');
-      console.error('Invalid JSON response from GAS (queryResponse):', jsonErr, txt);
-      throw new Error('Server returned invalid response: ' + txt);
-    }
-
-    if (j && j.ok) {
-      await Swal.fire({ icon: 'success', title: 'Respon query berjaya dihantar', text: j.message || '' });
-
-      // reset borang respon query (kosongkan input dan file inputs)
-      $('respQueryId').value = '';
-      $('respSchoolEmail').value = '';
-      // clear file inputs if exist
-      ['resp_file_kertasKerja','resp_file_maklumatAnggota','resp_file_permitBas','resp_file_lesenPemandu','resp_file_taklimat'].forEach(id=>{
-        const el = $(id);
-        if (el) {
-          try { el.value = ''; } catch(e){ /* ignore in some browsers */ }
-        }
-      });
-
-      // optionally refresh officer view if logged in
-      if (officerSecret) {
-        try { await loadRequests(); } catch(e){ /* ignore */ }
-      }
-    } else {
-      console.warn('GAS returned failure for queryResponse', j);
-      throw new Error((j && j.message) ? j.message : 'Gagal hantar respon query');
-    }
-  } catch (err) {
-    console.error('queryResponse error:', err);
-    await Swal.fire({ icon: 'error', title: 'Gagal hantar respon', text: String(err.message || err) });
-  } finally {
-    hideLoading();
-    btn.disabled = false;
-    btn.textContent = origText;
-  }
-});
-
-(function setupMobileMenu(){
-  const sidebar = document.querySelector('.sidebar');
-  const menuToggle = $('menuToggle');
-  const closeSidebar = $('closeSidebar');
-
-  if (!sidebar || !menuToggle || !closeSidebar) return;
-
-  menuToggle.addEventListener('click', () => {
-    sidebar.classList.remove('hidden');
-    sidebar.classList.add('fixed','z-40','bg-gray-900','text-white','w-64','h-screen','p-6');
-    closeSidebar.classList.remove('hidden');
-  });
-
-  closeSidebar.addEventListener('click', () => {
-    sidebar.classList.add('hidden');
-    closeSidebar.classList.add('hidden');
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!sidebar.contains(e.target) && !menuToggle.contains(e.target) && window.innerWidth < 768) {
-      sidebar.classList.add('hidden');
-      closeSidebar.classList.add('hidden');
-    }
-  });
-})();
-
-(function setupDownloads(){
-  document.addEventListener('click', function(e){
-    const btn = e.target.closest && e.target.closest('#downloadsSection .download-btn');
-    if (!btn) return;
-
-    const url = btn.getAttribute('data-link') || btn.dataset.link || '#';
-    if (!url || url === '#') {
-      Swal.fire({ icon:'info', title:'Tiada fail', text:'Link muat turun belum dikonfigurasikan.' });
-      return;
-    }
-
-    window.open(url, '_blank', 'noopener,noreferrer');
-  });
-})();
-
-(function setupFilesModal(){
-  const modal = $('filesModal');
-  if (!modal) return;
-
-  const closeBtn1 = $('filesModalClose');
-  const closeBtn2 = $('filesModalClose2');
-
-  function closeModal(){
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-  }
-
-  if (closeBtn1) closeBtn1.addEventListener('click', closeModal);
-  if (closeBtn2) closeBtn2.addEventListener('click', closeModal);
-
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-  });
-})();
-// ==================== STATUS CHECK FUNCTIONALITY ====================
-
-$('checkStatusBtn').addEventListener('click', async () => {
-  const schoolCode = $('statusSchoolCode').value.trim().toUpperCase();
-  
-  if (!schoolCode) {
-    return Swal.fire({
-      icon: 'warning',
-      title: 'Kod Sekolah Diperlukan',
-      text: 'Sila masukkan kod sekolah anda.'
-    });
-  }
-  
-  const btn = $('checkStatusBtn');
-  const originalText = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = '⏳ Mencari...';
-  
-  showLoading();
-  
-  try {
-    const res = await fetch(GAS_URL + '?action=checkStatus&schoolCode=' + encodeURIComponent(schoolCode));
-    const json = await res.json();
-    
-    hideLoading();
-    
-    if (!json.ok) {
-      $('statusResults').innerHTML = `
-        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
-          <div class="flex">
-            <div class="flex-shrink-0">
-              <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-              </svg>
-            </div>
-            <div class="ml-3">
-              <p class="text-sm text-yellow-700 font-medium">
-                ${json.message || 'Tiada permohonan dijumpai untuk kod sekolah ini.'}
-              </p>
-            </div>
-          </div>
-        </div>
-      `;
-      // ✨ TAMBAHAN BARU - Clear input after search
-      $('statusSchoolCode').value = '';
-      
-      return;
-    }
-    
-    // Display results
-    renderStatusResults(json.applications || []);
-      // ✨ TAMBAHAN BARU - Clear input after successful search
-    $('statusSchoolCode').value = '';
-    
-  } catch (err) {
-    hideLoading();
-    Swal.fire({
-      icon: 'error',
-      title: 'Ralat Sambungan',
-      text: 'Tidak dapat menyambung ke pelayan. Sila cuba sebentar lagi.'
-    });
-    console.error('Status check error:', err);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = originalText;
-  }
-});
-
-// Enter key support
-$('statusSchoolCode').addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    $('checkStatusBtn').click();
-  }
-});
-
-function renderStatusResults(applications) {
-  const container = $('statusResults');
-  
-  if (!applications || applications.length === 0) {
-    container.innerHTML = `
-      <div class="text-center py-8 text-gray-500">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        <p class="mt-2 font-medium">Tiada permohonan dijumpai</p>
-      </div>
-    `;
-    return;
-  }
-  
-  // Sort by submission date (newest first)
-  applications.sort((a, b) => {
-    const dateA = new Date(a.submittedAt || 0);
-    const dateB = new Date(b.submittedAt || 0);
-    return dateB - dateA;
-  });
-  
-  const cards = applications.map(app => createStatusCard(app)).join('');
-  container.innerHTML = `
-    <div class="mb-4">
-      <h3 class="text-lg font-semibold text-gray-700">
-        📋 Dijumpai ${applications.length} permohonan
-      </h3>
-    </div>
-    ${cards}
-  `;
-}
-
-function createStatusCard(app) {
-  const statusConfig = getStatusConfig(app.status);
-  const requestId = app.requestId || app['Request ID'] || '';
-  const schoolName = app.schoolName || app['School Name'] || '';
-  const submittedAt = fmtDateToDisplay(app.submittedAt || app['Submission Time'] || '');
-  const travelStart = fmtDateToDisplay(app.travelStart || app['Travel Start'] || '');
-  const travelEnd = fmtDateToDisplay(app.travelEnd || app['Travel End'] || '');
-  const placeVisit = app.placeVisit || app['PlaceVisit'] || '';
-  const participantCount = app.participantCount || app['ParticipantCount'] || '';
-  const vehicleCount = app.vehicleCount || app['VehicleCount'] || '';
-  
-  // Extract officer notes
-  const officerNote = app.queryNote || app.officerNote || app['OfficerNote'] || '';
-  
-  // Query info section - ENHANCED VERSION
-  let querySection = '';
-  if (app.queryId) {
-    const queryDate = fmtDateToDisplay(app.querySentDate || app['QuerySentDate'] || '');
-    const respondDate = app.queryRespondDate || app['QueryRespondDate'] || '';
-    const hasResponded = respondDate || String(app.status || '').toUpperCase().includes('RESPONDED');
-    
-    // Calculate deadline (7 days from query)
-    let deadlineText = '';
-    let isOverdue = false;
-    let daysRemaining = 0;
-    
-    if (app.querySentDate && !hasResponded) {
-      try {
-        const qDate = new Date(app.querySentDate);
-        if (!isNaN(qDate.getTime())) {
-          const deadline = new Date(qDate.getTime() + 7 * 24 * 60 * 60 * 1000);
-          deadlineText = fmtDateToDisplay(deadline);
-          
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          deadline.setHours(0, 0, 0, 0);
-          
-          const timeDiff = deadline - today;
-          daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-          isOverdue = daysRemaining < 0;
-        }
-      } catch (e) {
-        console.error('Date calculation error:', e);
-      }
-    }
-    
-    querySection = `
-      <!-- ========== QUERY SECTION ========== -->
-      <div class="mt-0 pt-5 border-t-4 ${hasResponded ? 'border-purple-400 bg-gradient-to-br from-purple-50 to-purple-100' : (isOverdue ? 'border-red-500 bg-gradient-to-br from-red-50 to-red-100' : 'border-yellow-400 bg-gradient-to-br from-yellow-50 to-yellow-100')} -mx-5 px-5 -mb-5 pb-5 rounded-b-lg">
-        
-        <!-- Query Status Header -->
-        <div class="flex items-center gap-3 mb-4">
-          <div class="flex-shrink-0 w-12 h-12 ${hasResponded ? 'bg-purple-500' : (isOverdue ? 'bg-red-600' : 'bg-yellow-500')} rounded-full flex items-center justify-center shadow-lg">
-            <svg class="h-7 w-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-              ${hasResponded ? 
-                '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>' :
-                '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>'
-              }
-            </svg>
-          </div>
-          <div class="flex-1">
-            <h3 class="text-lg font-bold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')} leading-tight">
-              ${hasResponded ? '✅ Query Telah Dijawab' : (isOverdue ? '⚠️ OVERDUE - Permohonan Mungkin Terbatal' : '❓ Maklumat Tambahan Diperlukan')}
-            </h3>
-            <p class="text-xs ${hasResponded ? 'text-purple-700' : (isOverdue ? 'text-red-700' : 'text-yellow-700')} mt-0.5">
-              ${hasResponded ? 'Respon telah diterima dan sedang disemak' : (isOverdue ? `Lewat ${Math.abs(daysRemaining)} hari dari tarikh tamat` : `Tindakan diperlukan dalam ${daysRemaining} hari`)}
-            </p>
-          </div>
-        </div>
-
-        <!-- Query ID Badge - PROMINENT -->
-        <div class="mb-4 p-4 ${hasResponded ? 'bg-purple-100 border-purple-300' : (isOverdue ? 'bg-red-100 border-red-300' : 'bg-yellow-100 border-yellow-300')} border-2 rounded-xl shadow-sm">
-          <div class="flex items-center gap-3">
-            <svg class="h-6 w-6 ${hasResponded ? 'text-purple-600' : (isOverdue ? 'text-red-600' : 'text-yellow-600')}" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
-            </svg>
-            <div class="flex-1">
-              <p class="text-xs ${hasResponded ? 'text-purple-700' : (isOverdue ? 'text-red-700' : 'text-yellow-700')} font-semibold mb-1">🔖 NOMBOR QUERY</p>
-              <code class="text-base font-bold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')} font-mono tracking-wide">${app.queryId}</code>
-            </div>
-          </div>
-        </div>
-
-        <!-- Officer Notes - PROMINENT BOX -->
-        ${officerNote ? `
-          <div class="mb-4 p-4 bg-white border-2 ${hasResponded ? 'border-purple-200' : (isOverdue ? 'border-red-200' : 'border-yellow-200')} rounded-xl shadow-sm">
-            <div class="flex items-start gap-3">
-              <div class="flex-shrink-0 w-8 h-8 ${hasResponded ? 'bg-purple-100' : (isOverdue ? 'bg-red-100' : 'bg-yellow-100')} rounded-lg flex items-center justify-center">
-                <svg class="h-5 w-5 ${hasResponded ? 'text-purple-600' : (isOverdue ? 'text-red-600' : 'text-yellow-600')}" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-                </svg>
-              </div>
-              <div class="flex-1">
-                <p class="text-sm font-bold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')} mb-2">📝 CATATAN PEGAWAI</p>
-                <p class="text-sm ${hasResponded ? 'text-purple-800' : (isOverdue ? 'text-red-800' : 'text-yellow-800')} leading-relaxed whitespace-pre-wrap bg-gray-50 p-3 rounded-lg border ${hasResponded ? 'border-purple-100' : (isOverdue ? 'border-red-100' : 'border-yellow-100')}">${officerNote}</p>
-              </div>
-            </div>
-          </div>
-        ` : ''}
-
-        <!-- Timeline Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-          <!-- Query Date -->
-          <div class="bg-white p-3 rounded-lg border-2 ${hasResponded ? 'border-purple-200' : (isOverdue ? 'border-red-200' : 'border-yellow-200')} shadow-sm">
-            <div class="flex items-center gap-2 mb-1">
-              <svg class="h-4 w-4 ${hasResponded ? 'text-purple-600' : (isOverdue ? 'text-red-600' : 'text-yellow-600')}" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-              </svg>
-              <span class="text-xs font-semibold ${hasResponded ? 'text-purple-700' : (isOverdue ? 'text-red-700' : 'text-yellow-700')} uppercase">Tarikh Query</span>
-            </div>
-            <p class="text-sm font-bold ${hasResponded ? 'text-purple-900' : (isOverdue ? 'text-red-900' : 'text-yellow-900')}">${queryDate || 'Tidak diketahui'}</p>
-          </div>
-
-          <!-- Deadline -->
-          ${!hasResponded && deadlineText ? `
-            <div class="bg-white p-3 rounded-lg border-2 ${isOverdue ? 'border-red-400' : 'border-yellow-200'} shadow-sm ${isOverdue ? 'ring-2 ring-red-300' : ''}">
-              <div class="flex items-center gap-2 mb-1">
-                <svg class="h-4 w-4 ${isOverdue ? 'text-red-600' : 'text-yellow-600'}" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                </svg>
-                <span class="text-xs font-semibold ${isOverdue ? 'text-red-700' : 'text-yellow-700'} uppercase">Tarikh Tamat</span>
-              </div>
-              <p class="text-sm font-bold ${isOverdue ? 'text-red-900' : 'text-yellow-900'}">${deadlineText}</p>
-              ${isOverdue ? '<span class="text-xs text-red-700 font-semibold">⚠️ LEWAT</span>' : `<span class="text-xs text-yellow-700">${daysRemaining} hari lagi</span>`}
-            </div>
-          ` : ''}
-
-          <!-- Response Date -->
-          ${hasResponded ? `
-            <div class="bg-white p-3 rounded-lg border-2 border-purple-200 shadow-sm">
-              <div class="flex items-center gap-2 mb-1">
-                <svg class="h-4 w-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-                <span class="text-xs font-semibold text-purple-700 uppercase">Tarikh Respon</span>
-              </div>
-              <p class="text-sm font-bold text-purple-900">${fmtDateToDisplay(respondDate)}</p>
-              <span class="text-xs text-purple-700">✓ Dijawab</span>
-            </div>
-          ` : ''}
-        </div>
-
-        <!-- Overdue Warning -->
-        ${!hasResponded && isOverdue ? `
-          <div class="mb-4 p-4 bg-red-600 border-2 border-red-700 rounded-xl shadow-lg">
-            <div class="flex items-start gap-3">
-              <svg class="h-6 w-6 text-white flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-              </svg>
-              <div class="flex-1 text-white">
-                <p class="font-bold text-base mb-2">⚠️ AMARAN KRITIKAL: Permohonan Mungkin Terbatal</p>
-                <ul class="text-sm space-y-1 list-disc list-inside">
-                  <li>Tarikh tamat telah <strong>lewat ${Math.abs(daysRemaining)} hari</strong></li>
-                  <li>Permohonan anda berkemungkinan <strong>TELAH DIBATALKAN</strong></li>
-                  <li>Sila hubungi pegawai <strong>SEGERA</strong> untuk pengesahan</li>
-                  <li>Jika terbatal, anda perlu <strong>MOHON SEMULA</strong></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        ` : ''}
-
-        <!-- Action Required -->
-        ${!hasResponded && !isOverdue ? `
-          <div class="mb-4 p-4 bg-orange-50 border-2 border-orange-300 rounded-xl">
-            <div class="flex items-start gap-3">
-              <svg class="h-6 w-6 text-orange-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-              </svg>
-              <div class="flex-1">
-                <p class="font-bold text-orange-900 mb-2">⏰ TINDAKAN SEGERA DIPERLUKAN</p>
-                <ul class="text-sm text-orange-800 space-y-1 list-disc list-inside">
-                  <li>Anda mesti hantar respon dalam <strong>${daysRemaining} hari</strong> dari hari ini</li>
-                  <li>Tarikh tamat: <strong>${deadlineText}</strong></li>
-                  <li>Kegagalan akan menyebabkan permohonan <strong>DIBATALKAN</strong></li>
-                  <li>Permohonan yang terbatal perlu <strong>MOHON SEMULA</strong></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        ` : ''}
-
-        <!-- Email Reminder Notice -->
-        ${!hasResponded ? `
-          <div class="mb-4 p-3 bg-blue-50 border-2 border-blue-300 rounded-lg">
-            <div class="flex items-start gap-2">
-              <svg class="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
-              </svg>
-              <div class="flex-1">
-                <p class="text-xs font-bold text-blue-900 mb-1">📧 EMAIL REMINDER</p>
-                <p class="text-xs text-blue-800">Email query telah dihantar ke alamat e-mel yang didaftarkan. <strong>Sila semak folder SPAM/JUNK</strong> jika tidak menerima email.</p>
-              </div>
-            </div>
-          </div>
-        ` : ''}
-
-        <!-- Success Message -->
-        ${hasResponded ? `
-          <div class="p-4 bg-purple-100 border-2 border-purple-300 rounded-xl">
-            <div class="flex items-start gap-3">
-              <svg class="h-6 w-6 text-purple-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-              </svg>
-              <div class="flex-1">
-                <p class="font-bold text-purple-900 mb-1">✓ RESPON TELAH DITERIMA</p>
-                <p class="text-sm text-purple-800">Respon query anda telah diterima pada <strong>${fmtDateToDisplay(respondDate)}</strong> dan sedang disemak oleh pegawai. Terima kasih atas kerjasama anda.</p>
-              </div>
-            </div>
-          </div>
-        ` : `
-          <!-- Action Button -->
-          <button 
-            onclick="goToQueryResponse('${app.queryId}')" 
-            class="w-full flex items-center justify-center gap-3 px-6 py-4 ${isOverdue ? 'bg-red-600 hover:bg-red-700' : 'bg-yellow-600 hover:bg-yellow-700'} text-white text-base font-bold rounded-xl transition shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-          >
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-            </svg>
-            ${isOverdue ? 'HANTAR RESPON SEKARANG (LEWAT TARIKH)' : 'HANTAR RESPON QUERY SEKARANG'}
+      <div class="space-y-4">
+
+        <!-- PERMOHONAN BARU -->
+        <div class="border rounded">
+          <button
+            type="button"
+            data-target="tableNew"
+            class="collapse-header w-full flex justify-between items-center bg-blue-50 px-4 py-3 font-semibold">
+            <span>📋 Permohonan Baru (<span id="countNew">0</span>)</span>
+            <span class="arrow">▼</span>
           </button>
-        `}
+          <div id="tableNew" class="overflow-x-auto"></div>
+        </div>
+
+        <!-- PERMOHONAN QUERY -->
+        <div class="border rounded">
+          <button
+            type="button"
+            data-target="tableQuery"
+            class="collapse-header w-full flex justify-between items-center bg-yellow-50 px-4 py-3 font-semibold">
+            <span>💬 Permohonan Query (<span id="countQuery">0</span>)</span>
+            <span class="arrow">▶</span>
+          </button>
+          <div id="tableQuery" class="overflow-x-auto hidden"></div>
+        </div>
+
+        <!-- PERMOHONAN DILULUSKAN -->
+        <div class="border rounded">
+          <button
+            type="button"
+            data-target="tableApproved"
+            class="collapse-header w-full flex justify-between items-center bg-green-50 px-4 py-3 font-semibold">
+            <span>✅ Permohonan Diluluskan (<span id="countApproved">0</span>)</span>
+            <span class="arrow">▶</span>
+          </button>
+          <div id="tableApproved" class="overflow-x-auto hidden"></div>
+        </div>
+
       </div>
-    `;
-  }
-  
-  // Officer notes for non-query applications
-  let notesSection = '';
-  if (!app.queryId && officerNote && officerNote.trim()) {
-    notesSection = `
-      <div class="mt-4 pt-4 border-t-2 border-blue-200 bg-blue-50 -mx-5 px-5 pb-4 ${!app.letters || app.letters.length === 0 ? '-mb-5 rounded-b-lg' : ''}">
-        <div class="flex items-start gap-3">
-          <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-            <svg class="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-            </svg>
-          </div>
-          <div class="flex-1">
-            <p class="text-sm font-bold text-blue-900 mb-2">💬 NOTA PEGAWAI</p>
-            <p class="text-sm text-blue-800 leading-relaxed whitespace-pre-wrap bg-white p-3 rounded-lg border border-blue-200">${officerNote}</p>
+
+      </section>
+
+      <!-- PPD SECTION -->
+      <section id="ppdSection" class="hidden bg-white p-6 rounded shadow">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="section-title mb-0">Panel PPD <span id="ppdLoggedAs" class="text-sm"></span></h2>
+          <div class="flex gap-2">
+            <button id="logoutPPD" class="btn-logout hidden-inline">🚪 Log Out</button>
+            <button id="refreshPPD" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">🔄 Refresh</button>
+            <button id="loginPPD" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">LOGIN PPD</button>
           </div>
         </div>
-      </div>
-    `;
-  }
-  
-  // Letter section
-  let letterSection = '';
-  if (app.letters && app.letters.length > 0) {
-    const links = app.letters.map((url, i) => 
-      `<a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition shadow-md hover:shadow-lg transform hover:-translate-y-1 text-sm font-bold">
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        MUAT TURUN SURAT ${app.letters.length > 1 ? (i + 1) : 'KELULUSAN'}
-      </a>`
-    ).join(' ');
+        
+        <div class="space-y-4">
+
+          <div class="border rounded">
+            <button type="button"
+              class="w-full text-left font-bold text-lg p-3 bg-blue-50 flex justify-between items-center"
+              onclick="toggleSection('ppdNew')">
+              📋 Permohonan Baru
+              <span>▾</span>
+            </button>
+            <div id="ppdNew" class="p-2">
+              <div id="ppdNewTable" class="overflow-x-auto"></div>
+            </div>
+          </div>
+
+          <div class="border rounded">
+            <button type="button"
+              class="w-full text-left font-bold text-lg p-3 bg-green-50 flex justify-between items-center"
+              onclick="toggleSection('ppdReviewed')">
+              ✅ Permohonan Disemak / Diluluskan
+              <span>▸</span>
+            </button>
+            <div id="ppdReviewed" class="p-2 hidden">
+              <div id="ppdReviewedTable" class="overflow-x-auto"></div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- DEPUTY SECTION -->
+      <section id="deputySection" class="hidden bg-white p-6 rounded shadow">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="section-title mb-0">Panel Timbalan Pengarah <span id="dpLoggedAs" class="text-sm"></span></h2>
+          <div class="flex gap-2">
+            <button id="bulkApproveBtn" class="hidden px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">📦 Bulk Approve</button>
+            <button id="logoutDP" class="hidden btn-logout">🚪 Log Out</button>
+            <button id="loginDP" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Log masuk Timbalan</button>
+          </div>
+        </div>
+        
+        <div>
+          <h3 class="font-bold text-lg mb-2 bg-yellow-50 p-2 rounded">⏳ Menunggu Kelulusan</h3>
+          <div id="dpRequestsTable" class="overflow-x-auto"></div>
+        </div>
+      </section>
+  <!-- STATUS SECTION -->
+      <section id="statusSection" class="hidden bg-white p-6 rounded shadow">
+        <h2 class="section-title">Semak Status Permohonan</h2>
+        
+        <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded">
+          <p class="text-sm text-blue-800">
+            <strong>ℹ️ Arahan:</strong> Masukkan Nombor Rujukan (Request ID) dan Kod Sekolah yang digunakan semasa menghantar permohonan untuk menyemak status terkini.
+          </p>
+        </div>
+        
+        <div class="space-y-4 max-w-2xl">
+          <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+            <p class="text-sm text-blue-800">Masukkan <strong>salah satu</strong> sahaja - Kod Sekolah ATAU Request ID</p>
+          </div>
+          
+          <div>
+            <label class="block font-semibold mb-1">
+              Kod Sekolah / Request ID
+            </label>
+            <input
+              id="statusInput"
+              type="text"
+              class="w-full border p-2 rounded"
+              placeholder="Contoh: TCF0840 atau REQ-1765262147521"
+            >
+          </div>
+
+          
+          <button id="checkStatusBtn" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">🔍 Semak Status</button>
+        </div>
+        <div id="statusResult" class="mt-8 hidden"></div>
+
+      </section>
+
+      <!-- DOWNLOADS SECTION -->
+      <section id="downloadsSection" class="hidden bg-white p-6 rounded shadow">
+        <h2 class="section-title">Muat Turun Template</h2>
+        
+        <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded">
+          <p class="text-sm text-green-800">
+            <strong>💡 Petua:</strong> Muat turun template di bawah untuk memudahkan penyediaan dokumen permohonan anda.
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 xl-cards-gap">
+            <div class="download-card">
+              <div>
+                <div class="download-title">📄 TEMPLATE SURAT</div>
+                <div class="download-desc">Template surat permohonan kelulusan kutipan lawatan</div>
+              </div>
+              <div class="download-actions">
+                <button id="downloadKK" class="download-btn download-btn-primary">Lihat Template</button>
+              </div>
+            </div>
+
+            <div class="download-card">
+              <div>
+                <div class="download-title">📝 LAMPIRAN A</div>
+                <div class="download-desc">LAMPIRAN A – SPI Bil.9 Tahun 2023</div>
+              </div>
+              <div class="download-actions">
+                <button id="downloadMA" class="download-btn download-btn-primary">Lihat Fail</button>
+              </div>
+            </div>
+
+            <div class="download-card">
+              <div>
+                <div class="download-title">📜 SPI KPM 9/2023</div>
+                <div class="download-desc">Garis Panduan Lawatan Murid</div>
+              </div>
+              <div class="download-actions">
+                <button id="downloadIT" class="download-btn download-btn-primary">Lihat SPI</button>
+              </div>
+            </div>
+
+            <div class="download-card">
+              <div>
+                <div class="download-title">📜 SPI KPM 3/2019</div>
+                <div class="download-desc">SOP Penggunaan Kenderaan Sendiri</div>
+              </div>
+              <div class="download-actions">
+                <button id="downloadAA" class="download-btn download-btn-primary">Lihat SPI</button>
+              </div>
+            </div>
+
+            <div class="download-card">
+              <div>
+                <div class="download-title">📜 SPK 1/2021</div>
+                <div class="download-desc">Lampiran 7 – Kertas Cadangan</div>
+              </div>
+              <div class="download-actions">
+                <button id="downloadBB" class="download-btn download-btn-primary">Lihat SPK</button>
+              </div>
+            </div>
+
+            <div class="download-card">
+              <div>
+                <div class="download-title">📋 SENARAI SEMAK</div>
+                <div class="download-desc">Senarai semak lawatan terkini (2025)</div>
+              </div>
+              <div class="download-actions">
+                <button id="downloadCC" class="download-btn download-btn-primary">Lihat Fail</button>
+              </div>
+            </div>
+
+          </div>
+
+
+      </section>
+    </main>
+  </div>
     
-    letterSection = `
-      <div class="mt-4 pt-5 border-t-4 border-green-400 bg-gradient-to-br from-green-50 to-green-100 -mx-5 px-5 -mb-5 pb-5 rounded-b-lg">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="flex-shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
-            <svg class="h-7 w-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
-          </div>
-          <div class="flex-1">
-            <h3 class="text-lg font-bold text-green-900 leading-tight">✅ Surat Kelulusan Tersedia</h3>
-            <p class="text-xs text-green-700 mt-0.5">Permohonan anda telah diluluskan oleh Timbalan Pengarah</p>
-          </div>
-        </div>
-        <div class="flex flex-wrap gap-3">
-          ${links}
-        </div>
-      </div>
-    `;
-  }
-  
-  return `
-    <div class="border-l-4 ${statusConfig.borderColor} bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 p-5 mb-5">
-      <!-- Header -->
-      <div class="flex items-start justify-between mb-5 pb-4 border-b-2 border-gray-100">
-        <div class="flex-1">
-          <h4 class="font-bold text-gray-900 text-xl mb-2">${schoolName}</h4>
-          <p class="text-sm text-gray-600 flex items-center gap-2">
-            <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
-            </svg>
-            <span>ID: <code class="bg-gray-100 px-2 py-1 rounded text-xs font-mono font-semibold">${requestId}</code></span>
-          </p>
-        </div>
-        <span class="${statusConfig.badgeClass} px-4 py-2 rounded-full text-xs font-bold shadow-md uppercase tracking-wide">
-          ${statusConfig.icon} ${statusConfig.label}
-        </span>
-      </div>
-      
-      <!-- Info Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-        <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
-          <p class="text-xs font-semibold text-gray-600 mb-1 flex items-center gap-1">
-            <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-            </svg>
-            TARIKH HANTAR
-          </p>
-          <p class="font-bold text-gray-900">${submittedAt}</p>
-        </div>
-        <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
-          <p class="text-xs font-semibold text-gray-600 mb-1 flex items-center gap-1">
-            <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
-            </svg>
-            TARIKH LAWATAN
-          </p>
-          <p class="font-bold text-gray-900">${travelStart}${travelEnd && travelEnd !== travelStart ? ' - ' + travelEnd : ''}</p>
-        </div>
-        ${placeVisit ? `
-          <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200 md:col-span-2">
-            <p class="text-xs font-semibold text-gray-600 mb-1 flex items-center gap-1">
-              <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-              </svg>
-              DESTINASI
-            </p>
-            <p class="font-bold text-gray-900">${placeVisit}</p>
-          </div>
-        ` : ''}
-        ${participantCount || vehicleCount ? `
-          <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
-            <p class="text-xs font-semibold text-gray-600 mb-1">👥 BILANGAN PESERTA</p>
-            <p class="font-bold text-gray-900">${participantCount || '-'} orang</p>
-          </div>
-          <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
-            <p class="text-xs font-semibold text-gray-600 mb-1">🚐 BILANGAN KENDERAAN</p>
-            <p class="font-bold text-gray-900">${vehicleCount || '-'} buah</p>
-          </div>
-        ` : ''}
-      </div>
-      
-      <!-- Status Description -->
-      <div class="bg-gradient-to-r from-gray-100 to-gray-50 -mx-5 px-5 py-4 ${querySection || notesSection || letterSection ? '' : '-mb-5 rounded-b-xl'} border-t-2 border-gray-200">
-        <div class="flex items-start gap-2">
-          <svg class="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-          </svg>
-          <p class="text-sm text-gray-700 leading-relaxed font-medium">${statusConfig.description}</p>
-        </div>
-      </div>
-      
-      <!-- Dynamic Sections -->
-      ${querySection}
-      ${notesSection}
-      ${letterSection}
-    </div>
-  `;
-}
+  <!-- ========== JAVASCRIPT MODULES - MODULAR ARCHITECTURE ========== -->
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
-function getStatusConfig(status) {
-  const s = String(status || '').toUpperCase();
+  <!-- Load modular JS files in correct order -->
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/forms.js"></script>
+  <script src="js/officer.js"></script>
+  <script src="js/ppd.js"></script>
+  <script src="js/deputy.js"></script>
+  <script src="js/status.js"></script>
+  <script src="js/main.js"></script>
   
-  if (s.includes('FINAL_APPROVED')) {
-    return {
-      label: 'DILULUSKAN',
-      icon: '✅',
-      badgeClass: 'bg-green-100 text-green-800',
-      borderColor: 'border-green-500',
-      description: 'Permohonan anda telah diluluskan. Sila muat turun surat kelulusan di atas.'
-    };
-  }
-  
-  if (s.includes('REVIEWED_FOR_TP') || s.includes('READY_FOR_DP') || s.includes('PREAPPROVED')) {
-    return {
-      label: 'DALAM PROSES (Menunggu Timbalan)',
-      icon: '⏳',
-      badgeClass: 'bg-blue-100 text-blue-800',
-      borderColor: 'border-blue-500',
-      description: 'Permohonan telah disemak oleh pegawai dan sedang menunggu kelulusan Timbalan Pengarah.'
-    };
-  }
-  
-  if (s.includes('QUERY_RESPONDED')) {
-    return {
-      label: 'QUERY DIJAWAB',
-      icon: '💬',
-      badgeClass: 'bg-purple-100 text-purple-800',
-      borderColor: 'border-purple-500',
-      description: 'Respon query telah diterima dan sedang disemak oleh pegawai.'
-    };
-  }
-  
-  if (s.includes('QUERY')) {
-    return {
-      label: 'MAKLUMAT TAMBAHAN DIPERLUKAN',
-      icon: '❓',
-      badgeClass: 'bg-yellow-100 text-yellow-800',
-      borderColor: 'border-yellow-500',
-      description: 'Pegawai memerlukan maklumat tambahan. Sila hantar respon query secepat mungkin.'
-    };
-  }
-  
-  if (s.includes('NEW')) {
-    return {
-      label: 'BARU',
-      icon: '🆕',
-      badgeClass: 'bg-gray-100 text-gray-800',
-      borderColor: 'border-gray-400',
-      description: 'Permohonan telah diterima dan sedang menunggu semakan pegawai.'
-    };
-  }
-  
-  return {
-    label: status || 'TIDAK DIKETAHUI',
-    icon: '❔',
-    badgeClass: 'bg-gray-100 text-gray-600',
-    borderColor: 'border-gray-300',
-    description: 'Status permohonan.'
-  };
-}
-
-function goToQueryResponse(queryId) {
-  // Hide all sections
-  hideAllSections();
-  
-  // Show query response section
-  $('queryResponseSection').classList.remove('hidden');
-  setActiveTab('tabQueryResponseBtn');
-  
-  // Auto-fill query ID
-  if (queryId) {
-    $('respQueryId').value = queryId;
-    
-    // Smooth scroll to form
-    setTimeout(() => {
-      $('respQueryId').scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center' 
-      });
-      
-      // Highlight with animation
-      $('respQueryId').classList.add('ring-4', 'ring-yellow-300', 'ring-opacity-50');
-      
-      // Show helpful alert
-      Swal.fire({
-        icon: 'info',
-        title: 'Sila Hantar Respon',
-        html: `
-          <p class="text-sm text-gray-700 mb-2">
-            Query ID <code class="bg-yellow-100 px-2 py-1 rounded font-mono">${queryId}</code> telah diisi.
-          </p>
-          <p class="text-sm text-gray-600">
-            Sila muat naik fail yang diminta dan hantar respon anda.
-          </p>
-        `,
-        confirmButtonText: 'Faham',
-        timer: 5000,
-        timerProgressBar: true
-      });
-      
-      // Remove highlight after 3 seconds
-      setTimeout(() => {
-        $('respQueryId').classList.remove('ring-4', 'ring-yellow-300', 'ring-opacity-50');
-      }, 3000);
-    }, 300);
-  }
-}
-console.log('LAWATAN MURID SAMBIL BELAJAR - Portal Loaded. Version 1.1');
-</script>
-</body>
-
-</html>
-
-
-
-
-
+  </body>
+  </html>
