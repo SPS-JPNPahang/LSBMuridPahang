@@ -87,29 +87,11 @@ async function annotatePdfAndUpload({
         height: scaled.height,
         opacity: 0.95
       });
-
-      // === TEKS COP - ATAS IMEJ ===
-      p.drawText(text, {
-        x: width - textWidth - marginRight,
-        y: marginBottom + scaled.height + 10,  // Atas imej sikit
-        size: fontSize,
-        font: helv,
-        color: PDFLib.rgb(0.85, 0.1, 0.1),
-        opacity: 0.95
-      });
-    } else {
-      // Kalau takde imej, teks je
-      p.drawText(text, {
-        x: width - textWidth - marginRight,
-        y: marginBottom,
-        size: fontSize,
-        font: helv,
-        color: PDFLib.rgb(0.85, 0.1, 0.1),
-        opacity: 0.95
-      });
+    } else if (stampImageFile) {
+      // Cop file ada tapi embed gagal
+      console.warn('Cop gagal di-embed pada page ' + (i+1));
     }
-  }
-
+}
   const modifiedBytes = await pdfDoc.save();
 
   let binary = '';
@@ -287,3 +269,4 @@ function getYearFromDate(d) {
   if (isNaN(x)) return '';
   return String(x.getFullYear());
 }
+
