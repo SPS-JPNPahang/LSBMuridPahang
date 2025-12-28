@@ -445,20 +445,23 @@
               <div>
                 <label class="block font-semibold mb-1">
                   Kertas Kerja/Cadangan <span class="text-red-500">*</span>
-                  <span class="tooltip-icon" onclick="showTooltip('INFO AKAN DIUPDATE')">ℹ️</span>
+                  <span class="tooltip-icon" onclick="showTooltip('Pastikan menggunakan format terkini di muat turun.')">ℹ️</span>
                 </label>
                 <input id="file_kertasKerja" type="file" accept="application/pdf" required class="w-full border p-2 rounded">
               </div>
               
               <div>
-                <label class="block font-semibold mb-1">Lampiran A <span class="text-red-500">*</span></label>
+                <label class="block font-semibold mb-1">
+                  Lampiran A <span class="text-red-500">*</span>
+                  <span class="tooltip-icon" onclick="showTooltip('Pastikan format asal tidak berubah, jika tidak berkenaan tidak perlu isi')">ℹ️</span>
+                </label>
                 <input id="file_maklumatAnggota" type="file" accept="application/pdf" required class="w-full border p-2 rounded">
               </div>
               
               <div>
                 <label class="block font-semibold mb-1">
                   Permit/Lesen Kenderaan <span class="text-red-500">*</span>
-                  <span class="tooltip-icon" onclick="showTooltip('INFO AKAN DIUPDATE')">ℹ️</span>
+                  <span class="tooltip-icon" onclick="showTooltip('Salinan yang di muat naik jelas & tidak tamat tempoh semasa tarikh lawatan ')">ℹ️</span>
                 </label>
                 <input id="file_permitBas" type="file" accept="application/pdf" required class="w-full border p-2 rounded">
               </div>
@@ -466,13 +469,16 @@
               <div>
                 <label class="block font-semibold mb-1">
                   Lesen Memandu & Vokasional <span class="text-red-500">*</span>
-                  <span class="tooltip-icon" onclick="showTooltip('INFO AKAN DIUPDATE')">ℹ️</span>
+                  <span class="tooltip-icon" onclick="showTooltip('Salinan yang di muat naik jelas & tidak tamat tempoh semasa tarikh lawatan')">ℹ️</span>
                 </label>
                 <input id="file_lesenPemandu" type="file" accept="application/pdf" required class="w-full border p-2 rounded">
               </div>
               
               <div>
-                <label class="block font-semibold mb-1">Intipati Taklimat Keselamatan <span class="text-red-500">*</span></label>
+                <label class="block font-semibold mb-1">
+                  Intipati Taklimat Keselamatan <span class="text-red-500">*</span>
+                  <span class="tooltip-icon" onclick="showTooltip('Tiada format khusus, isi kandungan taklimat mengikut keperluan lawatan')">ℹ️</span>
+                </label>
                 <input id="file_taklimat" type="file" accept="application/pdf" required class="w-full border p-2 rounded">
               </div>
             </div>
@@ -838,3 +844,4 @@
   
   </body>
   </html>
+
