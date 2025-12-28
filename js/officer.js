@@ -167,15 +167,16 @@ function renderTablesFromCache(){
       }
 
     });
-
-  // ===== MAKLUMAN BOX - JILID & BIL TERKINI =====
+ // ===== MAKLUMAN BOX - OUTSIDE ALL TABLES =====
   const latestLetter = getLatestLetterInfo(requestsCache || []);
   
   const existingMakluman = document.getElementById('maklumanBox');
   if (existingMakluman) existingMakluman.remove();
   
-  const tableNewContainer = $('tableNew');
-  if (tableNewContainer && tableNewContainer.parentElement) {
+  const contentDiv = document.getElementById('content');
+  const firstCollapsible = contentDiv?.querySelector('.collapse-header');
+  
+  if (contentDiv && firstCollapsible) {
     const maklumanBox = document.createElement('div');
     maklumanBox.id = 'maklumanBox';
     maklumanBox.className = 'bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r';
@@ -196,9 +197,8 @@ function renderTablesFromCache(){
       </div>
     `;
     
-    tableNewContainer.parentElement.insertBefore(maklumanBox, tableNewContainer);
+    contentDiv.insertBefore(maklumanBox, firstCollapsible);
   }
-
   $('tableNew').innerHTML = '';
   $('tableQuery').innerHTML = '';
   $('tableApproved').innerHTML = '';
