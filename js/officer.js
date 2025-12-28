@@ -180,7 +180,7 @@ function renderTablesFromCache(){
   const old = document.getElementById('maklumanBox');
   if (old) old.remove();
   box.id = 'maklumanBox';
-  $('tableNew').parentElement.insertBefore(box, $('tableNew'));
+ document.querySelector('.dashboard-container').insertBefore(box, document.querySelector('.filter-bar').nextSibling);
   
   if (newRows.length) $('tableNew').appendChild(makeTable(newRows, Object.keys(newRows[0])));
   if (queryRows.length) $('tableQuery').appendChild(makeTable(queryRows, Object.keys(queryRows[0])));
