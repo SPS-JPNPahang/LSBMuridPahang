@@ -167,42 +167,21 @@ function renderTablesFromCache(){
       }
 
     });
- // ===== MAKLUMAN BOX - OUTSIDE ALL TABLES =====
-  const latestLetter = getLatestLetterInfo(requestsCache || []);
-  
-  const existingMakluman = document.getElementById('maklumanBox');
-  if (existingMakluman) existingMakluman.remove();
-  
-  const contentDiv = document.getElementById('content');
-  const firstCollapsible = contentDiv?.querySelector('.collapse-header');
-  
-  if (contentDiv && firstCollapsible) {
-    const maklumanBox = document.createElement('div');
-    maklumanBox.id = 'maklumanBox';
-    maklumanBox.className = 'bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r';
-    maklumanBox.innerHTML = `
-      <div class="flex items-center">
-        <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-          </svg>
-        </div>
-        <div class="ml-3">
-          <p class="text-sm font-medium text-yellow-800">
-            <strong>MAKLUMAN:</strong> Surat Kelulusan Terkini 
-            <span class="font-bold">JILID ${latestLetter.jilid}</span> & 
-            <span class="font-bold">BIL ${latestLetter.bil}</span>
-          </p>
-        </div>
-      </div>
-    `;
-    
-    contentDiv.insertBefore(maklumanBox, firstCollapsible);
-  }
+
   $('tableNew').innerHTML = '';
   $('tableQuery').innerHTML = '';
   $('tableApproved').innerHTML = '';
-
+  
+// MAKLUMAN BOX
+  const latest = getLatestLetterInfo(requestsCache || []);
+  const box = document.createElement('div');
+  box.className = 'bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6';
+  box.innerHTML = `⚠️ <strong>MAKLUMAN:</strong> Surat Kelulusan Terkini <strong>JILID ${latest.jilid}</strong> & <strong>BIL ${latest.bil}</strong>`;
+  const old = document.getElementById('maklumanBox');
+  if (old) old.remove();
+  box.id = 'maklumanBox';
+  $('tableNew').parentElement.insertBefore(box, $('tableNew'));
+  
   if (newRows.length) $('tableNew').appendChild(makeTable(newRows, Object.keys(newRows[0])));
   if (queryRows.length) $('tableQuery').appendChild(makeTable(queryRows, Object.keys(queryRows[0])));
   if (approvedRows.length) $('tableApproved').appendChild(makeTable(approvedRows, Object.keys(approvedRows[0])));
