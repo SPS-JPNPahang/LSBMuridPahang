@@ -173,7 +173,7 @@ function renderTablesFromCache(){
   $('tableApproved').innerHTML = '';
   
 // MAKLUMAN BOX
-  const latest = getLatestLetterInfo(requestsCache || []);
+ const latest = getLatestLetterInfo((requestsCache || []).filter(r => String(r['Status'] || '').includes('FINAL_APPROVED')));
   const box = document.createElement('div');
   box.className = 'bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6';
   box.innerHTML = `⚠️ <strong>MAKLUMAN:</strong> Surat Kelulusan Terkini <strong>JILID ${latest.jilid}</strong> & <strong>BIL ${latest.bil}</strong>`;
