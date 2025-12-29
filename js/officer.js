@@ -172,20 +172,25 @@ function renderTablesFromCache(){
   $('tableQuery').innerHTML = '';
   $('tableApproved').innerHTML = '';
   
-// MAKLUMAN BOX
- const latest = getLatestLetterInfo((requestsCache || []).filter(r => String(r['Status'] || '').includes('FINAL_APPROVED')));
-  const box = document.createElement('div');
-  box.className = 'bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6';
-  box.innerHTML = `⚠️ <strong>MAKLUMAN:</strong> Surat Kelulusan Terkini <strong>JILID ${latest.jilid}</strong> & <strong>BIL ${latest.bil}</strong>`;
-  const old = document.getElementById('maklumanBox');
-  if (old) old.remove();
-  box.id = 'maklumanBox';
- document.querySelector('.dashboard-container').insertBefore(box, document.querySelector('.filter-bar').nextElementSibling);
-  
   if (newRows.length) $('tableNew').appendChild(makeTable(newRows, Object.keys(newRows[0])));
   if (queryRows.length) $('tableQuery').appendChild(makeTable(queryRows, Object.keys(queryRows[0])));
   if (approvedRows.length) $('tableApproved').appendChild(makeTable(approvedRows, Object.keys(approvedRows[0])));
 
+// MAKLUMAN FOOTER
+  const latest = getLatestLetterInfo((requestsCache || []).filter(r => String(r['Status'] || '').includes('FINAL_APPROVED')));
+  const oldFooter = document.getElementById('maklumanFooter');
+  if (oldFooter) oldFooter.remove();
+  
+  const footer = document.createElement('div');
+  footer.id = 'maklumanFooter';
+  footer.className = 'mt-4 p-3 bg-yellow-50 border-t-2 border-yellow-400 text-center text-sm text-yellow-800';
+  footer.innerHTML = `⚠️ <strong>MAKLUMAN:</strong> Surat Kelulusan Terkini <strong>JILID ${latest.jilid}</strong> & <strong>BIL ${latest.bil}</strong>`;
+  
+  const tableApproved = $('tableApproved');
+  if (tableApproved && tableApproved.parentElement) {
+    tableApproved.parentElement.appendChild(footer);
+  }
+  
   // ===== UPDATE COUNTER =====
   $('countNew').textContent = newRows.length;
   $('countQuery').textContent = queryRows.length;
